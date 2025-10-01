@@ -106,15 +106,36 @@ All colors MUST be HSL.
     @apply border-border;
   }
 
+  html {
+    direction: rtl !important;
+  }
+
   body {
     @apply bg-background text-foreground;
-    direction: rtl;
+    direction: rtl !important;
     text-align: right;
+  }
+  
+  #root {
+    direction: rtl !important;
   }
   
   /* Fix for icons and English text */
   [dir="ltr"] {
     direction: ltr;
     text-align: left;
+  }
+  
+  /* RTL Flexbox fixes */
+  .flex {
+    direction: rtl;
+  }
+  
+  /* Numbers should be LTR */
+  input[type="number"],
+  input[type="tel"],
+  .ltr {
+    direction: ltr !important;
+    text-align: left !important;
   }
 }

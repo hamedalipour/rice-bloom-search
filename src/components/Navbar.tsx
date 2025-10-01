@@ -18,7 +18,7 @@ const Navbar = () => {
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center gap-6">
+          <div className="hidden md:flex items-center gap-6" dir="rtl">
             <Link to="/" className="text-foreground hover:text-primary transition-colors">
               خانه
             </Link>
@@ -40,7 +40,7 @@ const Navbar = () => {
           <div className="flex items-center gap-4">
             <Button variant="ghost" size="icon" className="relative">
               <ShoppingCart className="h-5 w-5" />
-              <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs rounded-full h-5 w-5 flex items-center justify-center">
+              <span className="absolute -top-1 -left-1 bg-primary text-primary-foreground text-xs rounded-full h-5 w-5 flex items-center justify-center">
                 0
               </span>
             </Button>
