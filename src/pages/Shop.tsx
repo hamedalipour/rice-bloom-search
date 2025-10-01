@@ -3,7 +3,7 @@ import { useSearchParams } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ProductCard from "@/components/ProductCard";
-import { products, categories } from "@/data/products";
+import { useProducts } from "@/hooks/useProducts";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -17,11 +17,18 @@ import { Slider } from "@/components/ui/slider";
 
 const Shop = () => {
   const [searchParams, setSearchParams] = useSearchParams();
+  const { products } = useProducts();
   const categoryFromUrl = searchParams.get("category");
   
   const [selectedCategory, setSelectedCategory] = useState<string>(categoryFromUrl || "all");
   const [sortBy, setSortBy] = useState("default");
   const [priceRange, setPriceRange] = useState([0, 400000]);
+
+  // Generate categories from products
+  const categories = useMemo(() => {
+    const uniqueCategories = [...new Set(products.map(p => p.category))];
+    return uniqueCategories.map(cat => ({ name: cat, slug: cat.toLowerCase() }));
+  }, [products]);
 
   const filteredProducts = useMemo(() => {
     let filtered = [...products];
@@ -43,15 +50,15 @@ const Shop = () => {
         filtered.sort((a, b) => b.price - a.price);
         break;
       case "rating":
-        filtered.sort((a, b) => b.rating - a.rating);
+        filtered.sort((a, b) => (b.rating || 0) - (a.rating || 0));
         break;
       case "popular":
-        filtered.sort((a, b) => b.reviewCount - a.reviewCount);
+        filtered.sort((a, b) => (b.review_count || 0) - (a.review_count || 0));
         break;
     }
 
     return filtered;
-  }, [selectedCategory, sortBy, priceRange]);
+  }, [products, selectedCategory, sortBy, priceRange]);
 
   const handleCategoryChange = (category: string) => {
     setSelectedCategory(category);

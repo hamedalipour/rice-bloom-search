@@ -1,12 +1,12 @@
-import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ArrowRight, CheckCircle2, Star, TrendingUp } from "lucide-react";
+import { Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ProductCard from "@/components/ProductCard";
-import { products } from "@/data/products";
-import { blogPosts } from "@/data/blogPosts";
+import { useProducts } from "@/hooks/useProducts";
+import { useBlogPosts } from "@/hooks/useBlogPosts";
 import heroImage from "@/assets/hero-rice-field.jpg";
 import taromImage from "@/assets/rice-tarom.jpg";
 import hashemiImage from "@/assets/rice-hashemi.jpg";
@@ -14,6 +14,9 @@ import fajrImage from "@/assets/rice-fajr.jpg";
 import shirudiImage from "@/assets/rice-shirudi.jpg";
 
 const Home = () => {
+  const { products } = useProducts();
+  const { blogPosts } = useBlogPosts();
+  
   const featuredProducts = products.slice(0, 4);
   const latestPosts = blogPosts.slice(0, 3);
 
@@ -204,7 +207,7 @@ const Home = () => {
                     </div>
                     <CardContent className="p-6">
                       <div className="text-sm text-muted-foreground mb-2">
-                        {post.category} • {post.readTime}
+                        {post.category} • {post.read_time}
                       </div>
                       <h3 className="text-xl font-bold mb-3 text-foreground hover:text-primary transition-colors line-clamp-2">
                         {post.title}

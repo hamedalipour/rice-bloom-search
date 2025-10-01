@@ -1,8 +1,9 @@
+import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
-import { useState } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { products } from "@/data/products";
+import { useProducts } from "@/hooks/useProducts";
+import { useCart } from "@/contexts/CartContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -19,9 +20,38 @@ import ProductCard from "@/components/ProductCard";
 
 const ProductDetail = () => {
   const { slug } = useParams();
-  const product = products.find((p) => p.slug === slug);
+  const { products, getProductBySlug } = useProducts();
+  const [product, setProduct] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [selectedWeight, setSelectedWeight] = useState(0);
   const [quantity, setQuantity] = useState(1);
+  const { addItem, isInCart, getCartItemQuantity } = useCart();
+
+  useEffect(() => {
+    const fetchProduct = async () => {
+      if (slug) {
+        setLoading(true);
+        const { data } = await getProductBySlug(slug);
+        setProduct(data);
+        setLoading(false);
+      }
+    };
+    fetchProduct();
+  }, [slug, getProductBySlug]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Navbar />
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-center">
+            <h1 className="text-2xl font-bold mb-4">در حال بارگذاری...</h1>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
 
   if (!product) {
     return (
@@ -41,18 +71,30 @@ const ProductDetail = () => {
   }
 
   const relatedProducts = products.filter(
-    (p) => p.category === product.category && p.id !== product.id
-  );
+    (p) => p.category === product?.category && p.id !== product?.id
+  ).slice(0, 4);
 
-  const selectedPrice = product.weights[selectedWeight].price;
-  const discount = product.originalPrice
-    ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
+  const weights = Array.isArray(product.weights) ? product.weights : [];
+  const features = Array.isArray(product.features) ? product.features : [];
+  const selectedPrice = weights[selectedWeight]?.price || product.price || 0;
+  const discount = product?.original_price
+    ? Math.round(((product.original_price - product.price) / product.original_price) * 100)
     : 0;
 
   const handleAddToCart = () => {
-    toast.success("محصول به سبد خرید اضافه شد", {
-      description: `${product.name} - ${product.weights[selectedWeight].value}`,
-    });
+    if (!product) return;
+    
+    const selectedWeightData = weights[selectedWeight] || { value: "پیش‌فرض", price: product.price };
+    
+    addItem({
+      id: product.id,
+      name: product.name,
+      slug: product.slug,
+      image: product.image,
+      price: selectedWeightData.price,
+      weight: selectedWeightData,
+      inStock: product.in_stock,
+    }, quantity);
   };
 
   return (
@@ -106,7 +148,7 @@ const ProductDetail = () => {
                       <Star
                         key={i}
                         className={`h-5 w-5 ${
-                          i < Math.floor(product.rating)
+                          i < Math.floor(product.rating || 0)
                             ? "fill-primary text-primary"
                             : "text-muted"
                         }`}
@@ -115,15 +157,15 @@ const ProductDetail = () => {
                   </div>
                   <span className="text-foreground font-medium">{product.rating}</span>
                   <span className="text-muted-foreground">
-                    ({product.reviewCount} نظر)
+                    ({product.review_count} نظر)
                   </span>
                 </div>
 
                 {/* Price */}
                 <div className="mb-6 p-6 bg-muted/50 rounded-lg">
-                  {product.originalPrice && (
+                  {product.original_price && (
                     <span className="text-xl text-muted-foreground line-through block mb-2">
-                      {product.originalPrice.toLocaleString('fa-IR')} تومان
+                      {product.original_price.toLocaleString('fa-IR')} تومان
                     </span>
                   )}
                   <span className="text-3xl font-bold text-primary">
@@ -133,7 +175,7 @@ const ProductDetail = () => {
 
                 {/* Description */}
                 <p className="text-muted-foreground text-lg mb-6 leading-relaxed">
-                  {product.longDescription}
+                  {product.long_description}
                 </p>
 
                 {/* Origin */}
@@ -143,78 +185,95 @@ const ProductDetail = () => {
                 </div>
 
                 {/* Features */}
-                <div className="mb-6">
-                  <h3 className="font-bold text-lg mb-3 text-foreground">ویژگی‌ها:</h3>
-                  <ul className="space-y-2">
-                    {product.features.map((feature, index) => (
-                      <li key={index} className="flex items-center gap-2 text-muted-foreground">
-                        <CheckCircle2 className="h-5 w-5 text-primary flex-shrink-0" />
-                        <span>{feature}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+                {features.length > 0 && (
+                  <div className="mb-6">
+                    <h3 className="font-bold text-lg mb-3 text-foreground">ویژگی‌ها:</h3>
+                    <ul className="space-y-2">
+                      {features.map((feature, index) => (
+                        <li key={index} className="flex items-center gap-2 text-muted-foreground">
+                          <CheckCircle2 className="h-5 w-5 text-primary flex-shrink-0" />
+                          <span>{feature}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
 
                 {/* Weight Selection */}
-                <div className="mb-6">
-                  <h3 className="font-bold text-lg mb-3 text-foreground">انتخاب وزن:</h3>
-                  <Select
-                    value={selectedWeight.toString()}
-                    onValueChange={(value) => setSelectedWeight(parseInt(value))}
-                  >
-                    <SelectTrigger className="w-full">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {product.weights.map((weight, index) => (
-                        <SelectItem key={index} value={index.toString()}>
-                          {weight.value} - {weight.price.toLocaleString('fa-IR')} تومان
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+                {weights.length > 0 && (
+                  <div className="mb-6">
+                    <h3 className="font-bold text-lg mb-3 text-foreground">انتخاب وزن:</h3>
+                    <Select
+                      value={selectedWeight.toString()}
+                      onValueChange={(value) => setSelectedWeight(parseInt(value))}
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {weights.map((weight, index) => (
+                          <SelectItem key={index} value={index.toString()}>
+                            {weight.value} - {weight.price.toLocaleString('fa-IR')} تومان
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
 
                 {/* Add to Cart */}
                 <Button
                   size="lg"
                   className="w-full gap-2 mb-6"
                   onClick={handleAddToCart}
-                  disabled={!product.inStock}
+                  disabled={!product.in_stock}
                 >
                   <ShoppingCart className="h-5 w-5" />
-                  {product.inStock ? "افزودن به سبد خرید" : "ناموجود"}
+                  {product.in_stock ? (
+                    isInCart(product.id, weights[selectedWeight]?.value) 
+                      ? `در سبد (${getCartItemQuantity(product.id, weights[selectedWeight]?.value)})` 
+                      : "افزودن به سبد خرید"
+                  ) : (
+                    "ناموجود"
+                  )}
                 </Button>
 
-                {/* Trust Badges */}
-                <div className="grid grid-cols-3 gap-4">
-                  <Card className="border-border">
-                    <CardContent className="p-4 text-center">
-                      <Truck className="h-6 w-6 text-primary mx-auto mb-2" />
-                      <p className="text-xs text-muted-foreground">ارسال رایگان</p>
-                    </CardContent>
-                  </Card>
-                  <Card className="border-border">
-                    <CardContent className="p-4 text-center">
-                      <Shield className="h-6 w-6 text-primary mx-auto mb-2" />
-                      <p className="text-xs text-muted-foreground">ضمانت اصالت</p>
-                    </CardContent>
-                  </Card>
-                  <Card className="border-border">
-                    <CardContent className="p-4 text-center">
-                      <CheckCircle2 className="h-6 w-6 text-primary mx-auto mb-2" />
-                      <p className="text-xs text-muted-foreground">کیفیت تضمینی</p>
-                    </CardContent>
-                  </Card>
+                {/* Features */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="flex items-center gap-3 p-4 border border-border rounded-lg">
+                    <Truck className="h-6 w-6 text-primary" />
+                    <div>
+                      <p className="font-semibold text-foreground">ارسال رایگان</p>
+                      <p className="text-sm text-muted-foreground">برای خرید بالای ۲۰۰ هزار تومان</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center gap-3 p-4 border border-border rounded-lg">
+                    <Shield className="h-6 w-6 text-primary" />
+                    <div>
+                      <p className="font-semibold text-foreground">ضمانت کیفیت</p>
+                      <p className="text-sm text-muted-foreground">ضمانت بازگشت ۷ روزه</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center gap-3 p-4 border border-border rounded-lg">
+                    <CheckCircle2 className="h-6 w-6 text-primary" />
+                    <div>
+                      <p className="font-semibold text-foreground">اصالت محصول</p>
+                      <p className="text-sm text-muted-foreground">۱۰۰٪ اصل و مرغوب</p>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
 
             {/* Related Products */}
             {relatedProducts.length > 0 && (
-              <div>
+              <section>
                 <div className="flex items-center justify-between mb-8">
-                  <h2 className="text-3xl font-bold text-foreground">محصولات مشابه</h2>
+                  <h2 className="text-2xl md:text-3xl font-bold text-foreground">
+                    محصولات مشابه
+                  </h2>
                   <Button asChild variant="outline">
                     <Link to="/shop">
                       مشاهده همه
@@ -222,12 +281,12 @@ const ProductDetail = () => {
                     </Link>
                   </Button>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                  {relatedProducts.slice(0, 4).map((relatedProduct) => (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                  {relatedProducts.map((relatedProduct) => (
                     <ProductCard key={relatedProduct.id} product={relatedProduct} />
                   ))}
                 </div>
-              </div>
+              </section>
             )}
           </div>
         </section>

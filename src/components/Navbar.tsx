@@ -1,10 +1,24 @@
 import { Link } from "react-router-dom";
-import { ShoppingCart, Menu, X } from "lucide-react";
+import { ShoppingCart, Menu, X, User, LogOut, Minus, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Badge } from "@/components/ui/badge";
 import { useState } from "react";
+import { useAuth } from "@/contexts/AuthContext";
+import { useAuthOperations } from "@/hooks/useAuthOperations";
+import { useCart } from "@/contexts/CartContext";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { user } = useAuth();
+  const { handleSignOut } = useAuthOperations();
+  const { items, itemCount, totalPrice, updateQuantity, removeItem } = useCart();
 
   return (
     <nav className="sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border">
@@ -36,14 +50,135 @@ const Navbar = () => {
             </Link>
           </div>
 
-          {/* Cart Button */}
+          {/* Cart and Auth Buttons */}
           <div className="flex items-center gap-4">
-            <Button variant="ghost" size="icon" className="relative">
-              <ShoppingCart className="h-5 w-5" />
-              <span className="absolute -top-1 -left-1 bg-primary text-primary-foreground text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                0
-              </span>
-            </Button>
+            {/* Shopping Cart Dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="relative">
+                  <ShoppingCart className="h-5 w-5" />
+                  {itemCount > 0 && (
+                    <Badge className="absolute -top-1 -left-1 bg-primary text-primary-foreground text-xs rounded-full h-5 w-5 flex items-center justify-center p-0">
+                      {itemCount}
+                    </Badge>
+                  )}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-80">
+                {items.length === 0 ? (
+                  <DropdownMenuItem className="text-center py-6 text-muted-foreground">
+                    سبد خرید خالی است
+                  </DropdownMenuItem>
+                ) : (
+                  <>
+                    <div className="p-2">
+                      <h3 className="font-semibold mb-3">سبد خرید</h3>
+                      <div className="space-y-3 max-h-60 overflow-y-auto">
+                        {items.map((item) => (
+                          <div key={`${item.id}-${item.weight?.value || 'default'}`} className="flex items-center gap-3 p-2 border rounded-lg">
+                            <img 
+                              src={item.image} 
+                              alt={item.name} 
+                              className="w-12 h-12 object-cover rounded"
+                            />
+                            <div className="flex-1 min-w-0">
+                              <h4 className="font-medium text-sm truncate">{item.name}</h4>
+                              {item.weight && (
+                                <p className="text-xs text-muted-foreground">{item.weight.value}</p>
+                              )}
+                              <p className="text-sm font-semibold text-primary">
+                                {item.price.toLocaleString('fa-IR')} تومان
+                              </p>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <Button 
+                                size="icon" 
+                                variant="outline" 
+                                className="h-6 w-6"
+                                onClick={() => updateQuantity(item.id, item.quantity - 1, item.weight?.value)}
+                              >
+                                <Minus className="h-3 w-3" />
+                              </Button>
+                              <span className="mx-2 text-sm min-w-[20px] text-center">{item.quantity}</span>
+                              <Button 
+                                size="icon" 
+                                variant="outline" 
+                                className="h-6 w-6"
+                                onClick={() => updateQuantity(item.id, item.quantity + 1, item.weight?.value)}
+                              >
+                                <Plus className="h-3 w-3" />
+                              </Button>
+                              <Button 
+                                size="icon" 
+                                variant="outline" 
+                                className="h-6 w-6 ml-1"
+                                onClick={() => removeItem(item.id, item.weight?.value)}
+                              >
+                                <Trash2 className="h-3 w-3" />
+                              </Button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    <DropdownMenuSeparator />
+                    <div className="p-3">
+                      <div className="flex justify-between items-center mb-3">
+                        <span className="font-semibold">مجموع:</span>
+                        <span className="font-bold text-primary">
+                          {totalPrice.toLocaleString('fa-IR')} تومان
+                        </span>
+                      </div>
+                      <Button className="w-full" size="sm" asChild>
+                        <Link to="/cart">
+                          مشاهده سبد خرید
+                        </Link>
+                      </Button>
+                    </div>
+                  </>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            {/* Authentication Buttons */}
+            {user ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon">
+                    <User className="h-5 w-5" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem className="font-medium">
+                    {user.user_metadata?.full_name || user.email}
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link to="/profile">
+                      <User className="mr-2 h-4 w-4" />
+                      پروفایل
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => handleSignOut()}>
+                    <LogOut className="mr-2 h-4 w-4" />
+                    خروج
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <div className="hidden md:flex items-center gap-2">
+                <Link to="/login">
+                  <Button variant="ghost" size="sm">
+                    ورود
+                  </Button>
+                </Link>
+                <Link to="/register">
+                  <Button size="sm">
+                    ثبت نام
+                  </Button>
+                </Link>
+              </div>
+            )}
 
             {/* Mobile Menu Button */}
             <Button
@@ -96,6 +231,40 @@ const Navbar = () => {
               >
                 تماس با ما
               </Link>
+              
+              {/* Mobile Auth Buttons */}
+              {user ? (
+                <div className="pt-4 border-t border-border">
+                  <p className="text-sm text-muted-foreground mb-2">
+                    {user.user_metadata?.full_name || user.email}
+                  </p>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => {
+                      handleSignOut();
+                      setIsMenuOpen(false);
+                    }}
+                    className="w-full"
+                  >
+                    <LogOut className="mr-2 h-4 w-4" />
+                    خروج
+                  </Button>
+                </div>
+              ) : (
+                <div className="pt-4 border-t border-border flex flex-col gap-2">
+                  <Link to="/login" onClick={() => setIsMenuOpen(false)}>
+                    <Button variant="outline" size="sm" className="w-full">
+                      ورود
+                    </Button>
+                  </Link>
+                  <Link to="/register" onClick={() => setIsMenuOpen(false)}>
+                    <Button size="sm" className="w-full">
+                      ثبت نام
+                    </Button>
+                  </Link>
+                </div>
+              )}
             </div>
           </div>
         )}
