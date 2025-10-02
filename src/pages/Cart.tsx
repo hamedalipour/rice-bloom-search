@@ -57,7 +57,7 @@ const Cart = () => {
                     >
                       <Link to={`/product/${item.slug}`}>
                         <img 
-                          src={item.image} 
+                          src={item.image_url} 
                           alt={item.name} 
                           className="w-20 h-20 object-cover rounded-lg"
                         />
@@ -164,8 +164,10 @@ const Cart = () => {
                     </div>
                   </div>
 
-                  <Button className="w-full" size="lg">
-                    ادامه فرآیند خرید
+                  <Button className="w-full" size="lg" asChild>
+                    <Link to="/checkout">
+                      ادامه فرآیند خرید
+                    </Link>
                   </Button>
 
                   <div className="text-center text-sm text-muted-foreground">

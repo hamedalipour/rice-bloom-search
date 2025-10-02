@@ -22,10 +22,13 @@ import Profile from "./pages/Profile";
 import AdminDashboard from "./pages/AdminDashboard";
 import ProductManagement from "./pages/ProductManagement";
 import BlogManagement from "./pages/BlogManagement";
+import OrderManagement from "./pages/OrderManagement";
 import NotFound from "./pages/NotFound";
 import AuthDebug from "./pages/AuthDebug";
 import AdminFix from "./pages/AdminFix";
 import EmergencyAdmin from "./pages/EmergencyAdmin";
+import Checkout from "./pages/Checkout";
+import OrderTest from "./pages/OrderTest";
 
 const queryClient = new QueryClient();
 
@@ -42,6 +45,7 @@ const App = () => (
               <Route path="/shop" element={<Shop />} />
               <Route path="/product/:slug" element={<ProductDetail />} />
               <Route path="/cart" element={<Cart />} />
+              <Route path="/checkout" element={<Checkout />} />
               <Route path="/blog" element={<Blog />} />
               <Route path="/blog/:slug" element={<BlogPost />} />
               <Route path="/about" element={<About />} />
@@ -51,6 +55,7 @@ const App = () => (
               <Route path="/debug" element={<AuthDebug />} />
               <Route path="/fix" element={<AdminFix />} />
               <Route path="/emergency" element={<EmergencyAdmin />} />
+              <Route path="/test-order" element={<OrderTest />} />
               <Route path="/profile" element={
                 <ProtectedRoute>
                   <Profile />
@@ -65,6 +70,7 @@ const App = () => (
                 <Route index element={<AdminDashboard />} />
                 <Route path="products" element={<ProductManagement />} />
                 <Route path="blog" element={<BlogManagement />} />
+                <Route path="orders" element={<OrderManagement />} />
                 {/* Catch invalid admin routes */}
                 <Route path="*" element={<NotFound />} />
               </Route>
