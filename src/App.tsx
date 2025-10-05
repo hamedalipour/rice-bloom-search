@@ -9,6 +9,8 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 import { AdminRoute } from "@/components/AdminRoute";
 import AdminLayout from "@/components/AdminLayout";
 import { testDatabaseConnection } from "@/utils/dbTest";
+import { testCurrentSetup } from "@/utils/testSetup";
+import { debugProductSave } from "@/utils/debugProductSave";
 import Home from "./pages/Home";
 import Shop from "./pages/Shop";
 import ProductDetail from "./pages/ProductDetail";

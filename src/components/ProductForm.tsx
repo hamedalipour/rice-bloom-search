@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import ImageUpload from '@/components/ImageUpload';
+import AssetSelector from '@/components/AssetSelector';
 import { X } from 'lucide-react';
 
 interface ProductFormProps {
@@ -62,23 +63,30 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, isOpen, onClose, mod
       alert('اسلاگ الزامی است');
       return;
     }
-    if (!formData.image_url.trim()) {
-      alert('تصویر محصول الزامی است');
+    if (!formData.price || formData.price <= 0) {
+      alert('قیمت باید بیشتر از صفر باشد');
       return;
+    }
+    
+    // Image is not required, but warn user
+    if (!formData.image_url.trim()) {
+      if (!confirm('هیچ تصویری انتخاب نشده. آیا مایل به ادامه هستید؟')) {
+        return;
+      }
     }
     
     try {
       const productData = {
         name: formData.name.trim(),
         slug: formData.slug.trim(),
-        category_id: formData.category_id.trim() || null,
+        category_id: formData.category_id.trim() || 'general',
         price: Number(formData.price),
         original_price: formData.original_price ? Number(formData.original_price) : null,
-        image_url: formData.image_url.trim(),
-        description: formData.description.trim() || null,
-        long_description: formData.long_description.trim() || null,
-        origin: formData.origin.trim() || null,
-        features: formData.features.filter(f => f.trim()),
+        image_url: formData.image_url.trim() || '',
+        description: formData.description.trim() || 'توضیحی ارائه نشده',
+        long_description: formData.long_description.trim() || 'توضیحات کامل ارائه نشده',
+        origin: formData.origin.trim() || 'نامشخص',
+        features: formData.features.filter(f => f.trim()).length > 0 ? formData.features.filter(f => f.trim()) : ['ویژگی خاصی ندارد'],
         weights: formData.weights.filter(w => w.value && w.price > 0),
         in_stock: formData.in_stock,
       };
@@ -94,7 +102,18 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, isOpen, onClose, mod
 
       if (result.error) {
         console.error('Error saving product:', result.error);
-        alert(`خطا در ذخیره محصول: ${result.error}`);
+        
+        // Provide more specific error messages
+        let errorMsg = result.error;
+        if (result.error.includes('duplicate key')) {
+          errorMsg = 'اسلاگ تکراری است. لطفاً اسلاگ دیگری انتخاب کنید';
+        } else if (result.error.includes('column') && result.error.includes('does not exist')) {
+          errorMsg = 'مشکل در ساختار پایگاه داده. لطفاً با مدیر سیستم تماس بگیرید';
+        } else if (result.error.includes('permission')) {
+          errorMsg = 'عدم دسترسی برای ذخیره محصول';
+        }
+        
+        alert(`خطا در ذخیره محصول: ${errorMsg}`);
         return;
       }
 
@@ -174,14 +193,23 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, isOpen, onClose, mod
           </div>
 
           <div>
-            <Label>دسته‌بندی</Label>
-            <Input
+            <Label>دسته‌بندی (اختیاری)</Label>
+            <select
+              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
               value={formData.category_id}
               onChange={(e) => setFormData(prev => ({ ...prev, category_id: e.target.value }))}
               disabled={mode === 'view'}
-              placeholder="نام دسته‌بندی را وارد کنید"
-              required
-            />
+            >
+              <option value="">دسته‌بندی را انتخاب کنید (اختیاری)</option>
+              <option value="hashemi">برنج هاشمی</option>
+              <option value="tarom">برنج طارم</option>
+              <option value="fajr">برنج فجر</option>
+              <option value="shirodi">برنج شیرودی</option>
+              <option value="general">عمومی</option>
+            </select>
+            <p className="text-xs text-gray-500 mt-1">
+              در حال حاضر دسته‌بندی در پایگاه داده ذخیره نمی‌شود و فقط برای نمایش است
+            </p>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
@@ -207,11 +235,106 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, isOpen, onClose, mod
           </div>
 
           <div>
-            <ImageUpload
-              value={formData.image_url}
-              onChange={(url) => setFormData(prev => ({ ...prev, image_url: url }))}
-              disabled={mode === 'view'}
-            />
+            <Label>تصویر محصول</Label>
+            <div className="space-y-4">
+              {/* Option 1: Upload new image */}
+              <div>
+                <Label className="text-sm font-medium">آپلود تصویر جدید</Label>
+                <p className="text-xs text-gray-500 mb-2">توجه: در حال حاضر آپلود به صورت موقت عمل می‌کند</p>
+                <ImageUpload
+                  value={formData.image_url}
+                  onChange={(url) => setFormData(prev => ({ ...prev, image_url: url }))}
+                  disabled={mode === 'view'}
+                />
+              </div>
+              
+              {/* Option 2: Select from assets */}
+              {mode !== 'view' && (
+                <div>
+                  <Label className="text-sm font-medium">یا انتخاب از تصاویر موجود (پیشنهادی)</Label>
+                  <p className="text-xs text-green-600 mb-2">بهترین گزینه برای تصاویر دائمی</p>
+                  <AssetSelector
+                    selectedImage={formData.image_url}
+                    onSelect={(imagePath) => setFormData(prev => ({ ...prev, image_url: imagePath }))}
+                  />
+                </div>
+              )}
+              
+              {/* Option 3: Enter URL manually */}
+              <div>
+                <Label className="text-sm font-medium">یا آدرس تصویر را وارد کنید</Label>
+                <Input
+                  value={formData.image_url}
+                  onChange={(e) => {
+                    const url = e.target.value;
+                    // Validate URL format
+                    if (url && !url.startsWith('http') && !url.startsWith('/') && !url.startsWith('blob:')) {
+                      console.warn('Invalid URL format:', url);
+                    }
+                    setFormData(prev => ({ ...prev, image_url: url }));
+                  }}
+                  disabled={mode === 'view'}
+                  placeholder="https://example.com/image.jpg"
+                />
+                {formData.image_url && formData.image_url.includes('drive.google.com') && (
+                  <p className="text-sm text-orange-600 mt-1">
+                    توجه: لینک Google Drive به صورت مستقیم کار نمی‌کند. لطفاً تصویر را آپلود کنید یا از پوشه Assets انتخاب کنید.
+                  </p>
+                )}
+              </div>
+              
+              {/* Preview */}
+              {formData.image_url && (
+                <div className="mt-4">
+                  <Label className="text-sm text-muted-foreground">پیش‌نمایش:</Label>
+                  <div className="mt-2 border rounded-lg p-4 bg-muted/50">
+                    <div className="w-32 h-32 mx-auto relative">
+                      <img
+                        src={formData.image_url}
+                        alt="پیش‌نمایش تصویر"
+                        className="w-full h-full object-cover rounded-md"
+                        onError={(e) => {
+                          console.error('Image failed to load:', formData.image_url);
+                          const target = e.currentTarget;
+                          target.style.display = 'none';
+                          
+                          // Show error message if not already shown
+                          const parent = target.parentElement;
+                          if (parent && !parent.querySelector('.error-message')) {
+                            const errorDiv = document.createElement('div');
+                            errorDiv.className = 'error-message w-full h-full flex items-center justify-center bg-gray-100 rounded-md border-2 border-dashed border-gray-300';
+                            errorDiv.innerHTML = `
+                              <div class="text-center text-gray-500">
+                                <svg class="mx-auto h-8 w-8 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.684-.833-2.464 0L4.35 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                                </svg>
+                                <p class="text-xs">خطا در بارگذاری تصویر</p>
+                                <p class="text-xs text-gray-400 mt-1">لطفاً آدرس صحیح وارد کنید</p>
+                              </div>
+                            `;
+                            parent.appendChild(errorDiv);
+                          }
+                        }}
+                        onLoad={(e) => {
+                          // Remove error message if image loads successfully
+                          const parent = (e.currentTarget as HTMLImageElement).parentElement;
+                          const errorMsg = parent?.querySelector('.error-message');
+                          if (errorMsg) {
+                            errorMsg.remove();
+                          }
+                        }}
+                      />
+                    </div>
+                    <p className="text-xs text-center text-gray-500 mt-2 break-all">
+                      {formData.image_url.length > 50 
+                        ? `${formData.image_url.substring(0, 50)}...` 
+                        : formData.image_url
+                      }
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
 
           <div>

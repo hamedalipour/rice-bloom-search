@@ -40,6 +40,7 @@ const AssetSelector: React.FC<AssetSelectorProps> = ({ onSelect, selectedImage }
   ];
 
   const handleSelect = (assetPath: string) => {
+    console.log('Asset selected:', assetPath);
     onSelect(assetPath);
     setIsOpen(false);
   };

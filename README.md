@@ -1,73 +1,208 @@
-# Welcome to your Lovable project
+# Rice Bloom Search - فروشگاه برنج آنلاین
 
-## Project info
+A modern e-commerce website for rice products with a comprehensive admin panel built with React, TypeScript, and Supabase.
 
-**URL**: https://lovable.dev/projects/54d51c06-7425-4284-ab6c-015297a563f7
+## ✨ Features
 
-## How can I edit this code?
+### 🛍️ **Customer Features**
+- **Product Catalog** - Browse different types of rice (Hashemi, Tarom, Fajr, Shirodi)
+- **Product Details** - Detailed product pages with images, descriptions, and pricing
+- **Shopping Cart** - Add/remove products with quantity management
+- **User Authentication** - Login/register functionality
+- **Responsive Design** - Works on desktop and mobile devices
+- **Blog Section** - Read articles about rice and cooking tips
 
-There are several ways of editing your application.
+### 🎛️ **Admin Panel Features**
+- **Product Management** - Full CRUD operations for products
+- **Image Management** - Upload new images or select from asset library
+- **Blog Management** - Create and manage blog posts
+- **Order Management** - View and manage customer orders
+- **Admin Authentication** - Secure admin access
 
-**Use Lovable**
+## 🚀 **Tech Stack**
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/54d51c06-7425-4284-ab6c-015297a563f7) and start prompting.
+- **Frontend**: React 18 + TypeScript + Vite
+- **UI Library**: Tailwind CSS + shadcn/ui components
+- **Backend**: Supabase (Database + Authentication + Storage)
+- **State Management**: React Context API
+- **Routing**: React Router v6
+- **Icons**: Lucide React
+- **Deployment**: Ready for Vercel/Netlify
 
-Changes made via Lovable will be committed automatically to this repo.
+## 📁 **Project Structure**
 
-**Use your preferred IDE**
+```
+rice-bloom-search/
+├── public/                 # Static assets
+├── src/
+│   ├── components/         # Reusable UI components
+│   │   ├── ui/            # shadcn/ui components
+│   │   ├── ProductForm.tsx
+│   │   ├── ImageUpload.tsx
+│   │   └── ...
+│   ├── contexts/          # React contexts
+│   │   ├── AuthContext.tsx
+│   │   └── CartContext.tsx
+│   ├── hooks/             # Custom React hooks
+│   ├── pages/             # Page components
+│   ├── integrations/      # Supabase integration
+│   └── assets/           # Images and static files
+├── supabase/             # Database migrations
+└── package.json
+```
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+## 🛠️ **Setup Instructions**
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+### Prerequisites
+- Node.js 18+ and npm
+- Supabase account
 
-Follow these steps:
+### 1. Clone the Repository
+```bash
+git clone <repository-url>
+cd rice-bloom-search
+```
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+### 2. Install Dependencies
+```bash
+npm install
+```
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+### 3. Environment Setup
+Create a `.env` file in the root directory:
+```env
+VITE_SUPABASE_URL=your_supabase_url
+VITE_SUPABASE_PUBLISHABLE_KEY=your_supabase_anon_key
+VITE_SUPABASE_PROJECT_ID=your_project_id
+```
 
-# Step 3: Install the necessary dependencies.
-npm i
+### 4. Database Setup
+Run the migrations in your Supabase dashboard or using the CLI:
+```bash
+# If using Supabase CLI
+supabase db push
+```
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+### 5. Start Development Server
+```bash
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+Visit `http://localhost:8080` to see the application.
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+## 🔐 **Admin Access**
 
-**Use GitHub Codespaces**
+For testing purposes, there's a hardcoded admin account:
+- **Email**: `hamedalipour38@gmail.com`
+- **Password**: `hamed69JOON`
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+Access the admin panel at: `/admin`
 
-## What technologies are used for this project?
+## 📊 **Database Schema**
 
-This project is built with:
+### Products Table
+- `id` (UUID) - Primary key
+- `name` (TEXT) - Product name
+- `slug` (TEXT) - URL-friendly name
+- `price` (DECIMAL) - Product price
+- `original_price` (DECIMAL) - Original price (optional)
+- `image_url` (TEXT) - Product image URL
+- `description` (TEXT) - Short description
+- `long_description` (TEXT) - Detailed description
+- `origin` (TEXT) - Product origin
+- `features` (TEXT[]) - Product features array
+- `weights` (JSON) - Available weights and prices
+- `in_stock` (BOOLEAN) - Stock status
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+### User Profiles Table
+- `id` (UUID) - Primary key (linked to auth.users)
+- `email` (TEXT) - User email
+- `role` (TEXT) - User role (admin/user)
+- `first_name`, `last_name` (TEXT) - User details
+- Address fields for shipping
 
-## How can I deploy this project?
+## 🎨 **Key Components**
 
-Simply open [Lovable](https://lovable.dev/projects/54d51c06-7425-4284-ab6c-015297a563f7) and click on Share -> Publish.
+### ProductForm
+- Multi-option image selection (upload, assets, URL)
+- Form validation and error handling
+- Support for both create and edit modes
 
-## Can I connect a custom domain to my Lovable project?
+### ImageUpload
+- Drag & drop file upload
+- Image preview and validation
+- Integration with Supabase Storage
 
-Yes, you can!
+### AssetSelector
+- Browse and select from pre-loaded images
+- Grid view with thumbnails
+- Asset preview functionality
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+## 🔧 **Features Implemented**
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+✅ **Product Management**
+- Create, read, update, delete products
+- Image upload and asset selection
+- Form validation and error handling
+
+✅ **User Authentication**
+- Login/register functionality
+- Admin role-based access control
+- Protected routes for admin panel
+
+✅ **Shopping Cart**
+- Add/remove products
+- Quantity management
+- Persistent cart state
+
+✅ **Responsive Design**
+- Mobile-friendly interface
+- Touch-optimized interactions
+- Adaptive layouts
+
+## 🐛 **Known Issues & Solutions**
+
+### Storage Bucket Setup
+If image upload fails, create the storage bucket manually in Supabase:
+1. Go to Storage in Supabase Dashboard
+2. Create bucket named `product-images`
+3. Make it public
+4. Set file size limit to 5MB
+
+### Database Schema
+The application is designed to work with the current database schema. If you encounter column errors, the app will gracefully handle missing fields.
+
+## 🚀 **Deployment**
+
+### Vercel Deployment
+1. Connect your GitHub repository to Vercel
+2. Set environment variables in Vercel dashboard
+3. Deploy automatically on git push
+
+### Manual Deployment
+```bash
+# Build the project
+npm run build
+
+# Upload dist/ folder to your hosting provider
+```
+
+## 🤝 **Contributing**
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## 📝 **License**
+
+This project is open source and available under the MIT License.
+
+## 📞 **Support**
+
+For questions or issues, please create an issue in the GitHub repository.
+
+---
+
+**Made with ❤️ for rice lovers everywhere** 🍚

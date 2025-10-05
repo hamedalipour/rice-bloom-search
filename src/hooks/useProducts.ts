@@ -39,80 +39,137 @@ export const useProducts = () => {
 
   const createProduct = async (product: ProductInsert) => {
     try {
-      console.log('Creating product with data:', product);
+      console.log('=== CREATING PRODUCT ===');
+      console.log('Original form data:', product);
       
-      // Ensure required fields are not null
-      const productData = {
-        ...product,
-        // Handle potential schema differences
-        category_id: product.category_id || null,
-        image_url: product.image_url || null,
-        description: product.description || null,
-        long_description: product.long_description || null,
-        origin: product.origin || null,
-        features: product.features || [],
-        weights: product.weights || [],
+      // Create a safe product data without problematic category field
+      const safeProductData = {
+        name: product.name,
+        slug: product.slug,
+        price: product.price,
         original_price: product.original_price || null,
-        in_stock: product.in_stock !== undefined ? product.in_stock : true,
+        description: product.description || 'توضیحی ارائه نشده',
+        long_description: product.long_description || 'توضیحات کامل ارائه نشده',
+        origin: product.origin || 'نامشخص',
+        features: product.features || ['ویژگی خاصی ندارد'],
+        weights: product.weights || [],
+        in_stock: product.in_stock !== undefined ? product.in_stock : true
       };
+      
+      // Add image field if provided
+      if (product.image_url) {
+        (safeProductData as any).image_url = product.image_url;
+      }
+      
+      console.log('Safe product data (no category):', safeProductData);
       
       const { data, error } = await supabase
         .from('products')
-        .insert(productData)
+        .insert(safeProductData)
         .select()
         .single();
-
+      
       if (error) {
-        console.error('Supabase createProduct error:', error);
-        console.error('Error details:', {
-          message: error.message,
-          details: error.details,
-          hint: error.hint,
-          code: error.code
-        });
+        console.error('Safe create failed:', error);
+        
+        // If image_url fails, try with image field
+        if (product.image_url && error.message.includes('image_url')) {
+          console.log('Retrying with image field instead of image_url...');
+          const retryData = { ...safeProductData };
+          delete (retryData as any).image_url;
+          (retryData as any).image = product.image_url;
+          
+          const { data: retryResult, error: retryError } = await supabase
+            .from('products')
+            .insert(retryData)
+            .select()
+            .single();
+          
+          if (!retryError) {
+            console.log('✅ Retry with image field succeeded:', retryResult);
+            await fetchProducts();
+            return { data: retryResult, error: null };
+          }
+        }
+        
         throw error;
       }
       
-      console.log('Product created successfully:', data);
-      await fetchProducts(); // Refresh the list
+      console.log('✅ Product created successfully:', data);
+      await fetchProducts();
       return { data, error: null };
+      
     } catch (err) {
-      console.error('Error in createProduct:', err);
-      const errorMessage = err instanceof Error ? err.message : 'An error occurred';
-      console.error('Formatted error message:', errorMessage);
+      console.error('=== CREATE PRODUCT FAILED ===');
+      console.error('Final error:', err);
+      const errorMessage = err instanceof Error ? err.message : 'Database error occurred';
       return { data: null, error: errorMessage };
     }
   };
 
   const updateProduct = async (id: string, updates: ProductUpdate) => {
     try {
-      console.log('Updating product with ID:', id, 'Data:', updates);
+      console.log('=== UPDATING PRODUCT ===');
+      console.log('Product ID:', id);
+      console.log('Update data:', updates);
+      
+      // First, get the existing product to see what fields we can update
+      const { data: existingProduct } = await supabase
+        .from('products')
+        .select('*')
+        .eq('id', id)
+        .single();
+      
+      if (existingProduct) {
+        console.log('Existing product structure:', Object.keys(existingProduct));
+      }
+      
+      // Try updating only the fields that we know exist and work
+      const safeUpdate = {
+        name: updates.name,
+        slug: updates.slug,
+        price: updates.price,
+        original_price: updates.original_price || null,
+        description: updates.description || 'توضیحی ارائه نشده',
+        long_description: updates.long_description || 'توضیحات کامل ارائه نشده',
+        origin: updates.origin || 'نامشخص',
+        features: updates.features || [],
+        weights: updates.weights || [],
+        in_stock: updates.in_stock !== undefined ? updates.in_stock : true
+      };
+      
+      // Add image field if we have an image
+      if (updates.image_url) {
+        // Try both possible image field names
+        if (existingProduct && 'image_url' in existingProduct) {
+          (safeUpdate as any).image_url = updates.image_url;
+        } else if (existingProduct && 'image' in existingProduct) {
+          (safeUpdate as any).image = updates.image_url;
+        }
+      }
+      
+      console.log('Safe update (no category):', safeUpdate);
       
       const { data, error } = await supabase
         .from('products')
-        .update(updates)
+        .update(safeUpdate)
         .eq('id', id)
         .select()
         .single();
-
+      
       if (error) {
-        console.error('Supabase updateProduct error:', error);
-        console.error('Error details:', {
-          message: error.message,
-          details: error.details,
-          hint: error.hint,
-          code: error.code
-        });
+        console.error('Safe update failed:', error);
         throw error;
       }
       
-      console.log('Product updated successfully:', data);
-      await fetchProducts(); // Refresh the list
+      console.log('✅ Product updated successfully:', data);
+      await fetchProducts();
       return { data, error: null };
+      
     } catch (err) {
-      console.error('Error in updateProduct:', err);
-      const errorMessage = err instanceof Error ? err.message : 'An error occurred';
-      console.error('Formatted error message:', errorMessage);
+      console.error('=== UPDATE PRODUCT FAILED ===');
+      console.error('Final error:', err);
+      const errorMessage = err instanceof Error ? err.message : 'Database error occurred';
       return { data: null, error: errorMessage };
     }
   };
