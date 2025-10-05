@@ -2,9 +2,21 @@
 
 ## Quick Deployment Settings
 
-### Build Command (Simple):
+### Build Command (Multiple Options):
+
+**Option 1 (Primary):**
 ```
-npm run build
+npm run build:safe
+```
+
+**Option 2 (Fallback):**
+```
+npm install --no-optional && npm run build
+```
+
+**Option 3 (Force):**
+```
+npm run build:force
 ```
 
 ### Install Command:
@@ -38,17 +50,17 @@ VITE_SUPABASE_PROJECT_ID=ssbeycbrkfpxqdzlzhwa
 
 ### Vercel:
 - Framework: Vite
-- Build Command: `npm run build`
+- Build Command: `npm run build:safe`
 - Output Directory: `dist`
 - Install Command: `npm install`
 
 ### Netlify:
-- Build Command: `npm run build`
+- Build Command: `npm run build:safe`
 - Publish Directory: `dist`
 - Package Manager: npm
 
 ### Cloudflare Pages:
-- Build Command: `npm run build`
+- Build Command: `npm run build:safe`
 - Build Output Directory: `dist`
 - Root Directory: `/`
 

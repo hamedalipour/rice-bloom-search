@@ -21,9 +21,14 @@ export default defineConfig(({ mode }) => ({
     minify: 'esbuild',
     target: 'esnext',
     rollupOptions: {
+      external: [],
       output: {
         manualChunks: undefined,
       },
     },
+  },
+  esbuild: {
+    target: 'esnext',
+    platform: 'browser',
   },
 }));
