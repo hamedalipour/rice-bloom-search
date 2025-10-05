@@ -39,49 +39,47 @@ const Cart = () => {
   return (
     <>
       <Navbar />
-      <div className="min-h-[calc(100vh-4rem)] bg-gradient-to-br from-green-50 to-green-100 py-12 px-4" dir="rtl">
-        <div className="container mx-auto max-w-4xl">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="min-h-[calc(100vh-3rem)] bg-gradient-to-br from-green-50 to-green-100 py-12 px-4" dir="rtl">
+        <div className="container mx-auto max-w-7xl">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
             {/* Cart Items */}
             <div className="lg:col-span-2">
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between">
-                  <CardTitle className="text-2xl font-bold">سبد خرید</CardTitle>
-                  <Badge variant="secondary">{items.length} محصول</Badge>
+              <Card className="shadow-xl border-2">
+                <CardHeader className="flex flex-row items-center justify-between p-7">
+                  <CardTitle className="text-3xl font-bold">سبد خرید</CardTitle>
+                  <Badge variant="secondary" className="text-lg px-4 py-2">{items.length} محصول</Badge>
                 </CardHeader>
-                <CardContent className="space-y-4">
+                <CardContent className="space-y-6 p-8">
                   {items.map((item) => (
                     <div 
                       key={`${item.id}-${item.weight?.value || 'default'}`} 
-                      className="flex items-center gap-4 p-4 border border-border rounded-lg bg-background"
+                      className="flex items-center gap-8 p-1 border-2 border-border rounded-xl bg-background shadow-lg hover:shadow-xl transition-shadow"
                     >
                       <Link to={`/product/${item.slug}`}>
                         <img 
                           src={item.image_url} 
                           alt={item.name} 
-                          className="w-20 h-20 object-cover rounded-lg"
+                          className="w-40 h-40 object-cover rounded-xl shadow-md"
                         />
                       </Link>
                       
-                      <div className="flex-1">
+                      <div className="flex-1 min-w-0">
                         <Link to={`/product/${item.slug}`}>
-                          <h3 className="font-semibold text-lg hover:text-primary transition-colors">
+                          <h3 className="font-semibold text-3x3 hover:text-primary transition-colors mb-3">
                             {item.name}
                           </h3>
                         </Link>
                         {item.weight && (
-                          <p className="text-sm text-muted-foreground mb-1">
+                          <p className="text-lg text-muted-foreground mb-3">
                             وزن: {item.weight.value}
                           </p>
                         )}
-                        <p className="text-lg font-bold text-primary">
-                          {item.price.toLocaleString('fa-IR')} تومان
-                        </p>
+
                       </div>
 
                       {/* Quantity Controls */}
                       <div className="flex items-center gap-3">
-                        <div className="flex items-center gap-2 border border-border rounded-lg p-1">
+                        <div className="flex items-center gap-1 border border-border rounded-lg p-1 bg-muted/30">
                           <Button 
                             size="icon" 
                             variant="ghost" 
@@ -90,7 +88,7 @@ const Cart = () => {
                           >
                             <Minus className="h-4 w-4" />
                           </Button>
-                          <span className="mx-3 text-lg font-medium min-w-[30px] text-center">
+                          <span className="mx-3 text-lg font-medium min-w-[40px] text-center">
                             {item.quantity}
                           </span>
                           <Button 
@@ -114,24 +112,24 @@ const Cart = () => {
                       </div>
 
                       {/* Item Total */}
-                      <div className="text-left">
-                        <p className="text-lg font-bold">
+                      <div className="text-left min-w-[150px]">
+                        <p className="text-2xl font-bold text-primary">
                           {(item.price * item.quantity).toLocaleString('fa-IR')} تومان
                         </p>
                       </div>
                     </div>
                   ))}
                   
-                  <div className="flex justify-between pt-4">
+                  <div className="flex justify-between pt-6">
                     <Button 
                       variant="outline" 
                       onClick={clearCart}
-                      className="gap-2"
+                      className="gap-3 text-lg px-6 py-3 h-12"
                     >
-                      <Trash2 className="h-4 w-4" />
+                      <Trash2 className="h-5 w-5" />
                       خالی کردن سبد
                     </Button>
-                    <Button variant="outline" asChild>
+                    <Button variant="outline" asChild className="text-lg px-6 py-3 h-12">
                       <Link to="/shop">ادامه خرید</Link>
                     </Button>
                   </div>
@@ -141,22 +139,22 @@ const Cart = () => {
 
             {/* Order Summary */}
             <div className="lg:col-span-1">
-              <Card className="sticky top-24">
-                <CardHeader>
-                  <CardTitle>خلاصه سفارش</CardTitle>
+              <Card className="sticky top-24 shadow-xl border-2">
+                <CardHeader className="p-8">
+                  <CardTitle className="text-2xl font-bold">خلاصه سفارش</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-sm">
+                <CardContent className="space-y-6 p-8">
+                  <div className="space-y-4">
+                    <div className="flex justify-between text-lg">
                       <span>جمع محصولات:</span>
-                      <span>{totalPrice.toLocaleString('fa-IR')} تومان</span>
+                      <span className="font-semibold">{totalPrice.toLocaleString('fa-IR')} تومان</span>
                     </div>
-                    <div className="flex justify-between text-sm">
+                    <div className="flex justify-between text-lg">
                       <span>هزینه ارسال:</span>
-                      <span className="text-green-600">رایگان</span>
+                      <span className="text-green-600 font-semibold">رایگان</span>
                     </div>
-                    <hr className="my-2" />
-                    <div className="flex justify-between text-lg font-bold">
+                    <hr className="my-4 border-2" />
+                    <div className="flex justify-between text-2xl font-bold bg-primary/10 p-4 rounded-lg">
                       <span>مجموع:</span>
                       <span className="text-primary">
                         {totalPrice.toLocaleString('fa-IR')} تومان
@@ -164,17 +162,11 @@ const Cart = () => {
                     </div>
                   </div>
 
-                  <Button className="w-full" size="lg" asChild>
+                  <Button className="w-full text-lg py-6 h-14" size="lg" asChild>
                     <Link to="/checkout">
                       ادامه فرآیند خرید
                     </Link>
                   </Button>
-
-                  <div className="text-center text-sm text-muted-foreground">
-                    <p>✓ ارسال رایگان برای سفارش‌های بالای ۵۰۰ هزار تومان</p>
-                    <p>✓ ضمانت اصالت و کیفیت</p>
-                    <p>✓ امکان بازگشت تا ۷ روز</p>
-                  </div>
                 </CardContent>
               </Card>
             </div>

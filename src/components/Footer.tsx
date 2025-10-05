@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { Phone, Mail, MapPin } from "lucide-react";
+import faviconImage from "@/assets/favicon.png";
 
 const Footer = () => {
   return (
@@ -8,7 +9,14 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* About */}
           <div>
-            <h3 className="text-lg font-bold mb-4 text-foreground">عطر شالیزار</h3>
+            <div className="flex items-center gap-3 mb-4">
+              <img 
+                src={faviconImage} 
+                alt="عطر شالیزار" 
+                className="h-12 w-12 object-contain"
+              />
+              <h3 className="text-lg font-bold text-foreground">عطر شالیزار</h3>
+            </div>
             <p className="text-muted-foreground text-sm leading-relaxed">
               فروشگاه آنلاین برنج ایرانی اصل با بهترین کیفیت و قیمت مناسب. اعتماد شما سرمایه ماست.
             </p>
@@ -74,15 +82,15 @@ const Footer = () => {
             <ul className="space-y-3">
               <li className="flex items-center gap-2 text-muted-foreground text-sm">
                 <Phone className="h-4 w-4 text-primary" />
-                <span dir="ltr">021-12345678</span>
+                <span dir="ltr">09377893307 علیپور</span>
               </li>
               <li className="flex items-center gap-2 text-muted-foreground text-sm">
                 <Mail className="h-4 w-4 text-primary" />
-                info@atrshalizar.ir
+                hamedalipour38@gmail.com
               </li>
               <li className="flex items-start gap-2 text-muted-foreground text-sm">
                 <MapPin className="h-4 w-4 text-primary mt-1" />
-                <span>تهران، خیابان ولیعصر، پلاک ۱۲۳</span>
+                <span>گیلان ، لاهیجان </span>
               </li>
             </ul>
           </div>

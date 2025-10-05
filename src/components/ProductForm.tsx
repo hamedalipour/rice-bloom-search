@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
+import ImageUpload from '@/components/ImageUpload';
 import { X } from 'lucide-react';
 
 interface ProductFormProps {
@@ -18,10 +19,10 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, isOpen, onClose, mod
   const [formData, setFormData] = useState({
     name: '',
     slug: '',
-    category: '',
+    category_id: '',
     price: 0,
     original_price: 0,
-    image: '',
+    image_url: '',
     description: '',
     long_description: '',
     origin: '',
@@ -35,10 +36,10 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, isOpen, onClose, mod
       setFormData({
         name: product.name || '',
         slug: product.slug || '',
-        category: product.category || '',
+        category_id: product.category_id || '',
         price: product.price || 0,
         original_price: product.original_price || 0,
-        image: product.image || '',
+        image_url: product.image_url || '',
         description: product.description || '',
         long_description: product.long_description || '',
         origin: product.origin || '',
@@ -52,19 +53,58 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, isOpen, onClose, mod
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    const productData = {
-      ...formData,
-      features: formData.features.filter(f => f.trim()),
-      weights: formData.weights.filter(w => w.value && w.price > 0),
-    };
-
-    if (mode === 'edit' && product) {
-      await updateProduct(product.id, productData);
-    } else {
-      await createProduct(productData);
+    // Validate required fields
+    if (!formData.name.trim()) {
+      alert('نام محصول الزامی است');
+      return;
+    }
+    if (!formData.slug.trim()) {
+      alert('اسلاگ الزامی است');
+      return;
+    }
+    if (!formData.image_url.trim()) {
+      alert('تصویر محصول الزامی است');
+      return;
     }
     
-    onClose();
+    try {
+      const productData = {
+        name: formData.name.trim(),
+        slug: formData.slug.trim(),
+        category_id: formData.category_id.trim() || null,
+        price: Number(formData.price),
+        original_price: formData.original_price ? Number(formData.original_price) : null,
+        image_url: formData.image_url.trim(),
+        description: formData.description.trim() || null,
+        long_description: formData.long_description.trim() || null,
+        origin: formData.origin.trim() || null,
+        features: formData.features.filter(f => f.trim()),
+        weights: formData.weights.filter(w => w.value && w.price > 0),
+        in_stock: formData.in_stock,
+      };
+
+      console.log('Submitting product data:', productData);
+
+      let result;
+      if (mode === 'edit' && product) {
+        result = await updateProduct(product.id, productData);
+      } else {
+        result = await createProduct(productData);
+      }
+
+      if (result.error) {
+        console.error('Error saving product:', result.error);
+        alert(`خطا در ذخیره محصول: ${result.error}`);
+        return;
+      }
+
+      console.log('Product saved successfully');
+      alert('محصول با موفقیت ذخیره شد');
+      onClose();
+    } catch (error) {
+      console.error('Unexpected error:', error);
+      alert('خطای غیرمنتظره‌ای رخ داد');
+    }
   };
 
   const addFeature = () => {
@@ -136,9 +176,10 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, isOpen, onClose, mod
           <div>
             <Label>دسته‌بندی</Label>
             <Input
-              value={formData.category}
-              onChange={(e) => setFormData(prev => ({ ...prev, category: e.target.value }))}
+              value={formData.category_id}
+              onChange={(e) => setFormData(prev => ({ ...prev, category_id: e.target.value }))}
               disabled={mode === 'view'}
+              placeholder="نام دسته‌بندی را وارد کنید"
               required
             />
           </div>
@@ -166,12 +207,10 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, isOpen, onClose, mod
           </div>
 
           <div>
-            <Label>تصویر</Label>
-            <Input
-              value={formData.image}
-              onChange={(e) => setFormData(prev => ({ ...prev, image: e.target.value }))}
+            <ImageUpload
+              value={formData.image_url}
+              onChange={(url) => setFormData(prev => ({ ...prev, image_url: url }))}
               disabled={mode === 'view'}
-              required
             />
           </div>
 

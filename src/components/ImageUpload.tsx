@@ -4,6 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Upload, X } from 'lucide-react';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
 
 interface ImageUploadProps {
   value?: string;
@@ -33,12 +34,33 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ value, onChange, disabled }) 
     setUploading(true);
 
     try {
-      // For now, we'll use a simple URL.createObjectURL approach
-      // In a real application, you would upload to Supabase Storage or another service
-      const imageUrl = URL.createObjectURL(file);
-      onChange(imageUrl);
+      // Generate unique filename
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Math.random().toString(36).substring(2)}-${Date.now()}.${fileExt}`;
+      const filePath = `products/${fileName}`;
+
+      // Upload to Supabase Storage
+      const { data, error } = await supabase.storage
+        .from('product-images')
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: false
+        });
+
+      if (error) {
+        console.error('Upload error:', error);
+        throw error;
+      }
+
+      // Get public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('product-images')
+        .getPublicUrl(filePath);
+
+      onChange(publicUrl);
       toast.success('تصویر با موفقیت بارگذاری شد');
     } catch (error) {
+      console.error('Image upload error:', error);
       toast.error('خطا در بارگذاری تصویر');
     } finally {
       setUploading(false);

@@ -11,8 +11,29 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ArrowRight, MapPin, Phone, Mail, CreditCard, Check } from 'lucide-react';
 import { toast } from 'sonner';
+
+// List of major Iranian cities
+const iranianCities = [
+  'تهران', 'مشهد', 'اصفهان', 'شیراز', 'تبریز', 'کرج', 'اهواز', 'قم', 'کرمانشاه', 'ارومیه',
+  'رشت', 'زاهدان', 'همدان', 'کرمان', 'یزد', 'اردبیل', 'بندرعباس', 'اراک', 'ایلام', 'زنجان',
+  'قزوین', 'خرم‌آباد', 'گرگان', 'ساری', 'بجنورد', 'سنندج', 'بیرجند', 'بوشهر', 'سمنان', 'یاسوج',
+  'کاشان', 'نجف‌آباد', 'شاهرود', 'ورامین', 'اسلام‌شهر', 'نظرآباد', 'ملارد', 'بهارستان', 'نشتارود',
+  'ساوه', 'پاکدشت', 'اندیشه', 'رباط‌کریم', 'شهریار', 'فردیس', 'دماوند', 'ری', 'کهریزک', 'باقرشهر'
+];
+
+// Validation functions
+const isPersianText = (text: string): boolean => {
+  const persianRegex = /^[\u0600-\u06FF\s]+$/;
+  return persianRegex.test(text.trim());
+};
+
+const isValidIranianMobile = (phone: string): boolean => {
+  const mobileRegex = /^09\d{9}$/;
+  return mobileRegex.test(phone.replace(/\s/g, ''));
+};
 
 const Checkout = () => {
   const { items, totalPrice, clearCart } = useCart();
@@ -47,6 +68,13 @@ const Checkout = () => {
     }));
   };
 
+  const handleCityChange = (value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      city: value
+    }));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -59,6 +87,23 @@ const Checkout = () => {
       // Validate form data
       if (!formData.firstName || !formData.lastName || !formData.email || !formData.phone || !formData.address || !formData.city || !formData.postalCode) {
         toast.error('لطفا تمام فیلدهای الزامی را پر کنید');
+        return;
+      }
+
+      // Validate Persian names
+      if (!isPersianText(formData.firstName)) {
+        toast.error('نام باید با حروف فارسی نوشته شود');
+        return;
+      }
+      
+      if (!isPersianText(formData.lastName)) {
+        toast.error('نام خانوادگی باید با حروف فارسی نوشته شود');
+        return;
+      }
+
+      // Validate Iranian mobile number
+      if (!isValidIranianMobile(formData.phone)) {
+        toast.error('شماره موبایل باید با 09 شروع شده و 11 رقمی باشد');
         return;
       }
       
@@ -146,22 +191,26 @@ const Checkout = () => {
                       </h3>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                          <Label htmlFor="firstName">نام</Label>
+                          <Label htmlFor="firstName">نام (فارسی) *</Label>
                           <Input
                             id="firstName"
                             name="firstName"
                             value={formData.firstName}
                             onChange={handleInputChange}
+                            placeholder="نام خود را با حروف فارسی وارد کنید"
+                            dir="rtl"
                             required
                           />
                         </div>
                         <div>
-                          <Label htmlFor="lastName">نام خانوادگی</Label>
+                          <Label htmlFor="lastName">نام خانوادگی (فارسی) *</Label>
                           <Input
                             id="lastName"
                             name="lastName"
                             value={formData.lastName}
                             onChange={handleInputChange}
+                            placeholder="نام خانوادگی خود را با حروف فارسی وارد کنید"
+                            dir="rtl"
                             required
                           />
                         </div>
@@ -177,14 +226,21 @@ const Checkout = () => {
                           />
                         </div>
                         <div>
-                          <Label htmlFor="phone">شماره تماس</Label>
+                          <Label htmlFor="phone">شماره موبایل *</Label>
                           <Input
                             id="phone"
                             name="phone"
+                            type="tel"
                             value={formData.phone}
                             onChange={handleInputChange}
+                            placeholder="09xxxxxxxxx"
+                            maxLength={11}
+                            dir="ltr"
                             required
                           />
+                          <p className="text-xs text-muted-foreground mt-1">
+                            شماره موبایل باید با 09 شروع شده و 11 رقمی باشد
+                          </p>
                         </div>
                       </div>
                     </div>
@@ -209,14 +265,19 @@ const Checkout = () => {
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div>
-                            <Label htmlFor="city">شهر</Label>
-                            <Input
-                              id="city"
-                              name="city"
-                              value={formData.city}
-                              onChange={handleInputChange}
-                              required
-                            />
+                            <Label htmlFor="city">شهر *</Label>
+                            <Select value={formData.city} onValueChange={handleCityChange}>
+                              <SelectTrigger>
+                                <SelectValue placeholder="شهر خود را انتخاب کنید" />
+                              </SelectTrigger>
+                              <SelectContent className="max-h-60">
+                                {iranianCities.map((city) => (
+                                  <SelectItem key={city} value={city}>
+                                    {city}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
                           </div>
                           <div>
                             <Label htmlFor="postalCode">کد پستی</Label>

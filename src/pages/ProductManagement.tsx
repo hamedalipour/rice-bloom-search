@@ -64,7 +64,7 @@ const ProductManagement: React.FC = () => {
                   <div className="flex items-center">
                     <img
                       className="h-10 w-10 rounded object-cover ml-4"
-                      src={product.image}
+                      src={product.image_url}
                       alt={product.name}
                     />
                     <div>
@@ -78,7 +78,7 @@ const ProductManagement: React.FC = () => {
                   </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  {product.category}
+                  {product.category_id || 'بدون دسته‌بندی'}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                   {product.price.toLocaleString()} تومان

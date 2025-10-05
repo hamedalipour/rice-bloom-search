@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { ShoppingCart, Menu, X, User, LogOut, Minus, Plus, Trash2 } from "lucide-react";
+import faviconImage from "@/assets/favicon.png";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -25,7 +26,12 @@ const Navbar = () => {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2">
+          <Link to="/" className="flex items-center gap-3">
+            <img 
+              src={faviconImage} 
+              alt="عطر شالیزار" 
+              className="h-10 w-10 object-contain"
+            />
             <div className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
               عطر شالیزار
             </div>

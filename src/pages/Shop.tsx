@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -17,25 +17,50 @@ import { Slider } from "@/components/ui/slider";
 
 const Shop = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const { products } = useProducts();
+  const { products, loading, error } = useProducts();
   const categoryFromUrl = searchParams.get("category");
   
   const [selectedCategory, setSelectedCategory] = useState<string>(categoryFromUrl || "all");
   const [sortBy, setSortBy] = useState("default");
   const [priceRange, setPriceRange] = useState([0, 400000]);
 
+  // Debug logging
+  useEffect(() => {
+    console.log('Shop component mounted');
+    console.log('Loading:', loading);
+    console.log('Error:', error);
+    console.log('Products:', products.length);
+  }, [loading, error, products]);
+
   // Generate categories from products
   const categories = useMemo(() => {
-    const uniqueCategories = [...new Set(products.map(p => p.category))];
-    return uniqueCategories.map(cat => ({ name: cat, slug: cat.toLowerCase() }));
+    console.log('Generating categories from', products.length, 'products');
+    const uniqueCategoryIds = [...new Set(products.map(p => p.category_id).filter((id): id is string => Boolean(id)))];
+    console.log('Unique category IDs:', uniqueCategoryIds);
+    
+    // For now, we'll use category_id as both name and slug
+    // In a real app, you'd want to join with a categories table
+    const categoryMap: { [key: string]: string } = {
+      'basmati': 'برنج بسماتی',
+      'hashemi': 'برنج هاشمی',
+      'tarom': 'برنج طارم',
+      'shali': 'برنج شعله‌ای',
+      'kateh': 'برنج کته',
+    };
+    
+    return uniqueCategoryIds.map(categoryId => ({
+      name: categoryMap[categoryId] || categoryId || 'نامشخص',
+      slug: categoryId
+    }));
   }, [products]);
 
   const filteredProducts = useMemo(() => {
+    console.log('Filtering products. Total:', products.length, 'Category:', selectedCategory);
     let filtered = [...products];
 
     // Filter by category
     if (selectedCategory !== "all") {
-      filtered = filtered.filter((p) => p.category.toLowerCase() === selectedCategory);
+      filtered = filtered.filter((p) => p.category_id === selectedCategory);
     }
 
     // Filter by price range
@@ -57,6 +82,7 @@ const Shop = () => {
         break;
     }
 
+    console.log('Filtered products:', filtered.length);
     return filtered;
   }, [products, selectedCategory, sortBy, priceRange]);
 
@@ -69,6 +95,40 @@ const Shop = () => {
     }
     setSearchParams(searchParams);
   };
+
+  // Show loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Navbar />
+        <main className="flex-1 flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary mx-auto mb-4"></div>
+            <p className="text-lg text-muted-foreground">در حال بارگذاری محصولات...</p>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
+  // Show error state
+  if (error) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Navbar />
+        <main className="flex-1 flex items-center justify-center">
+          <div className="text-center">
+            <div className="text-red-500 text-6xl mb-4">⚠️</div>
+            <h2 className="text-2xl font-bold mb-2 text-foreground">خطا در بارگذاری</h2>
+            <p className="text-muted-foreground mb-4">{error}</p>
+            <Button onClick={() => window.location.reload()}>تلاش مجدد</Button>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col">
