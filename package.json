@@ -7,8 +7,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "build:safe": "npm install --no-optional && vite build",
-    "build:force": "rm -rf node_modules package-lock.json && npm install --legacy-peer-deps && vite build",
+    "build:cf": "npm install && vite build",
     "build:dev": "vite build --mode development",
     "build:prod": "vite build --mode production",
     "lint": "eslint .",
@@ -71,16 +70,10 @@
     "npm": ">=9.0.0"
   },
   "overrides": {
-    "rollup": "^4.14.0",
-    "@rollup/rollup-linux-x64-gnu": "^4.14.0"
-  },
-  "resolutions": {
-    "rollup": "^4.14.0",
-    "@rollup/rollup-linux-x64-gnu": "^4.14.0"
+    "rollup": "^4.14.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.32.0",
-    "@rollup/rollup-linux-x64-gnu": "^4.14.0",
     "@tailwindcss/typography": "^0.5.16",
     "@types/node": "^22.16.5",
     "@types/react": "^18.3.23",
