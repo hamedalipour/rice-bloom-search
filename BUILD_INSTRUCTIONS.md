@@ -4,7 +4,7 @@
 
 ### Build Command:
 ```bash
-npm ci && npm run build
+npm run build
 ```
 
 ### Build Output Directory:
@@ -29,7 +29,7 @@ VITE_SUPABASE_PROJECT_ID=your_supabase_project_id
 ### Vercel
 1. Connect GitHub repository
 2. Framework Preset: **Vite**
-3. Build Command: `npm ci && npm run build`
+3. Build Command: `npm run build`
 4. Output Directory: `dist`
 5. Install Command: `npm ci`
 6. Node.js Version: `20.x`

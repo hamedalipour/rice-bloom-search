@@ -4,7 +4,7 @@
 
 ### Build Command (Simple):
 ```
-vite build
+npm run build
 ```
 
 ### Install Command:
@@ -38,25 +38,25 @@ VITE_SUPABASE_PROJECT_ID=ssbeycbrkfpxqdzlzhwa
 
 ### Vercel:
 - Framework: Vite
-- Build Command: `vite build`
+- Build Command: `npm run build`
 - Output Directory: `dist`
 - Install Command: `npm install`
 
 ### Netlify:
-- Build Command: `vite build`
+- Build Command: `npm run build`
 - Publish Directory: `dist`
 - Package Manager: npm
 
 ### Cloudflare Pages:
-- Build Command: `vite build`
+- Build Command: `npm run build`
 - Build Output Directory: `dist`
 - Root Directory: `/`
 
 ## If Build Still Fails:
 Try these alternative commands:
 
-1. `npm install --legacy-peer-deps && vite build`
-2. `npm install --force && vite build` 
+1. `npm install --legacy-peer-deps && npm run build`
+2. `npm install --force && npm run build` 
 3. `yarn install && yarn build`
 
 ## Build Time Optimization:
