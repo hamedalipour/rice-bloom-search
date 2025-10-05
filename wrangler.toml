@@ -2,8 +2,8 @@
 # This file tells Cloudflare Pages how to build your project
 
 [build]
-  # Use npm instead of bun
-  command = "npm ci && npm run build"
+  # Use npm install instead of npm ci to handle optional dependencies
+  command = "npm install && npm run build"
   
   # Output directory where built files are located
   publish = "dist"

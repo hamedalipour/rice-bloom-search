@@ -2,8 +2,8 @@
 # This file specifies build settings for Cloudflare Pages
 
 build:
-  # Build command - use npm instead of bun
-  command: npm ci && npm run build
+  # Build command - use npm install instead of npm ci for optional deps
+  command: npm install && npm run build
   
   # Output directory
   publish: dist
@@ -14,4 +14,4 @@ build:
     NPM_CONFIG_PRODUCTION: "false"
     
   # Install command override
-  install_command: npm ci
+  install_command: npm install

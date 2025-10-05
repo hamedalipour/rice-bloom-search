@@ -5,7 +5,7 @@
 When setting up your project in Cloudflare Pages, use these settings:
 
 ### Build Configuration
-- **Build command**: `npm ci && npm run build`
+- **Build command**: `npm install && npm run build`
 - **Build output directory**: `dist`
 - **Root directory**: `/` (default)
 
@@ -22,7 +22,7 @@ VITE_SUPABASE_PROJECT_ID=your_project_id_here
 ### Build Settings Override
 If the automatic detection fails, manually set:
 - **Framework preset**: None (or Vite)
-- **Build command**: `npm ci && npm run build`
+- **Build command**: `npm install && npm run build`
 - **Output directory**: `dist`
 
 ## Troubleshooting Common Issues
@@ -33,10 +33,15 @@ If the automatic detection fails, manually set:
 - Regenerating package-lock.json with npm
 - Adding explicit npm configuration
 
-### Issue 2: Build command not found
-**Solution**: Use `npm ci && npm run build` instead of just `npm run build`
+### Issue 2: "Cannot find module @rollup/rollup-linux-x64-gnu"
+**Solution**: This is an npm optional dependencies bug. Fixed by:
+- Using `npm install` instead of `npm ci` in build command
+- This allows npm to properly install optional dependencies
 
-### Issue 3: Environment variables not working
+### Issue 3: Build command not found
+**Solution**: Use `npm install && npm run build` instead of just `npm run build`
+
+### Issue 4: Environment variables not working
 **Solution**: Make sure all VITE_ prefixed variables are set in Cloudflare Pages dashboard
 
 ## Manual Build Test
