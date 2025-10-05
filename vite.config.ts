@@ -18,16 +18,12 @@ export default defineConfig(({ mode }) => ({
   build: {
     outDir: "dist",
     sourcemap: false,
+    minify: 'esbuild',
+    target: 'esnext',
     rollupOptions: {
       output: {
-        manualChunks: {
-          vendor: ['react', 'react-dom'],
-          supabase: ['@supabase/supabase-js'],
-        },
+        manualChunks: undefined,
       },
     },
-  },
-  optimizeDeps: {
-    include: ['react', 'react-dom', '@supabase/supabase-js'],
   },
 }));

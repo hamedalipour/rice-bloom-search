@@ -6,12 +6,11 @@
   "description": "Rice e-commerce website with admin panel",
   "scripts": {
     "dev": "vite",
-    "build": "npm ci && vite build",
+    "build": "vite build",
     "build:dev": "vite build --mode development",
     "build:prod": "vite build --mode production",
     "lint": "eslint .",
-    "preview": "vite preview",
-    "postinstall": "npm rebuild"
+    "preview": "vite preview"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
@@ -69,9 +68,6 @@
     "node": ">=18.0.0",
     "npm": ">=9.0.0"
   },
-  "overrides": {
-    "rollup": "^4.14.0"
-  },
   "devDependencies": {
     "@eslint/js": "^9.32.0",
     "@tailwindcss/typography": "^0.5.16",
@@ -86,7 +82,6 @@
     "globals": "^15.15.0",
     "lovable-tagger": "^1.1.10",
     "postcss": "^8.5.6",
-    "rollup": "^4.14.0",
     "tailwindcss": "^3.4.17",
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.38.0",
