@@ -1,0 +1,16 @@
+# Cloudflare Pages build configuration
+# This file tells Cloudflare Pages how to build your project
+
+[build]
+  # Use npm instead of bun
+  command = "npm ci && npm run build"
+  
+  # Output directory where built files are located
+  publish = "dist"
+
+[build.environment]
+  # Node.js version
+  NODE_VERSION = "18"
+  
+  # Use npm as package manager
+  NPM_VERSION = "latest"
