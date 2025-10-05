@@ -18,7 +18,7 @@ const Home = () => {
   const { blogPosts } = useBlogPosts();
   
   const featuredProducts = products.slice(0, 4);
-  const latestPosts = blogPosts.slice(0, 3);
+  const latestPosts = blogPosts.filter(post => post.published).slice(0, 3);
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -200,14 +200,18 @@ const Home = () => {
                   <Card className="overflow-hidden hover:shadow-lg transition-all duration-300 h-full border-border">
                     <div className="relative h-48 overflow-hidden">
                       <img
-                        src={post.image}
+                        src={(post as any).featured_image_url || '/placeholder-image.jpg'}
                         alt={post.title}
                         className="w-full h-full object-cover hover:scale-110 transition-transform duration-500"
+                        onError={(e) => {
+                          const target = e.currentTarget;
+                          target.src = '/placeholder-image.jpg';
+                        }}
                       />
                     </div>
                     <CardContent className="p-6">
                       <div className="text-sm text-muted-foreground mb-2">
-                        {post.category} • {post.read_time}
+                        {(post as any).tags ? (post as any).tags[0] : 'عمومی'} • ۵ دقیقه
                       </div>
                       <h3 className="text-xl font-bold mb-3 text-foreground hover:text-primary transition-colors line-clamp-2">
                         {post.title}

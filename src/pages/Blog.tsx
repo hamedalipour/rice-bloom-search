@@ -1,12 +1,30 @@
 import { Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { blogPosts, blogCategories } from "@/data/blogPosts";
+import { useBlogPosts } from "@/hooks/useBlogPosts";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, Clock, User } from "lucide-react";
 
 const Blog = () => {
+  const { blogPosts, loading } = useBlogPosts();
+
+  // Get unique categories from database posts
+  const categories = [...new Set(blogPosts.map(post => 
+    (post as any).tags ? (post as any).tags[0] : 'عمومی'
+  ).filter(Boolean))];
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Navbar />
+        <main className="flex-1 flex items-center justify-center">
+          <div className="text-center py-8">در حال بارگذاری...</div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
@@ -29,41 +47,45 @@ const Blog = () => {
               <Badge variant="default" className="cursor-pointer">
                 همه مقالات
               </Badge>
-              {blogCategories.map((category) => (
+              {categories.map((category) => (
                 <Badge
-                  key={category.slug}
+                  key={category}
                   variant="outline"
                   className="cursor-pointer hover:bg-accent"
                 >
-                  {category.name}
+                  {category}
                 </Badge>
               ))}
             </div>
 
-            {/* Blog Posts */}
+            {/* Blog Posts from Database */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {blogPosts.map((post) => (
+              {blogPosts.filter(post => post.published).map((post) => (
                 <Link key={post.id} to={`/blog/${post.slug}`}>
                   <Card className="overflow-hidden hover:shadow-lg transition-all duration-300 h-full group border-border">
                     <div className="relative h-56 overflow-hidden">
                       <img
-                        src={post.image}
+                        src={(post as any).featured_image_url || '/placeholder-image.jpg'}
                         alt={post.title}
                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                        onError={(e) => {
+                          const target = e.currentTarget;
+                          target.src = '/placeholder-image.jpg';
+                        }}
                       />
                       <Badge className="absolute top-4 right-4 bg-primary text-primary-foreground">
-                        {post.category}
+                        {(post as any).tags ? (post as any).tags[0] : 'عمومی'}
                       </Badge>
                     </div>
                     <CardContent className="p-6">
                       <div className="flex items-center gap-4 text-xs text-muted-foreground mb-3">
                         <div className="flex items-center gap-1">
                           <Calendar className="h-3 w-3" />
-                          {post.date}
+                          {new Date(post.created_at).toLocaleDateString('fa-IR')}
                         </div>
                         <div className="flex items-center gap-1">
                           <Clock className="h-3 w-3" />
-                          {post.readTime}
+                          ۵ دقیقه
                         </div>
                       </div>
 
@@ -77,13 +99,19 @@ const Blog = () => {
 
                       <div className="flex items-center gap-2 text-sm text-muted-foreground">
                         <User className="h-4 w-4" />
-                        {post.author}
+                        {(post as any).author_id ? 'نویسنده' : 'سیستم'}
                       </div>
                     </CardContent>
                   </Card>
                 </Link>
               ))}
             </div>
+            
+            {blogPosts.filter(post => post.published).length === 0 && (
+              <div className="text-center py-12">
+                <p className="text-muted-foreground text-lg">هنوز مقاله‌ای منتشر نشده است.</p>
+              </div>
+            )}
           </div>
         </section>
       </main>

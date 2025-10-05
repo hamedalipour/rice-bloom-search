@@ -74,26 +74,33 @@ const BlogManagement: React.FC = () => {
               <tr key={post.id}>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="flex items-center">
-                    <img
-                      className="h-10 w-10 rounded object-cover ml-4"
-                      src={post.image}
-                      alt={post.title}
-                    />
-                    <div>
-                      <div className="text-sm font-medium text-gray-900">
+                    <div className="h-10 w-10 rounded overflow-hidden ml-4 bg-gray-100 flex-shrink-0">
+                      <img
+                        className="h-full w-full object-cover"
+                        src={(post as any).featured_image_url || '/placeholder-image.jpg'}
+                        alt={post.title}
+                        onError={(e) => {
+                          const target = e.currentTarget;
+                          target.src = '/placeholder-image.jpg';
+                          target.onerror = null; // Prevent infinite loop
+                        }}
+                      />
+                    </div>
+                    <div className="flex-grow min-w-0">
+                      <div className="text-sm font-medium text-gray-900 truncate">
                         {post.title}
                       </div>
-                      <div className="text-sm text-gray-500">
+                      <div className="text-sm text-gray-500 truncate">
                         {post.slug}
                       </div>
                     </div>
                   </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  {post.category}
+                  {(post as any).tags ? (post as any).tags[0] || 'بدون دسته‌بندی' : 'بدون دسته‌بندی'}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  {post.author}
+                  {(post as any).author_id ? 'نویسنده' : 'سیستم'}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
