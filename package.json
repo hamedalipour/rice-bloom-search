@@ -1,14 +1,17 @@
 {
-  "name": "vite_react_shadcn_ts",
+  "name": "rice-bloom-search",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
+  "description": "Rice e-commerce website with admin panel",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "npm ci && vite build",
     "build:dev": "vite build --mode development",
+    "build:prod": "vite build --mode production",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "postinstall": "npm rebuild"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
@@ -62,6 +65,13 @@
     "vaul": "^0.9.9",
     "zod": "^3.25.76"
   },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  },
+  "overrides": {
+    "rollup": "^4.14.0"
+  },
   "devDependencies": {
     "@eslint/js": "^9.32.0",
     "@tailwindcss/typography": "^0.5.16",
@@ -76,6 +86,7 @@
     "globals": "^15.15.0",
     "lovable-tagger": "^1.1.10",
     "postcss": "^8.5.6",
+    "rollup": "^4.14.0",
     "tailwindcss": "^3.4.17",
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.38.0",
