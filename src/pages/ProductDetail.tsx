@@ -4,6 +4,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { useProducts } from "@/hooks/useProducts";
 import { useCart } from "@/contexts/CartContext";
+import { supabase } from '@/integrations/supabase/client';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -20,24 +21,47 @@ import ProductCard from "@/components/ProductCard";
 
 const ProductDetail = () => {
   const { slug } = useParams();
-  const { products, getProductBySlug } = useProducts();
+  const { products } = useProducts();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [selectedWeight, setSelectedWeight] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const { addItem, isInCart, getCartItemQuantity } = useCart();
 
   useEffect(() => {
-    const fetchProduct = async () => {
-      if (slug) {
-        setLoading(true);
-        const { data } = await getProductBySlug(slug);
-        setProduct(data);
-        setLoading(false);
-      }
+    if (!slug) {
+      setLoading(false);
+      setError("آدرس محصول نامعتبر است");
+      return;
+    }
+
+    // Set a timeout to prevent infinite loading
+    const timeoutId = setTimeout(() => {
+      setLoading(false);
+      setError("زمان بارگذاری به پایان رسید. لطفاً دوباره تلاش کنید.");
+    }, 5000); // 5 second timeout
+
+    // Try to find the product in the available products
+    const foundProduct = products.find(p => p.slug === slug);
+    
+    if (foundProduct) {
+      clearTimeout(timeoutId);
+      setProduct(foundProduct);
+      setLoading(false);
+      setError(null);
+    } else {
+      // Simple approach - just show not found if not in products list
+      clearTimeout(timeoutId);
+      setLoading(false);
+      setError("محصول یافت نشد");
+    }
+
+    // Cleanup function
+    return () => {
+      clearTimeout(timeoutId);
     };
-    fetchProduct();
-  }, [slug, getProductBySlug]);
+  }, [slug, products]);
 
   if (loading) {
     return (
@@ -46,6 +70,25 @@ const ProductDetail = () => {
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center">
             <h1 className="text-2xl font-bold mb-4">در حال بارگذاری...</h1>
+            <p className="text-muted-foreground">لطفاً صبر کنید</p>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Navbar />
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-center">
+            <h1 className="text-3xl font-bold mb-4 text-foreground">خطا در بارگذاری محصول</h1>
+            <p className="text-muted-foreground mb-4">{error}</p>
+            <Button asChild>
+              <Link to="/shop">بازگشت به فروشگاه</Link>
+            </Button>
           </div>
         </div>
         <Footer />
@@ -71,30 +114,35 @@ const ProductDetail = () => {
   }
 
   const relatedProducts = products.filter(
-    (p) => p.category === product?.category && p.id !== product?.id
+    (p) => p.id !== product.id
   ).slice(0, 4);
 
   const weights = Array.isArray(product.weights) ? product.weights : [];
   const features = Array.isArray(product.features) ? product.features : [];
   const selectedPrice = weights[selectedWeight]?.price || product.price || 0;
-  const discount = product?.original_price
+  const discount = product.original_price
     ? Math.round(((product.original_price - product.price) / product.original_price) * 100)
     : 0;
 
   const handleAddToCart = () => {
     if (!product) return;
     
-    const selectedWeightData = weights[selectedWeight] || { value: "پیش‌فرض", price: product.price };
-    
-    addItem({
-      id: product.id,
-      name: product.name,
-      slug: product.slug,
-      image: product.image,
-      price: selectedWeightData.price,
-      weight: selectedWeightData,
-      inStock: product.in_stock,
-    }, quantity);
+    try {
+      const selectedWeightData = weights[selectedWeight] || { value: "پیش‌فرض", price: product.price };
+      
+      addItem({
+        id: product.id,
+        name: product.name,
+        slug: product.slug,
+        image_url: product.image_url || product.image || '',
+        price: selectedWeightData.price,
+        weight: selectedWeightData,
+        inStock: product.in_stock,
+      }, quantity);
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+      toast.error("خطا در افزودن به سبد خرید");
+    }
   };
 
   return (
@@ -123,9 +171,13 @@ const ProductDetail = () => {
               <div className="space-y-4">
                 <div className="relative aspect-square rounded-lg overflow-hidden bg-muted">
                   <img
-                    src={product.image}
+                    src={product.image_url || '/placeholder-image.jpg'}
                     alt={product.name}
                     className="w-full h-full object-cover"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.src = '/placeholder-image.jpg';
+                    }}
                   />
                   {discount > 0 && (
                     <Badge className="absolute top-4 right-4 bg-destructive text-destructive-foreground text-lg px-4 py-2">

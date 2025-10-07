@@ -23,6 +23,16 @@ const Navbar = () => {
 
   return (
     <nav className="sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border">
+      {/* Top bar with phone number */}
+      <div className="hidden md:block bg-primary text-primary-foreground py-2 px-4 text-sm">
+        <div className="container mx-auto flex justify-end">
+          <div className="flex items-center gap-2">
+            <span>تلفن سفارشات:</span>
+            <span className="font-bold" dir="ltr">09377893307</span>
+          </div>
+        </div>
+      </div>
+      
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
@@ -83,7 +93,7 @@ const Navbar = () => {
                         {items.map((item) => (
                           <div key={`${item.id}-${item.weight?.value || 'default'}`} className="flex items-center gap-3 p-2 border rounded-lg">
                             <img 
-                              src={item.image} 
+                              src={item.image_url} 
                               alt={item.name} 
                               className="w-12 h-12 object-cover rounded"
                             />
@@ -201,6 +211,14 @@ const Navbar = () => {
         {/* Mobile Navigation */}
         {isMenuOpen && (
           <div className="md:hidden py-4 border-t border-border">
+            {/* Mobile phone number */}
+            <div className="md:hidden bg-primary text-primary-foreground py-2 px-4 text-sm mb-4 rounded-lg">
+              <div className="flex items-center gap-2 justify-center">
+                <span>تلفن سفارشات:</span>
+                <span className="font-bold" dir="ltr">09377893307</span>
+              </div>
+            </div>
+            
             <div className="flex flex-col gap-4">
               <Link
                 to="/"

@@ -3,7 +3,6 @@ import { ShoppingCart, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Link } from "react-router-dom";
 import { useCart } from "@/contexts/CartContext";
 import type { Tables } from "@/integrations/supabase/types";
 
@@ -16,6 +15,17 @@ interface ProductCardProps {
 const ProductCard = ({ product }: ProductCardProps) => {
   const { addItem, isInCart, getCartItemQuantity } = useCart();
   
+  // Add error handling for product data
+  if (!product) {
+    return (
+      <Card className="group overflow-hidden hover:shadow-lg transition-all duration-300 border-border">
+        <div className="p-4 text-center text-muted-foreground">
+          محصول نامعتبر
+        </div>
+      </Card>
+    );
+  }
+  
   const discount = product.original_price
     ? Math.round(((product.original_price - product.price) / product.original_price) * 100)
     : 0;
@@ -24,14 +34,25 @@ const ProductCard = ({ product }: ProductCardProps) => {
     e.preventDefault();
     e.stopPropagation();
     
-    addItem({
-      id: product.id,
-      name: product.name,
-      slug: product.slug,
-      image_url: product.image_url || '',
-      price: product.price,
-      inStock: product.in_stock || false,
-    });
+    // Add error handling for cart operations
+    try {
+      addItem({
+        id: product.id,
+        name: product.name,
+        slug: product.slug,
+        image_url: product.image_url || '',
+        price: product.price,
+        inStock: product.in_stock || false,
+      });
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+    }
+  };
+
+  const handleProductClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    // Use simple navigation instead of React Router to avoid potential conflicts
+    window.location.href = `/product/${product.slug}`;
   };
 
   const itemInCart = isInCart(product.id);
@@ -39,13 +60,18 @@ const ProductCard = ({ product }: ProductCardProps) => {
 
   return (
     <Card className="group overflow-hidden hover:shadow-lg transition-all duration-300 border-border">
-      <Link to={`/product/${product.slug}`}>
+      <div onClick={handleProductClick} className="cursor-pointer">
         <div className="relative overflow-hidden bg-muted aspect-square">
           <img
             src={product.image_url || '/placeholder-image.jpg'}
             alt={product.name}
             className="object-cover w-full h-full group-hover:scale-110 transition-transform duration-500"
             loading="lazy"
+            onError={(e) => {
+              // Handle image loading errors
+              const target = e.target as HTMLImageElement;
+              target.src = '/placeholder-image.jpg';
+            }}
           />
           {discount > 0 && (
             <Badge className="absolute top-3 right-3 bg-destructive text-destructive-foreground">
@@ -58,14 +84,14 @@ const ProductCard = ({ product }: ProductCardProps) => {
             </Badge>
           )}
         </div>
-      </Link>
+      </div>
 
       <CardContent className="p-4">
-        <Link to={`/product/${product.slug}`}>
+        <div onClick={handleProductClick} className="cursor-pointer">
           <h3 className="font-bold text-lg mb-2 text-foreground hover:text-primary transition-colors line-clamp-1">
             {product.name}
           </h3>
-        </Link>
+        </div>
         <p className="text-muted-foreground text-sm mb-3 line-clamp-2">{product.description}</p>
         
         <div className="flex items-center gap-1 mb-3">

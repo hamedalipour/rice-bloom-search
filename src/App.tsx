@@ -32,6 +32,7 @@ import AdminFix from "./pages/AdminFix";
 import EmergencyAdmin from "./pages/EmergencyAdmin";
 import Checkout from "./pages/Checkout";
 import OrderTest from "./pages/OrderTest";
+import DatabaseTest from "./pages/DatabaseTest";
 
 const queryClient = new QueryClient();
 
@@ -59,6 +60,7 @@ const App = () => (
               <Route path="/fix" element={<AdminFix />} />
               <Route path="/emergency" element={<EmergencyAdmin />} />
               <Route path="/test-order" element={<OrderTest />} />
+              <Route path="/db-test" element={<DatabaseTest />} />
               <Route path="/profile" element={
                 <ProtectedRoute>
                   <Profile />

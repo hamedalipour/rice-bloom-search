@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Tables, TablesInsert, TablesUpdate } from '@/integrations/supabase/types';
+import { products as sampleProducts } from '@/data/products';
 
 type Product = Tables<'products'>;
 type ProductInsert = TablesInsert<'products'>;
@@ -26,11 +27,62 @@ export const useProducts = () => {
         throw error;
       }
       
-      console.log('Products fetched successfully:', data?.length || 0, 'products');
-      setProducts(data || []);
+      // If no products found in database, use sample data
+      const productsToUse = (data && data.length > 0) ? data : sampleProducts.map(product => ({
+        id: product.id,
+        name: product.name,
+        slug: product.slug,
+        category_id: product.category,
+        price: product.price,
+        original_price: product.originalPrice || null,
+        image_url: product.image,
+        description: product.description || 'توضیحی ارائه نشده',
+        long_description: product.longDescription || 'توضیحات کامل ارائه نشده',
+        origin: product.origin || 'نامشخص',
+        features: product.features || [],
+        weights: product.weights || [],
+        rating: product.rating || 0,
+        review_count: product.reviewCount || 0,
+        in_stock: product.inStock !== undefined ? product.inStock : true,
+        gallery_images: [],
+        is_featured: false,
+        meta_title: null,
+        meta_description: null,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      } as Product));
+      
+      console.log('Products fetched successfully:', productsToUse.length, 'products');
+      setProducts(productsToUse);
       setError(null);
     } catch (err) {
       console.error('Error in fetchProducts:', err);
+      // Fallback to sample data
+      const fallbackProducts = sampleProducts.map(product => ({
+        id: product.id,
+        name: product.name,
+        slug: product.slug,
+        category_id: product.category,
+        price: product.price,
+        original_price: product.originalPrice || null,
+        image_url: product.image,
+        description: product.description || 'توضیحی ارائه نشده',
+        long_description: product.longDescription || 'توضیحات کامل ارائه نشده',
+        origin: product.origin || 'نامشخص',
+        features: product.features || [],
+        weights: product.weights || [],
+        rating: product.rating || 0,
+        review_count: product.reviewCount || 0,
+        in_stock: product.inStock !== undefined ? product.inStock : true,
+        gallery_images: [],
+        is_featured: false,
+        meta_title: null,
+        meta_description: null,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      } as Product));
+      
+      setProducts(fallbackProducts);
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
       setLoading(false);
@@ -192,16 +244,84 @@ export const useProducts = () => {
 
   const getProductBySlug = async (slug: string) => {
     try {
+      console.log('Fetching product by slug:', slug);
       const { data, error } = await supabase
         .from('products')
         .select('*')
         .eq('slug', slug)
         .single();
 
-      if (error) throw error;
+      console.log('Product fetch result:', { data, error });
+      
+      if (error) {
+        console.error('Error fetching product by slug:', error);
+        // Try to find in sample data as fallback
+        const sampleProduct = sampleProducts.find(p => p.slug === slug);
+        if (sampleProduct) {
+          const convertedProduct = {
+            id: sampleProduct.id,
+            name: sampleProduct.name,
+            slug: sampleProduct.slug,
+            category_id: sampleProduct.category,
+            price: sampleProduct.price,
+            original_price: sampleProduct.originalPrice || null,
+            image_url: sampleProduct.image,
+            description: sampleProduct.description || 'توضیحی ارائه نشده',
+            long_description: sampleProduct.longDescription || 'توضیحات کامل ارائه نشده',
+            origin: sampleProduct.origin || 'نامشخص',
+            features: sampleProduct.features || [],
+            weights: sampleProduct.weights || [],
+            rating: sampleProduct.rating || 0,
+            review_count: sampleProduct.reviewCount || 0,
+            in_stock: sampleProduct.inStock !== undefined ? sampleProduct.inStock : true,
+            gallery_images: [],
+            is_featured: false,
+            meta_title: null,
+            meta_description: null,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          } as Product;
+          return { data: convertedProduct, error: null };
+        }
+        throw error;
+      }
+      
       return { data, error: null };
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'An error occurred';
+      console.error('=== GET PRODUCT BY SLUG FAILED ===');
+      console.error('Slug:', slug);
+      console.error('Final error:', err);
+      
+      // Try to find in sample data as fallback
+      const sampleProduct = sampleProducts.find(p => p.slug === slug);
+      if (sampleProduct) {
+        const convertedProduct = {
+          id: sampleProduct.id,
+          name: sampleProduct.name,
+          slug: sampleProduct.slug,
+          category_id: sampleProduct.category,
+          price: sampleProduct.price,
+          original_price: sampleProduct.originalPrice || null,
+          image_url: sampleProduct.image,
+          description: sampleProduct.description || 'توضیحی ارائه نشده',
+          long_description: sampleProduct.longDescription || 'توضیحات کامل ارائه نشده',
+          origin: sampleProduct.origin || 'نامشخص',
+          features: sampleProduct.features || [],
+          weights: sampleProduct.weights || [],
+          rating: sampleProduct.rating || 0,
+          review_count: sampleProduct.reviewCount || 0,
+          in_stock: sampleProduct.inStock !== undefined ? sampleProduct.inStock : true,
+          gallery_images: [],
+          is_featured: false,
+          meta_title: null,
+          meta_description: null,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        } as Product;
+        return { data: convertedProduct, error: null };
+      }
+      
+      const errorMessage = err instanceof Error ? err.message : 'Database error occurred';
       return { data: null, error: errorMessage };
     }
   };

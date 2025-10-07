@@ -14,8 +14,10 @@ import fajrImage from "@/assets/rice-fajr.jpg";
 import shirudiImage from "@/assets/rice-shirudi.jpg";
 
 const Home = () => {
-  const { products } = useProducts();
+  const { products, loading, error } = useProducts();
   const { blogPosts } = useBlogPosts();
+  
+  console.log('Home page products:', { products, loading, error });
   
   const featuredProducts = products.slice(0, 4);
   const latestPosts = blogPosts.filter(post => post.published).slice(0, 3);
@@ -124,9 +126,17 @@ const Home = () => {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {featuredProducts.map((product) => (
-                <ProductCard key={product.id} product={product} />
-              ))}
+              {featuredProducts && featuredProducts.length > 0 ? (
+                featuredProducts.map((product) => (
+                  <div key={product.id}>
+                    <ProductCard product={product} />
+                  </div>
+                ))
+              ) : (
+                <div className="col-span-full text-center py-8">
+                  <p className="text-muted-foreground">در حال بارگذاری محصولات...</p>
+                </div>
+              )}
             </div>
           </div>
         </section>

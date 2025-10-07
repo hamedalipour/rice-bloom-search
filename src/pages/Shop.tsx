@@ -4,6 +4,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ProductCard from "@/components/ProductCard";
 import { useProducts } from "@/hooks/useProducts";
+import { categories as sampleCategories } from "@/data/products";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -35,22 +36,11 @@ const Shop = () => {
   // Generate categories from products
   const categories = useMemo(() => {
     console.log('Generating categories from', products.length, 'products');
-    const uniqueCategoryIds = [...new Set(products.map(p => p.category_id).filter((id): id is string => Boolean(id)))];
-    console.log('Unique category IDs:', uniqueCategoryIds);
     
-    // For now, we'll use category_id as both name and slug
-    // In a real app, you'd want to join with a categories table
-    const categoryMap: { [key: string]: string } = {
-      'basmati': 'برنج بسماتی',
-      'hashemi': 'برنج هاشمی',
-      'tarom': 'برنج طارم',
-      'shali': 'برنج شعله‌ای',
-      'kateh': 'برنج کته',
-    };
-    
-    return uniqueCategoryIds.map(categoryId => ({
-      name: categoryMap[categoryId] || categoryId || 'نامشخص',
-      slug: categoryId
+    // Use sample categories data
+    return sampleCategories.map(cat => ({
+      name: cat.name,
+      slug: cat.slug
     }));
   }, [products]);
 
@@ -60,7 +50,18 @@ const Shop = () => {
 
     // Filter by category
     if (selectedCategory !== "all") {
-      filtered = filtered.filter((p) => p.category_id === selectedCategory);
+      // Map the sample category slugs to the database category_id values
+      const categoryMap: { [key: string]: string } = {
+        'tarom': 'طارم',
+        'hashemi': 'هاشمی',
+        'fajr': 'فجر',
+        'shirudi': 'شیرودی',
+      };
+      
+      const categoryId = categoryMap[selectedCategory];
+      if (categoryId) {
+        filtered = filtered.filter((p) => p.category_id === categoryId);
+      }
     }
 
     // Filter by price range

@@ -67,8 +67,8 @@ const Contact = () => {
                       </div>
                       <div>
                         <h3 className="font-bold mb-2 text-foreground">تلفن تماس</h3>
-                        <p className="text-muted-foreground" dir="ltr">021-12345678</p>
-                        <p className="text-muted-foreground" dir="ltr">0912-3456789</p>
+                        <p className="text-muted-foreground" dir="ltr">09354299785</p>
+                        <p className="text-muted-foreground" dir="ltr">09221580764</p>
                       </div>
                     </div>
                   </CardContent>
@@ -82,8 +82,7 @@ const Contact = () => {
                       </div>
                       <div>
                         <h3 className="font-bold mb-2 text-foreground">ایمیل</h3>
-                        <p className="text-muted-foreground">info@atrshalizar.ir</p>
-                        <p className="text-muted-foreground">support@atrshalizar.ir</p>
+                        <p className="text-muted-foreground">hamedalipour38@gmail.com</p>
                       </div>
                     </div>
                   </CardContent>
@@ -98,10 +97,7 @@ const Contact = () => {
                       <div>
                         <h3 className="font-bold mb-2 text-foreground">آدرس</h3>
                         <p className="text-muted-foreground">
-                          تهران، خیابان ولیعصر، پلاک ۱۲۳
-                        </p>
-                        <p className="text-muted-foreground">
-                          کد پستی: ۱۹۸۷۶۵۴۳۲۱
+                          لاهیجان میدان چهارپادشاه خیابان کاشف غربی نبش کاشف غربی پنج فروشگاه مهدوی
                         </p>
                       </div>
                     </div>
@@ -116,16 +112,8 @@ const Contact = () => {
                   <CardContent>
                     <div className="space-y-2 text-muted-foreground">
                       <div className="flex justify-between">
-                        <span>شنبه - چهارشنبه:</span>
-                        <span>۹:۰۰ - ۱۸:۰۰</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>پنج‌شنبه:</span>
-                        <span>۹:۰۰ - ۱۳:۰۰</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>جمعه:</span>
-                        <span>تعطیل</span>
+                        <span>همه روز:</span>
+                        <span>۹:۰۰ - ۱۴:۰۰ و ۱۷:۰۰ - ۲۲:۰۰</span>
                       </div>
                     </div>
                   </CardContent>
