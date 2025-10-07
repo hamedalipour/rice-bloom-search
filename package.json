@@ -6,12 +6,13 @@
   "description": "Rice e-commerce website with admin panel",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
-    "build:cf": "npm install && vite build",
-    "build:dev": "vite build --mode development",
-    "build:prod": "vite build --mode production",
+    "build": "npm run sitemap && vite build",
+    "build:cf": "npm install && npm run sitemap && vite build",
+    "build:dev": "npm run sitemap && vite build --mode development",
+    "build:prod": "npm run sitemap && vite build --mode production",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "sitemap": "node scripts/generateSitemap.cjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
