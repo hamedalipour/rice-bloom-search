@@ -2,9 +2,8 @@
 const fs = require('fs');
 const path = require('path');
 
-// Get the base URL from environment or use a default
-// Replace 'https://your-domain.com' with your actual domain when deploying
-const BASE_URL = process.env.SITE_URL || 'https://your-domain.com';
+// Use your actual domain
+const BASE_URL = 'https://atre-shalizar.ir';
 
 // Static routes that are always available
 const staticRoutes = [
@@ -71,10 +70,7 @@ const outputPath = path.join(__dirname, '../public/sitemap.xml');
 fs.writeFileSync(outputPath, sitemapContent);
 
 console.log('Sitemap generated successfully at:', outputPath);
-console.log('Sitemap URL will be:', BASE_URL + '/sitemap.xml');
-console.log('');
-console.log('IMPORTANT: Remember to replace "https://your-domain.com" with your actual domain.');
-console.log('You can do this by setting the SITE_URL environment variable.');
+console.log('Sitemap URL:', BASE_URL + '/sitemap.xml');
 console.log('');
 console.log('Sitemap includes:');
 console.log('- 7 static pages');
