@@ -173,7 +173,7 @@ If image upload fails, create the storage bucket manually in Supabase:
 If you encounter column errors with blog images, it may be due to a mismatch between the expected column name and the actual database schema. The application now correctly uses `featured_image_url` as the column name for blog post images.
 
 ### Image Upload Fix
-The image upload functionality has been fixed to properly upload images to Supabase Storage instead of using temporary blob URLs. Images are now permanently stored and accessible.
+The image upload functionality has been fixed to properly upload images to Supabase Storage. Temporary blob URLs have been completely removed - all images are now permanently stored in Supabase Storage.
 
 ### Database Schema
 The application is designed to work with the current database schema. If you encounter column errors, the app will gracefully handle missing fields.

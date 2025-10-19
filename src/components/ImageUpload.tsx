@@ -47,11 +47,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ value, onChange, disabled }) 
 
       if (error) {
         console.error('Image upload error:', error);
-        // Fallback to local blob URL if storage upload fails
-        console.log('Storage upload failed, using local blob URL as fallback');
-        const imageUrl = URL.createObjectURL(file);
-        onChange(imageUrl);
-        toast.success('تصویر بارگذاری شد (موقت). برای ذخیره دائمی از انتخاب از پوشه Assets استفاده کنید');
+        toast.error('خطا در آپلود تصویر. لطفاً دوباره تلاش کنید.');
         return;
       }
 
