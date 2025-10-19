@@ -59,7 +59,7 @@ CREATE POLICY "Allow admin users to delete product images" ON storage.objects
   );
 
 -- 9. Verify policies were created
-SELECT * FROM pg_policies WHERE polname LIKE '%product images%';
+SELECT * FROM pg_policies WHERE policyname LIKE '%product images%';
 
 -- 10. Test by creating a simple file (optional - remove if you don't want to create a test file)
 -- Uncomment the following lines if you want to create a test file:

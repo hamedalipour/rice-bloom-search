@@ -2,7 +2,7 @@
 -- Run this script in your Supabase SQL Editor to fix RLS policy issues
 
 -- First, let's check existing policies
-SELECT * FROM pg_policies WHERE polname LIKE '%product images%';
+SELECT * FROM pg_policies WHERE policyname LIKE '%product images%';
 
 -- Drop existing policies if they exist
 DROP POLICY IF EXISTS "Allow public read access on product images" ON storage.objects;
@@ -38,7 +38,7 @@ CREATE POLICY "Allow authenticated users to delete their images" ON storage.obje
   );
 
 -- Verify the new policies were created
-SELECT polname, polcmd, polroles FROM pg_policies WHERE polname LIKE '%images%';
+SELECT policyname, command, roles FROM pg_policies WHERE policyname LIKE '%images%';
 
 -- Test by listing buckets
 SELECT * FROM storage.buckets WHERE id = 'product-images';

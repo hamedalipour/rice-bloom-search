@@ -14,3 +14,6 @@ WHERE id = 'product-images';
 -- Step 3: If the above query returns no results, let's check what buckets exist
 SELECT 'Existing buckets:' as info, id, name, public 
 FROM storage.buckets;
+
+-- Step 4: Check existing policies
+SELECT policyname, command, roles FROM pg_policies WHERE policyname LIKE '%product images%';
