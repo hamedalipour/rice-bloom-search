@@ -175,6 +175,13 @@ If you encounter column errors with blog images, it may be due to a mismatch bet
 ### Image Upload Fix
 The image upload functionality has been fixed to properly upload images to Supabase Storage. Temporary blob URLs have been completely removed - all images are now permanently stored in Supabase Storage.
 
+### RLS Policy Issues
+If you encounter "new row violates row-level security policy" errors when uploading images:
+
+1. Use the `SIMPLE_FIX_RLS_CORRECTED.sql` script which contains the correct policies
+2. Copy and paste the contents into your Supabase SQL Editor
+3. Run the script to apply the proper Row Level Security policies
+
 ### Database Schema
 The application is designed to work with the current database schema. If you encounter column errors, the app will gracefully handle missing fields.
 
