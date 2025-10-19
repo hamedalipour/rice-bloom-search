@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import StorageTest from "@/components/StorageTest";
 import BucketDiagnostic from "@/components/BucketDiagnostic";
+import RLSDiagnostic from "@/components/RLSDiagnostic";
 
 const DatabaseTest = () => {
   const [products, setProducts] = useState([]);
@@ -90,6 +91,11 @@ const DatabaseTest = () => {
         <div className="mt-12">
           <h2 className="text-2xl font-bold mb-6">Bucket Diagnostic</h2>
           <BucketDiagnostic />
+        </div>
+        
+        <div className="mt-12">
+          <h2 className="text-2xl font-bold mb-6">RLS Diagnostic</h2>
+          <RLSDiagnostic />
         </div>
         
         <div className="mt-8">

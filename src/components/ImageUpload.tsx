@@ -59,7 +59,12 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ value, onChange, disabled }) 
         // Check if it's a bucket not found error
         if (error.message.includes('Bucket not found')) {
           toast.error('خطا: پوشه تصاویر یافت نشد. لطفاً با مدیر سیستم تماس بگیرید.');
-        } else {
+        } 
+        // Check if it's an RLS policy error
+        else if (error.message.includes('row-level security policy') || error.message.includes('denied')) {
+          toast.error('خطا: دسترسی لازم برای آپلود تصویر وجود ندارد. لطفاً با مدیر سیستم تماس بگیرید.');
+        }
+        else {
           toast.error(`خطا در آپلود تصویر: ${error.message}`);
         }
         return;
