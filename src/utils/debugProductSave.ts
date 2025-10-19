@@ -1,128 +1,72 @@
 import { supabase } from '@/integrations/supabase/client';
+import { TablesInsert } from '@/integrations/supabase/types';
 
-// Comprehensive test to debug product save issues
-export const debugProductSave = async () => {
-  console.log('=== DEBUGGING PRODUCT SAVE ISSUES ===');
-  
+export const debugProductSave = async (productData: TablesInsert<'products'>) => {
   try {
-    // Step 1: Check table structure
-    console.log('1. Checking table structure...');
-    const { data: existingProducts, error: readError } = await supabase
-      .from('products')
-      .select('*')
-      .limit(1);
+    console.log('=== DEBUG PRODUCT SAVE ===');
+    console.log('Input product data:', productData);
     
-    if (readError) {
-      console.error('❌ Cannot read products table:', readError);
-      return;
+    // Check for required fields
+    const requiredFields = ['name', 'slug', 'price'];
+    const missingFields = requiredFields.filter(field => !productData[field as keyof typeof productData]);
+    
+    if (missingFields.length > 0) {
+      console.warn('Missing required fields:', missingFields);
     }
     
-    if (existingProducts && existingProducts.length > 0) {
-      console.log('✅ Table structure (first product):', Object.keys(existingProducts[0]));
-    }
+    // Check data types
+    console.log('Data types:');
+    Object.keys(productData).forEach(key => {
+      const value = productData[key as keyof typeof productData];
+      console.log(`  ${key}: ${typeof value} =`, value);
+    });
     
-    // Step 2: Test minimal insert
-    console.log('2. Testing minimal insert...');
-    const testSlug = 'debug-test-' + Date.now();
+    // Try to insert with detailed error handling
+    console.log('Attempting to insert product...');
     
-    // Try with original schema
-    const minimalData1 = {
-      name: 'Test Product',
-      slug: testSlug,
-      price: 100,
-      category: 'general',
-      image: '',
-      description: 'test',
-      long_description: 'test desc',
-      origin: 'test origin'
-    };
-    
-    const { data: result1, error: error1 } = await supabase
+    const { data, error } = await supabase
       .from('products')
-      .insert(minimalData1)
+      .insert(productData)
       .select()
       .single();
     
-    if (error1) {
-      console.error('❌ Original schema insert failed:', error1);
+    if (error) {
+      console.error('=== PRODUCT INSERT FAILED ===');
+      console.error('Error code:', error.code);
+      console.error('Error message:', error.message);
+      console.error('Error details:', error.details);
+      console.error('Error hint:', error.hint);
       
-      // Try with new schema
-      console.log('3. Trying with new schema...');
-      const minimalData2 = {
-        name: 'Test Product 2',
-        slug: testSlug + '-2',
-        price: 100,
-        category_id: 'general',
-        image_url: '',
-        description: 'test',
-        long_description: 'test desc',
-        origin: 'test origin'
+      // Try with minimal data
+      console.log('Trying with minimal data...');
+      const minimalData = {
+        name: productData.name || 'Test Product',
+        slug: productData.slug || 'test-product-' + Date.now(),
+        price: productData.price || 0
       };
       
-      const { data: result2, error: error2 } = await supabase
+      const { data: minimalDataResult, error: minimalDataError } = await supabase
         .from('products')
-        .insert(minimalData2)
+        .insert(minimalData)
         .select()
         .single();
       
-      if (error2) {
-        console.error('❌ New schema insert also failed:', error2);
+      if (minimalDataError) {
+        console.error('=== MINIMAL INSERT ALSO FAILED ===');
+        console.error('Minimal data error:', minimalDataError);
       } else {
-        console.log('✅ New schema works:', result2);
-        // Clean up
-        await supabase.from('products').delete().eq('id', result2.id);
+        console.log('✅ Minimal insert succeeded:', minimalDataResult);
       }
     } else {
-      console.log('✅ Original schema works:', result1);
-      // Clean up
-      await supabase.from('products').delete().eq('id', result1.id);
+      console.log('✅ Product insert succeeded:', data);
     }
     
-    // Step 4: Check auth and permissions
-    console.log('4. Checking authentication and permissions...');
-    const { data: authData } = await supabase.auth.getUser();
-    console.log('Auth user:', authData.user?.email);
-    
-    const { data: profile } = await supabase
-      .from('user_profiles')
-      .select('*')
-      .eq('id', authData.user?.id)
-      .single();
-    console.log('User profile:', profile);
-    
-    // Step 5: Test actual form data structure
-    console.log('5. Testing with realistic form data...');
-    const realisticData = {
-      name: 'برنج طارم محلی',
-      slug: 'tarom-mahali-debug',
-      category: 'tarom',
-      price: 250000,
-      original_price: 280000,
-      image: '/assets/rice-tarom.jpg',
-      description: 'برنج طارم محلی درجه یک',
-      long_description: 'این برنج از بهترین انواع برنج است',
-      origin: 'شمال ایران',
-      features: ['درجه یک', 'ارگانیک'],
-      weights: [{value: '1 کیلو', price: 250000}],
-      in_stock: true
-    };
-    
-    const { data: result3, error: error3 } = await supabase
-      .from('products')
-      .insert(realisticData)
-      .select()
-      .single();
-    
-    if (error3) {
-      console.error('❌ Realistic data failed:', error3);
-    } else {
-      console.log('✅ Realistic data works:', result3);
-      // Clean up
-      await supabase.from('products').delete().eq('id', result3.id);
-    }
-    
+    console.log('=== DEBUG COMPLETE ===');
+    return { data, error };
   } catch (error) {
-    console.error('❌ Debug failed:', error);
+    console.error('=== DEBUG PRODUCT SAVE FAILED ===');
+    console.error('Exception:', error);
+    return { data: null, error };
   }
 };
 

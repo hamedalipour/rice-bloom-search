@@ -111,6 +111,12 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, isOpen, onClose, mod
           errorMsg = 'مشکل در ساختار پایگاه داده. لطفاً با مدیر سیستم تماس بگیرید';
         } else if (result.error.includes('permission')) {
           errorMsg = 'عدم دسترسی برای ذخیره محصول';
+        } else if (result.error.includes('null value in column') && result.error.includes('violates not-null constraint')) {
+          errorMsg = 'برخی فیلدهای الزامی خالی هستند';
+        } else if (result.error.includes('foreign key constraint')) {
+          errorMsg = 'مقدار دسته‌بندی نامعتبر است';
+        } else if (result.error === 'Database error occurred') {
+          errorMsg = 'خطای پایگاه داده. لطفاً اطلاعات وارد شده را بررسی کنید و دوباره تلاش کنید';
         }
         
         alert(`خطا در ذخیره محصول: ${errorMsg}`);

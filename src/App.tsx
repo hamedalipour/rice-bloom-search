@@ -8,7 +8,6 @@ import { CartProvider } from "@/contexts/CartContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { AdminRoute } from "@/components/AdminRoute";
 import AdminLayout from "@/components/AdminLayout";
-import { testDatabaseConnection } from "@/utils/dbTest";
 import { testCurrentSetup } from "@/utils/testSetup";
 import { debugProductSave } from "@/utils/debugProductSave";
 import Home from "./pages/Home";
@@ -33,6 +32,8 @@ import EmergencyAdmin from "./pages/EmergencyAdmin";
 import Checkout from "./pages/Checkout";
 import OrderTest from "./pages/OrderTest";
 import DatabaseTest from "./pages/DatabaseTest";
+import ImageUploadTest from "./pages/ImageUploadTest";
+import DatabaseDebug from "./pages/DatabaseDebug";
 
 const queryClient = new QueryClient();
 
@@ -61,11 +62,8 @@ const App = () => (
               <Route path="/emergency" element={<EmergencyAdmin />} />
               <Route path="/test-order" element={<OrderTest />} />
               <Route path="/db-test" element={<DatabaseTest />} />
-              <Route path="/profile" element={
-                <ProtectedRoute>
-                  <Profile />
-                </ProtectedRoute>
-              } />
+              <Route path="/image-upload-test" element={<ImageUploadTest />} />
+              <Route path="/db-debug" element={<DatabaseDebug />} />
               {/* Admin Routes */}
               <Route path="/admin" element={
                 <AdminRoute>

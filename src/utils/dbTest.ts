@@ -1,62 +1,63 @@
 import { supabase } from '@/integrations/supabase/client';
 
-// Test function to check the database schema
-export const testDatabaseConnection = async () => {
+export const runDatabaseTests = async () => {
   try {
-    console.log('Testing database connection...');
+    console.log('=== RUNNING DATABASE TESTS ===');
     
-    // Get table info
-    const { data: tableInfo, error: tableError } = await supabase
+    // Test 1: Check if products table exists and structure
+    console.log('Test 1: Checking products table structure...');
+    const { data: sampleProduct, error: sampleError } = await supabase
       .from('products')
       .select('*')
       .limit(1);
     
-    if (tableError) {
-      console.error('Error fetching from products table:', tableError);
-      return { success: false, error: tableError.message };
+    if (sampleError) {
+      console.error('Products table check failed:', sampleError);
+    } else {
+      console.log('Products table accessible');
+      if (sampleProduct && sampleProduct.length > 0) {
+        console.log('Sample product columns:', Object.keys(sampleProduct[0]));
+      }
     }
     
-    console.log('Products table accessible. Sample row:', tableInfo);
-    
-    // Try to describe the table structure by attempting an insert with minimal data
+    // Test 2: Try inserting a minimal product
+    console.log('Test 2: Testing minimal product insert...');
     const testProduct = {
-      name: 'Test Product',
-      slug: 'test-product-' + Date.now(),
-      price: 100,
+      name: 'Database Test Product',
+      slug: 'db-test-' + Date.now(),
+      price: 99.99,
+      description: 'Test product for database verification',
+      long_description: 'Detailed test product description',
+      origin: 'Test Origin',
+      category_id: null // Since no categories table exists
     };
     
-    const { data: insertData, error: insertError } = await supabase
+    const { data: insertResult, error: insertError } = await supabase
       .from('products')
       .insert(testProduct)
       .select()
       .single();
     
     if (insertError) {
-      console.error('Insert test failed:', insertError);
-      console.error('Error details:', {
-        message: insertError.message,
-        details: insertError.details,
-        hint: insertError.hint,
-        code: insertError.code
-      });
-      return { success: false, error: insertError.message, details: insertError };
+      console.error('Minimal product insert failed:', insertError);
+      console.error('Error code:', insertError.code);
+      console.error('Error message:', insertError.message);
+      console.error('Error details:', insertError.details);
+    } else {
+      console.log('✅ Minimal product insert succeeded:', insertResult);
+      
+      // Clean up test product
+      if (insertResult && insertResult.id) {
+        await supabase
+          .from('products')
+          .delete()
+          .eq('id', insertResult.id);
+        console.log('Cleaned up test product');
+      }
     }
     
-    console.log('Insert test successful:', insertData);
-    
-    // Clean up the test product
-    await supabase
-      .from('products')
-      .delete()
-      .eq('id', insertData.id);
-    
-    return { success: true, data: insertData };
-    
+    console.log('=== DATABASE TESTS COMPLETE ===');
   } catch (error) {
-    console.error('Database test failed:', error);
-    return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
+    console.error('Database tests failed with exception:', error);
   }
 };
-
-// Export for use in components
-(window as any).testDatabaseConnection = testDatabaseConnection;

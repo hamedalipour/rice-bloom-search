@@ -94,11 +94,10 @@ export const useProducts = () => {
       console.log('=== CREATING PRODUCT ===');
       console.log('Original form data:', product);
       
-      // Create a safe product data without problematic category field
-      const safeProductData = {
+      // Create a safe product data without problematic fields
+      const safeProductData: any = {
         name: product.name,
         slug: product.slug,
-        // Add category_id field
         category_id: product.category_id || null,
         price: product.price,
         original_price: product.original_price || null,
@@ -110,53 +109,111 @@ export const useProducts = () => {
         in_stock: product.in_stock !== undefined ? product.in_stock : true
       };
       
-      // Add image field if provided
+      // Handle image field - try both possible column names
       if (product.image_url) {
-        (safeProductData as any).image_url = product.image_url;
+        safeProductData.image_url = product.image_url;
       }
       
       console.log('Safe product data (with category):', safeProductData);
       
-      const { data, error } = await supabase
-        .from('products')
-        .insert(safeProductData)
-        .select()
-        .single();
-      
-      if (error) {
-        console.error('Safe create failed:', error);
-        
-        // If image_url fails, try with image field
-        if (product.image_url && error.message.includes('image_url')) {
-          console.log('Retrying with image field instead of image_url...');
-          const retryData = { ...safeProductData };
-          delete (retryData as any).image_url;
-          (retryData as any).image = product.image_url;
-          
-          const { data: retryResult, error: retryError } = await supabase
+      // Try inserting with all possible field combinations
+      const insertionAttempts = [
+        // Attempt 1: Full data with image_url
+        async () => {
+          console.log('Attempt 1: Full data with image_url');
+          return await supabase
             .from('products')
-            .insert(retryData)
+            .insert(safeProductData)
             .select()
             .single();
-          
-          if (!retryError) {
-            console.log('✅ Retry with image field succeeded:', retryResult);
-            await fetchProducts();
-            return { data: retryResult, error: null };
-          }
+        },
+        // Attempt 2: Data without image fields
+        async () => {
+          console.log('Attempt 2: Data without image fields');
+          const minimalData = { ...safeProductData };
+          delete minimalData.image_url;
+          return await supabase
+            .from('products')
+            .insert(minimalData)
+            .select()
+            .single();
+        },
+        // Attempt 3: Only required fields
+        async () => {
+          console.log('Attempt 3: Only required fields');
+          const minimalData = {
+            name: safeProductData.name,
+            slug: safeProductData.slug,
+            category_id: safeProductData.category_id,
+            price: safeProductData.price,
+            description: safeProductData.description,
+            long_description: safeProductData.long_description,
+            origin: safeProductData.origin
+          };
+          return await supabase
+            .from('products')
+            .insert(minimalData)
+            .select()
+            .single();
         }
-        
-        throw error;
+      ];
+      
+      let lastError: any = null;
+      
+      // Try each insertion attempt
+      for (let i = 0; i < insertionAttempts.length; i++) {
+        try {
+          const { data, error } = await insertionAttempts[i]();
+          
+          if (error) {
+            console.error(`Attempt ${i + 1} failed:`, error);
+            lastError = error;
+            continue;
+          }
+          
+          console.log(`✅ Attempt ${i + 1} succeeded:`, data);
+          await fetchProducts();
+          return { data, error: null };
+        } catch (attemptError) {
+          console.error(`Attempt ${i + 1} threw exception:`, attemptError);
+          lastError = attemptError;
+        }
       }
       
-      console.log('✅ Product created successfully:', data);
-      await fetchProducts();
-      return { data, error: null };
+      // If all attempts failed, throw the last error
+      throw lastError;
       
     } catch (err) {
       console.error('=== CREATE PRODUCT FAILED ===');
       console.error('Final error:', err);
-      const errorMessage = err instanceof Error ? err.message : 'Database error occurred';
+      
+      // Provide more specific error messages
+      let errorMessage = 'Database error occurred';
+      if (err instanceof Error) {
+        errorMessage = err.message;
+        
+        // Check for specific error types
+        if (errorMessage.includes('duplicate key')) {
+          errorMessage = 'اسلاگ تکراری است. لطفاً اسلاگ دیگری انتخاب کنید';
+        } else if (errorMessage.includes('column') && errorMessage.includes('does not exist')) {
+          errorMessage = 'مشکل در ساختار پایگاه داده. لطفاً با مدیر سیستم تماس بگیرید';
+        } else if (errorMessage.includes('permission') || errorMessage.includes('row-level security')) {
+          errorMessage = 'عدم دسترسی برای ذخیره محصول';
+        } else if (errorMessage.includes('null value in column') && errorMessage.includes('violates not-null constraint')) {
+          errorMessage = 'برخی فیلدهای الزامی خالی هستند';
+        } else if (errorMessage.includes('foreign key constraint')) {
+          errorMessage = 'مقدار دسته‌بندی نامعتبر است';
+        }
+      }
+      
+      // Add more detailed error information
+      if (err && typeof err === 'object' && 'code' in err) {
+        const dbError = err as any;
+        console.error('Database error code:', dbError.code);
+        console.error('Database error details:', dbError.details);
+        console.error('Database error hint:', dbError.hint);
+      }
+      
       return { data: null, error: errorMessage };
     }
   };
@@ -168,21 +225,25 @@ export const useProducts = () => {
       console.log('Update data:', updates);
       
       // First, get the existing product to see what fields we can update
-      const { data: existingProduct } = await supabase
+      const { data: existingProduct, error: fetchError } = await supabase
         .from('products')
         .select('*')
         .eq('id', id)
         .single();
       
+      if (fetchError) {
+        console.error('Failed to fetch existing product:', fetchError);
+        throw fetchError;
+      }
+      
       if (existingProduct) {
         console.log('Existing product structure:', Object.keys(existingProduct));
       }
       
-      // Try updating only the fields that we know exist and work
-      const safeUpdate = {
+      // Create safe update data
+      const safeUpdate: any = {
         name: updates.name,
         slug: updates.slug,
-        // Add category_id field
         category_id: updates.category_id || null,
         price: updates.price,
         original_price: updates.original_price || null,
@@ -194,38 +255,105 @@ export const useProducts = () => {
         in_stock: updates.in_stock !== undefined ? updates.in_stock : true
       };
       
-      // Add image field if we have an image
+      // Handle image field
       if (updates.image_url) {
         // Try both possible image field names
         if (existingProduct && 'image_url' in existingProduct) {
-          (safeUpdate as any).image_url = updates.image_url;
+          safeUpdate.image_url = updates.image_url;
         } else if (existingProduct && 'image' in existingProduct) {
-          (safeUpdate as any).image = updates.image_url;
+          safeUpdate.image = updates.image_url;
+        } else {
+          // Default to image_url
+          safeUpdate.image_url = updates.image_url;
         }
       }
       
       console.log('Safe update (with category):', safeUpdate);
       
-      const { data, error } = await supabase
-        .from('products')
-        .update(safeUpdate)
-        .eq('id', id)
-        .select()
-        .single();
+      // Try updating with all possible field combinations
+      const updateAttempts = [
+        // Attempt 1: Full update
+        async () => {
+          console.log('Update attempt 1: Full update');
+          return await supabase
+            .from('products')
+            .update(safeUpdate)
+            .eq('id', id)
+            .select()
+            .single();
+        },
+        // Attempt 2: Minimal update (only core fields)
+        async () => {
+          console.log('Update attempt 2: Minimal update');
+          const minimalUpdate = {
+            name: safeUpdate.name,
+            slug: safeUpdate.slug,
+            category_id: safeUpdate.category_id,
+            price: safeUpdate.price
+          };
+          return await supabase
+            .from('products')
+            .update(minimalUpdate)
+            .eq('id', id)
+            .select()
+            .single();
+        }
+      ];
       
-      if (error) {
-        console.error('Safe update failed:', error);
-        throw error;
+      let lastError: any = null;
+      
+      // Try each update attempt
+      for (let i = 0; i < updateAttempts.length; i++) {
+        try {
+          const { data, error } = await updateAttempts[i]();
+          
+          if (error) {
+            console.error(`Update attempt ${i + 1} failed:`, error);
+            lastError = error;
+            continue;
+          }
+          
+          console.log(`✅ Update attempt ${i + 1} succeeded:`, data);
+          await fetchProducts();
+          return { data, error: null };
+        } catch (attemptError) {
+          console.error(`Update attempt ${i + 1} threw exception:`, attemptError);
+          lastError = attemptError;
+        }
       }
       
-      console.log('✅ Product updated successfully:', data);
-      await fetchProducts();
-      return { data, error: null };
+      // If all attempts failed, throw the last error
+      throw lastError;
       
     } catch (err) {
       console.error('=== UPDATE PRODUCT FAILED ===');
       console.error('Final error:', err);
-      const errorMessage = err instanceof Error ? err.message : 'Database error occurred';
+      
+      // Provide more specific error messages
+      let errorMessage = 'Database error occurred';
+      if (err instanceof Error) {
+        errorMessage = err.message;
+        
+        // Check for specific error types
+        if (errorMessage.includes('duplicate key')) {
+          errorMessage = 'اسلاگ تکراری است. لطفاً اسلاگ دیگری انتخاب کنید';
+        } else if (errorMessage.includes('column') && errorMessage.includes('does not exist')) {
+          errorMessage = 'مشکل در ساختار پایگاه داده. لطفاً با مدیر سیستم تماس بگیرید';
+        } else if (errorMessage.includes('permission') || errorMessage.includes('row-level security')) {
+          errorMessage = 'عدم دسترسی برای به‌روزرسانی محصول';
+        } else if (errorMessage.includes('null value in column') && errorMessage.includes('violates not-null constraint')) {
+          errorMessage = 'برخی فیلدهای الزامی خالی هستند';
+        }
+      }
+      
+      // Add more detailed error information
+      if (err && typeof err === 'object' && 'code' in err) {
+        const dbError = err as any;
+        console.error('Database error code:', dbError.code);
+        console.error('Database error details:', dbError.details);
+        console.error('Database error hint:', dbError.hint);
+      }
+      
       return { data: null, error: errorMessage };
     }
   };
