@@ -98,6 +98,8 @@ export const useProducts = () => {
       const safeProductData = {
         name: product.name,
         slug: product.slug,
+        // Add category_id field
+        category_id: product.category_id || null,
         price: product.price,
         original_price: product.original_price || null,
         description: product.description || 'توضیحی ارائه نشده',
@@ -113,7 +115,7 @@ export const useProducts = () => {
         (safeProductData as any).image_url = product.image_url;
       }
       
-      console.log('Safe product data (no category):', safeProductData);
+      console.log('Safe product data (with category):', safeProductData);
       
       const { data, error } = await supabase
         .from('products')
@@ -180,6 +182,8 @@ export const useProducts = () => {
       const safeUpdate = {
         name: updates.name,
         slug: updates.slug,
+        // Add category_id field
+        category_id: updates.category_id || null,
         price: updates.price,
         original_price: updates.original_price || null,
         description: updates.description || 'توضیحی ارائه نشده',
@@ -200,7 +204,7 @@ export const useProducts = () => {
         }
       }
       
-      console.log('Safe update (no category):', safeUpdate);
+      console.log('Safe update (with category):', safeUpdate);
       
       const { data, error } = await supabase
         .from('products')

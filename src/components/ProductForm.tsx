@@ -207,9 +207,6 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, isOpen, onClose, mod
               <option value="shirodi">برنج شیرودی</option>
               <option value="general">عمومی</option>
             </select>
-            <p className="text-xs text-gray-500 mt-1">
-              در حال حاضر دسته‌بندی در پایگاه داده ذخیره نمی‌شود و فقط برای نمایش است
-            </p>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
