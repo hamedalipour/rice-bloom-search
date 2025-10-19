@@ -121,7 +121,7 @@ const BlogPost = () => {
               {/* Featured Image */}
               <div className="relative aspect-video rounded-lg overflow-hidden mb-12">
                 <img
-                  src={(post as any).featured_image_url || '/placeholder-image.jpg'}
+                  src={post.image || '/placeholder-image.jpg'}
                   alt={post.title}
                   className="w-full h-full object-cover"
                   onError={(e) => {
@@ -158,7 +158,7 @@ const BlogPost = () => {
                         <Card className="overflow-hidden hover:shadow-lg transition-all duration-300 h-full group border-border">
                           <div className="relative h-40 overflow-hidden">
                             <img
-                              src={relatedPost.featured_image_url || '/placeholder-image.jpg'}
+                              src={relatedPost.image || '/placeholder-image.jpg'}
                               alt={relatedPost.title}
                               className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                               onError={(e) => {

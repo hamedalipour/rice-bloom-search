@@ -39,7 +39,7 @@ const BlogPostForm: React.FC<BlogPostFormProps> = ({ post, isOpen, onClose, mode
         content: post.content || '',
         category: (post.tags && post.tags[0]) || '',
         author: post.author_id ? 'Author' : 'System',
-        image: post.featured_image_url || '',
+        image: post.image || '',
         read_time: '5 minutes', // Default since this field doesn't exist in actual schema
         published: post.published || false,
       });

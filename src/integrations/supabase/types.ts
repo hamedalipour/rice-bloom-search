@@ -20,7 +20,8 @@ export type Database = {
           content: string
           created_at: string
           excerpt: string | null
-          featured_image_url: string | null
+          // Fix: Use the correct database column name 'image' instead of 'featured_image_url'
+          image: string | null
           id: string
           meta_description: string | null
           meta_title: string | null
@@ -36,7 +37,8 @@ export type Database = {
           content: string
           created_at?: string
           excerpt?: string | null
-          featured_image_url?: string | null
+          // Fix: Use the correct database column name 'image' instead of 'featured_image_url'
+          image?: string | null
           id?: string
           meta_description?: string | null
           meta_title?: string | null
@@ -52,7 +54,8 @@ export type Database = {
           content?: string
           created_at?: string
           excerpt?: string | null
-          featured_image_url?: string | null
+          // Fix: Use the correct database column name 'image' instead of 'featured_image_url'
+          image?: string | null
           id?: string
           meta_description?: string | null
           meta_title?: string | null

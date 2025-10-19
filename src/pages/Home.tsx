@@ -210,7 +210,7 @@ const Home = () => {
                   <Card className="overflow-hidden hover:shadow-lg transition-all duration-300 h-full border-border">
                     <div className="relative h-48 overflow-hidden">
                       <img
-                        src={(post as any).featured_image_url || '/placeholder-image.jpg'}
+                        src={post.image || '/placeholder-image.jpg'}
                         alt={post.title}
                         className="w-full h-full object-cover hover:scale-110 transition-transform duration-500"
                         onError={(e) => {
