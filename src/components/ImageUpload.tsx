@@ -34,16 +34,34 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ value, onChange, disabled }) 
     setUploading(true);
 
     try {
-      // For now, use a fallback to local blob URL until storage bucket is properly configured
-      console.log('Storage bucket not available, using local blob URL as fallback');
+      // Upload image to Supabase Storage
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Math.random()}.${fileExt}`;
       
-      // Create a local URL for preview (temporary solution)
-      const imageUrl = URL.createObjectURL(file);
-      onChange(imageUrl);
-      toast.success('تصویر بارگذاری شد (موقت). برای ذخیره دائمی از انتخاب از پوشه Assets استفاده کنید');
-      
-      // Note: In production, you would implement proper storage here
-      // For now, recommend using asset selector for permanent images
+      const { data, error } = await supabase.storage
+        .from('product-images')
+        .upload(fileName, file, {
+          cacheControl: '3600',
+          upsert: false
+        });
+
+      if (error) {
+        console.error('Image upload error:', error);
+        // Fallback to local blob URL if storage upload fails
+        console.log('Storage upload failed, using local blob URL as fallback');
+        const imageUrl = URL.createObjectURL(file);
+        onChange(imageUrl);
+        toast.success('تصویر بارگذاری شد (موقت). برای ذخیره دائمی از انتخاب از پوشه Assets استفاده کنید');
+        return;
+      }
+
+      // Get public URL for the uploaded image
+      const { data: { publicUrl } } = supabase.storage
+        .from('product-images')
+        .getPublicUrl(fileName);
+
+      onChange(publicUrl);
+      toast.success('تصویر با موفقیت بارگذاری شد');
       
     } catch (error) {
       console.error('Image processing error:', error);
