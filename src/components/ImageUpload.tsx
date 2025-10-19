@@ -34,9 +34,18 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ value, onChange, disabled }) 
     setUploading(true);
 
     try {
+      // Log upload attempt
+      console.log('Attempting to upload file:', {
+        name: file.name,
+        size: file.size,
+        type: file.type
+      });
+
       // Upload image to Supabase Storage
       const fileExt = file.name.split('.').pop();
-      const fileName = `${Math.random()}.${fileExt}`;
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+      
+      console.log('Uploading to bucket: product-images, file name:', fileName);
       
       const { data, error } = await supabase.storage
         .from('product-images')
@@ -47,21 +56,29 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ value, onChange, disabled }) 
 
       if (error) {
         console.error('Image upload error:', error);
-        toast.error('خطا در آپلود تصویر. لطفاً دوباره تلاش کنید.');
+        // Check if it's a bucket not found error
+        if (error.message.includes('Bucket not found')) {
+          toast.error('خطا: پوشه تصاویر یافت نشد. لطفاً با مدیر سیستم تماس بگیرید.');
+        } else {
+          toast.error(`خطا در آپلود تصویر: ${error.message}`);
+        }
         return;
       }
+
+      console.log('Upload successful:', data);
 
       // Get public URL for the uploaded image
       const { data: { publicUrl } } = supabase.storage
         .from('product-images')
         .getPublicUrl(fileName);
 
+      console.log('Public URL generated:', publicUrl);
       onChange(publicUrl);
       toast.success('تصویر با موفقیت بارگذاری شد');
       
-    } catch (error) {
+    } catch (error: any) {
       console.error('Image processing error:', error);
-      toast.error('خطا در پردازش تصویر');
+      toast.error(`خطا در پردازش تصویر: ${error.message}`);
     } finally {
       setUploading(false);
     }
@@ -81,6 +98,10 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ value, onChange, disabled }) 
             src={value}
             alt="Preview"
             className="w-full h-48 object-cover rounded-lg border"
+            onError={(e) => {
+              console.error('Image failed to load:', value);
+              toast.error('خطا در بارگذاری تصویر');
+            }}
           />
           <Button
             type="button"
