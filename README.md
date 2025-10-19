@@ -169,6 +169,9 @@ If image upload fails, create the storage bucket manually in Supabase:
 3. Make it public
 4. Set file size limit to 5MB
 
+### Database Schema Correction
+If you encounter column errors with blog images, it may be due to a mismatch between the expected column name and the actual database schema. The application now correctly uses `featured_image_url` as the column name for blog post images.
+
 ### Database Schema
 The application is designed to work with the current database schema. If you encounter column errors, the app will gracefully handle missing fields.
 
