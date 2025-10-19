@@ -4,6 +4,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
+import StorageTest from "@/components/StorageTest";
 
 const DatabaseTest = () => {
   const [products, setProducts] = useState([]);
@@ -79,6 +80,11 @@ const DatabaseTest = () => {
             )}
           </div>
         )}
+        
+        <div className="mt-12">
+          <h2 className="text-2xl font-bold mb-6">Storage Test</h2>
+          <StorageTest />
+        </div>
         
         <div className="mt-8">
           <Button asChild>
