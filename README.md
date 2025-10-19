@@ -179,6 +179,13 @@ The application is designed to work with the current database schema. If you enc
 2. Set environment variables in Vercel dashboard
 3. Deploy automatically on git push
 
+### GitHub Pages Deployment
+1. Go to your repository Settings on GitHub
+2. Navigate to "Pages" in the left sidebar
+3. Under "Source", select "GitHub Actions"
+4. The site will automatically deploy on every push to the main branch
+5. Your site will be available at `https://[username].github.io/rice-bloom-search/`
+
 ### Manual Deployment
 ```bash
 # Build the project
