@@ -121,7 +121,7 @@ const BlogPost = () => {
               {/* Featured Image */}
               <div className="relative aspect-video rounded-lg overflow-hidden mb-12">
                 <img
-                  src={post.image || '/placeholder-image.jpg'}
+                  src={post.featured_image_url || '/placeholder-image.jpg'}
                   alt={post.title}
                   className="w-full h-full object-cover"
                   onError={(e) => {
@@ -158,7 +158,8 @@ const BlogPost = () => {
                         <Card className="overflow-hidden hover:shadow-lg transition-all duration-300 h-full group border-border">
                           <div className="relative h-40 overflow-hidden">
                             <img
-                              src={relatedPost.image || '/placeholder-image.jpg'}
+                              // Fix: Use the actual database column name 'featured_image_url' instead of 'image'
+                              src={relatedPost.featured_image_url || '/placeholder-image.jpg'}
                               alt={relatedPost.title}
                               className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                               onError={(e) => {

@@ -77,7 +77,7 @@ const BlogManagement: React.FC = () => {
                     <div className="h-10 w-10 rounded overflow-hidden ml-4 bg-gray-100 flex-shrink-0">
                       <img
                         className="h-full w-full object-cover"
-                        src={post.image || '/placeholder-image.jpg'}
+                        src={post.featured_image_url || '/placeholder-image.jpg'}
                         alt={post.title}
                         onError={(e) => {
                           const target = e.currentTarget;

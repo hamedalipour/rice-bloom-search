@@ -50,8 +50,8 @@ export const useBlogPosts = () => {
         slug: blogPost.slug,
         excerpt: blogPost.excerpt || 'خلاصه‌ای ارائه نشده',
         content: blogPost.content,
-        // Fix: Use the correct database column name 'image' instead of 'featured_image_url'
-        image: blogPost.image || '',
+        // Fix: Use the actual database column name 'featured_image_url' instead of 'image'
+        featured_image_url: blogPost.image || '',
         author_id: null, // Set to null since we don't have user IDs
         published: blogPost.published !== undefined ? blogPost.published : false,
         published_at: blogPost.published ? new Date().toISOString() : null,
@@ -108,8 +108,8 @@ export const useBlogPosts = () => {
         slug: updates.slug,
         excerpt: updates.excerpt || 'خلاصه‌ای ارائه نشده',
         content: updates.content,
-        // Fix: Use the correct database column name 'image' instead of 'featured_image_url'
-        image: updates.image || '',
+        // Fix: Use the actual database column name 'featured_image_url' instead of 'image'
+        featured_image_url: updates.image || '',
         published: updates.published !== undefined ? updates.published : false,
         published_at: updates.published ? new Date().toISOString() : null,
         meta_title: updates.title,

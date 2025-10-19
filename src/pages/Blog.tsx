@@ -65,7 +65,7 @@ const Blog = () => {
                   <Card className="overflow-hidden hover:shadow-lg transition-all duration-300 h-full group border-border">
                     <div className="relative h-56 overflow-hidden">
                       <img
-                        src={post.image || '/placeholder-image.jpg'}
+                        src={post.featured_image_url || '/placeholder-image.jpg'}
                         alt={post.title}
                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                         onError={(e) => {
