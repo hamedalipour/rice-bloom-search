@@ -20,52 +20,58 @@ const Shop = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const { products, loading, error } = useProducts();
   const categoryFromUrl = searchParams.get("category");
-  
-  const [selectedCategory, setSelectedCategory] = useState<string>(categoryFromUrl || "all");
+
+  const [selectedCategory, setSelectedCategory] = useState<string>(
+    categoryFromUrl || "all",
+  );
   const [sortBy, setSortBy] = useState("default");
   const [priceRange, setPriceRange] = useState([0, 400000]);
 
   // Debug logging
   useEffect(() => {
-    console.log('Shop component mounted');
-    console.log('Loading:', loading);
-    console.log('Error:', error);
-    console.log('Products:', products.length);
+    console.log("Shop component mounted");
+    console.log("Loading:", loading);
+    console.log("Error:", error);
+    console.log("Products:", products.length);
   }, [loading, error, products]);
 
   // Generate categories from products
   const categories = useMemo(() => {
-    console.log('Generating categories from', products.length, 'products');
-    
+    console.log("Generating categories from", products.length, "products");
+
     // Use sample categories data
-    return sampleCategories.map(cat => ({
+    return sampleCategories.map((cat) => ({
       name: cat.name,
-      slug: cat.slug
+      slug: cat.slug,
     }));
   }, [products]);
 
   const filteredProducts = useMemo(() => {
-    console.log('Filtering products. Total:', products.length, 'Category:', selectedCategory);
+    console.log(
+      "Filtering products. Total:",
+      products.length,
+      "Category:",
+      selectedCategory,
+    );
     let filtered = [...products];
 
     // Filter by category
     if (selectedCategory !== "all") {
-      // Map the sample category slugs to the database category_id values
-      const categoryMap: { [key: string]: string } = {
-        'tarom': 'طارم',
-        'hashemi': 'هاشمی',
-        'fajr': 'فجر',
-        'shirudi': 'شیرودی',
-      };
-      
-      const categoryId = categoryMap[selectedCategory];
-      if (categoryId) {
-        filtered = filtered.filter((p) => p.category_id === categoryId);
-      }
+      // category_id in database is already in english lowercase (hashemi, tarom, fajr, shirodi)
+      // So we can directly compare with selectedCategory
+      filtered = filtered.filter((p) => p.category_id === selectedCategory);
+      console.log(
+        "After category filter:",
+        filtered.length,
+        "products with category:",
+        selectedCategory,
+      );
     }
 
     // Filter by price range
-    filtered = filtered.filter((p) => p.price >= priceRange[0] && p.price <= priceRange[1]);
+    filtered = filtered.filter(
+      (p) => p.price >= priceRange[0] && p.price <= priceRange[1],
+    );
 
     // Sort
     switch (sortBy) {
@@ -83,7 +89,7 @@ const Shop = () => {
         break;
     }
 
-    console.log('Filtered products:', filtered.length);
+    console.log("Filtered products:", filtered.length);
     return filtered;
   }, [products, selectedCategory, sortBy, priceRange]);
 
@@ -105,7 +111,9 @@ const Shop = () => {
         <main className="flex-1 flex items-center justify-center">
           <div className="text-center">
             <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary mx-auto mb-4"></div>
-            <p className="text-lg text-muted-foreground">در حال بارگذاری محصولات...</p>
+            <p className="text-lg text-muted-foreground">
+              در حال بارگذاری محصولات...
+            </p>
           </div>
         </main>
         <Footer />
@@ -121,7 +129,9 @@ const Shop = () => {
         <main className="flex-1 flex items-center justify-center">
           <div className="text-center">
             <div className="text-red-500 text-6xl mb-4">⚠️</div>
-            <h2 className="text-2xl font-bold mb-2 text-foreground">خطا در بارگذاری</h2>
+            <h2 className="text-2xl font-bold mb-2 text-foreground">
+              خطا در بارگذاری
+            </h2>
             <p className="text-muted-foreground mb-4">{error}</p>
             <Button onClick={() => window.location.reload()}>تلاش مجدد</Button>
           </div>
@@ -139,7 +149,9 @@ const Shop = () => {
         {/* Page Header */}
         <section className="bg-muted/50 py-12 border-b border-border">
           <div className="container mx-auto px-4">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4 text-foreground">فروشگاه</h1>
+            <h1 className="text-4xl md:text-5xl font-bold mb-4 text-foreground">
+              فروشگاه
+            </h1>
             <p className="text-lg text-muted-foreground">
               انواع برنج ایرانی با بهترین کیفیت و قیمت
             </p>
@@ -153,14 +165,20 @@ const Shop = () => {
               <aside className="lg:col-span-1">
                 <Card className="sticky top-24 border-border">
                   <CardContent className="p-6">
-                    <h2 className="text-xl font-bold mb-6 text-foreground">فیلترها</h2>
+                    <h2 className="text-xl font-bold mb-6 text-foreground">
+                      فیلترها
+                    </h2>
 
                     {/* Category Filter */}
                     <div className="mb-6">
-                      <h3 className="font-semibold mb-3 text-foreground">دسته‌بندی</h3>
+                      <h3 className="font-semibold mb-3 text-foreground">
+                        دسته‌بندی
+                      </h3>
                       <div className="space-y-2">
                         <Button
-                          variant={selectedCategory === "all" ? "default" : "ghost"}
+                          variant={
+                            selectedCategory === "all" ? "default" : "ghost"
+                          }
                           className="w-full justify-start"
                           onClick={() => handleCategoryChange("all")}
                         >
@@ -169,7 +187,11 @@ const Shop = () => {
                         {categories.map((cat) => (
                           <Button
                             key={cat.slug}
-                            variant={selectedCategory === cat.slug ? "default" : "ghost"}
+                            variant={
+                              selectedCategory === cat.slug
+                                ? "default"
+                                : "ghost"
+                            }
                             className="w-full justify-start"
                             onClick={() => handleCategoryChange(cat.slug)}
                           >
@@ -181,7 +203,9 @@ const Shop = () => {
 
                     {/* Price Range Filter */}
                     <div className="mb-6">
-                      <h3 className="font-semibold mb-3 text-foreground">محدوده قیمت</h3>
+                      <h3 className="font-semibold mb-3 text-foreground">
+                        محدوده قیمت
+                      </h3>
                       <Slider
                         value={priceRange}
                         onValueChange={setPriceRange}
@@ -190,8 +214,12 @@ const Shop = () => {
                         className="mb-4"
                       />
                       <div className="flex items-center justify-between text-sm text-muted-foreground">
-                        <span>{priceRange[0].toLocaleString('fa-IR')} تومان</span>
-                        <span>{priceRange[1].toLocaleString('fa-IR')} تومان</span>
+                        <span>
+                          {priceRange[0].toLocaleString("fa-IR")} تومان
+                        </span>
+                        <span>
+                          {priceRange[1].toLocaleString("fa-IR")} تومان
+                        </span>
                       </div>
                     </div>
                   </CardContent>
@@ -207,7 +235,9 @@ const Shop = () => {
                   </p>
 
                   <div className="flex items-center gap-2">
-                    <span className="text-sm text-muted-foreground">مرتب‌سازی:</span>
+                    <span className="text-sm text-muted-foreground">
+                      مرتب‌سازی:
+                    </span>
                     <Select value={sortBy} onValueChange={setSortBy}>
                       <SelectTrigger className="w-[200px]">
                         <SelectValue />
