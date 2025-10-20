@@ -119,3 +119,8 @@ temp/
 
 # Local development
 *.local
+
+# Uploaded assets (keep only the index)
+public/assets/products/*
+!public/assets/products/.index.json
+!public/assets/products/README.md

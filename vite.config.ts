@@ -8,8 +8,16 @@ export default defineConfig(({ mode }) => ({
   server: {
     host: "::",
     port: 8080,
+    proxy: {
+      "/api": {
+        target: "http://localhost:3001",
+        changeOrigin: true,
+      },
+    },
   },
-  plugins: [react(), mode === "development" && componentTagger()].filter(Boolean),
+  plugins: [react(), mode === "development" && componentTagger()].filter(
+    Boolean,
+  ),
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
@@ -18,8 +26,8 @@ export default defineConfig(({ mode }) => ({
   build: {
     outDir: "dist",
     sourcemap: false,
-    minify: 'esbuild',
-    target: 'esnext',
+    minify: "esbuild",
+    target: "esnext",
     rollupOptions: {
       external: [],
       output: {
@@ -28,7 +36,7 @@ export default defineConfig(({ mode }) => ({
     },
   },
   esbuild: {
-    target: 'esnext',
-    platform: 'browser',
+    target: "esnext",
+    platform: "browser",
   },
 }));
