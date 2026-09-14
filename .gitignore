@@ -118,7 +118,9 @@ temp/
 # Local development
 *.local
 
-# Uploaded assets (keep only the index)
-public/assets/products/*
-!public/assets/products/.index.json
-!public/assets/products/README.md
+# Panel debug logs
+panel-*.log
+
+# تصاویر آپلودی پنل باید کامیت شوند (بخشی از سایت استاتیک هستند) —
+# بنابراین public/assets/products و public/assets/blog در gitignore نیستند.
+

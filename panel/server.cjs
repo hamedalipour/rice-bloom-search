@@ -292,6 +292,32 @@ app.post('/api/git/publish', async (req, res) => {
 
     const push = await runGit(['push', 'origin', 'main']);
     log.push(push.stdout + push.stderr);
+    if (!push.ok && /fetch first|rejected|non-fast-forward/i.test(push.stderr + push.stdout)) {
+      // ریموت جلوتر است: rebase و تلاش مجدد
+      const pull = await runGit(['pull', '--rebase', 'origin', 'main']);
+      log.push('⟳ pull --rebase:\n' + pull.stdout + pull.stderr);
+      if (!pull.ok)
+        return res.status(500).json({
+          ok: false,
+          pushed: false,
+          committed: true,
+          error: 'pull --rebase ناموفق بود (احتمالاً تداخل). آن را دستی حل کن.',
+          detail: pull.stderr,
+          log,
+        });
+      const push2 = await runGit(['push', 'origin', 'main']);
+      log.push(push2.stdout + push2.stderr);
+      if (push2.ok)
+        return res.json({ ok: true, pushed: true, note: 'پس از rebase، تغییرات پوش شد؛ دیپلوی Actions شروع می‌شود.', log });
+      return res.status(500).json({
+        ok: false,
+        pushed: false,
+        committed: true,
+        error: 'حتی پس از rebase پوش ناموفق بود.',
+        detail: push2.stderr,
+        log,
+      });
+    }
     if (!push.ok)
       return res.status(500).json({
         ok: false,
