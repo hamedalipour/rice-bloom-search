@@ -6,8 +6,8 @@
   "description": "Rice e-commerce website with admin panel",
   "scripts": {
     "dev": "vite",
-    "dev:full": "concurrently \"npm run dev\" \"npm run upload-server\"",
-    "upload-server": "node server/upload-server.js",
+    "dev:full": "concurrently \"npm run dev\" \"npm run panel\"",
+    "panel": "node panel/server.cjs",
     "build": "npm run sitemap && vite build",
     "build:cf": "npm install && npm run sitemap && vite build",
     "build:dev": "npm run sitemap && vite build --mode development",
