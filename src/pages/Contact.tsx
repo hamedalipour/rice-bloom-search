@@ -1,6 +1,7 @@
 import { useState } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { useSEO, buildStoreJsonLd } from "@/lib/seo";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,7 +11,16 @@ import { Phone, Mail, MapPin, Send } from "lucide-react";
 import { toast } from "sonner";
 
 const Contact = () => {
+  useSEO({
+    title: "تماس با عطر شالیزار | شماره تماس و آدرس فروشگاه برنج در لاهیجان",
+    description:
+      "برای سفارش برنج ایرانی یا پرسش‌های خود با فروشگاه عطر شالیزار در لاهیجان گیلان تماس بگیرید؛ تلفن ۰۹۳۷۷۸۹۳۳۰۷ – پاسخگویی روزها ۹ تا ۱۴ و ۱۷ تا ۲۲.",
+    path: "/contact",
+    jsonLd: buildStoreJsonLd(),
+  });
+
   const [formData, setFormData] = useState({
+
     name: "",
     email: "",
     phone: "",

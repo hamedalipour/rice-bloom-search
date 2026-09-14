@@ -92,11 +92,16 @@ Visit `http://localhost:8080` to see the application.
 
 ## 🔐 **Admin Access**
 
-For testing purposes, there's a hardcoded admin account:
-- **Email**: `hamedalipour38@gmail.com`
-- **Password**: `hamed69JOON`
+دسترسی ادمین بر اساس فیلد `role` در جدول `user_profiles` دیتابیس Supabase تعیین می‌شود.
 
-Access the admin panel at: `/admin`
+برای ارتقای یک کاربر به ادمین، در Supabase SQL Editor اجرا کنید:
+
+```sql
+UPDATE user_profiles SET role = 'admin' WHERE email = 'your-admin-email@example.com';
+```
+
+> ⚠️ **هشدار امنیتی:** هرگز نام کاربری و رمز عبور ادمین را در ریپو، مستندات یا کد قرار ندهید.
+> رمز عبور قوی انتخاب کنید و در صورت لو رفتن، از پنل Supabase (Authentication → Users) آن را ریست کنید.
 
 ## 📊 **Database Schema**
 

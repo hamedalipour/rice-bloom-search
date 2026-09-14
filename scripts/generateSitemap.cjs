@@ -1,79 +1,93 @@
-// Script to generate sitemap.xml for the Rice Bloom Search website
+// اسکریپت تولید خودکار sitemap.xml
+// داده‌ها از فایل‌های JSON محلی خوانده می‌شوند (منبع حقیقت — بدون هیچ دیتابیس).
 const fs = require('fs');
 const path = require('path');
 
-// Use your actual domain
 const BASE_URL = 'https://atre-shalizar.ir';
 
-// Static routes that are always available
+// صفحات ثابت و ارزشمند برای ایندکس
 const staticRoutes = [
-  '/',
-  '/shop',
-  '/blog',
-  '/about',
-  '/contact',
-  '/login',
-  '/register'
+  { path: '/', priority: '1.0', changefreq: 'daily' },
+  { path: '/shop', priority: '0.9', changefreq: 'daily' },
+  { path: '/blog', priority: '0.7', changefreq: 'weekly' },
+  { path: '/about', priority: '0.5', changefreq: 'monthly' },
+  { path: '/contact', priority: '0.5', changefreq: 'monthly' },
 ];
 
-// Product slugs from data
-const productSlugs = [
-  'berenj-tarom-mahali-daraje-yek',
-  'berenj-hashemi-moattar',
-  'berenj-fajr-gilan',
-  'berenj-shirudi-sonati'
-];
+const isoDate = (d) => {
+  const t = d ? new Date(d).getTime() : NaN;
+  return Number.isFinite(t) ? new Date(t).toISOString().slice(0, 10) : null;
+};
 
-// Blog post slugs from data
-const blogPostSlugs = [
-  'rahnama-pokht-berenj-irani',
-  'tafavot-berenj-tarom-hashemi',
-  'negahdari-berenj'
-];
+const readJson = (rel) => {
+  const full = path.join(__dirname, '..', rel);
+  if (!fs.existsSync(full)) return [];
+  try {
+    const parsed = JSON.parse(fs.readFileSync(full, 'utf8'));
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (e) {
+    console.warn(`⚠️  فایل ${rel} قابل خواندن نیست:`, e.message);
+    return [];
+  }
+};
 
-// Generate dynamic routes
-const dynamicProductRoutes = productSlugs.map(slug => `/product/${slug}`);
-const dynamicBlogRoutes = blogPostSlugs.map(slug => `/blog/${slug}`);
+const main = () => {
+  const products = readJson('src/data/products.json');
+  const blogPosts = readJson('src/data/blogPosts.json');
 
-// Combine all routes
-const allRoutes = [...staticRoutes, ...dynamicProductRoutes, ...dynamicBlogRoutes];
+  // آخرین تغییر محصولات = زمان ویرایش فایل داده توسط پنل
+  const productsFileTime = isoDate(
+    fs.statSync(path.join(__dirname, '..', 'src/data/products.json')).mtime,
+  );
+  const today = new Date().toISOString().slice(0, 10);
 
-// Generate sitemap XML
-const generateSitemap = () => {
+  const routes = [
+    ...staticRoutes,
+    ...products.map((p) => ({
+      path: `/product/${p.slug}`,
+      priority: '0.8',
+      changefreq: 'weekly',
+      lastmod: productsFileTime || today,
+    })),
+    ...blogPosts
+      .filter((b) => b.published !== false)
+      .map((b) => ({
+        path: `/blog/${b.slug}`,
+        priority: '0.6',
+        changefreq: 'monthly',
+        lastmod: isoDate(b.updated_at) || isoDate(b.created_at) || today,
+      })),
+  ];
+
+  // حذف اسلاگ‌های تکراری (احتیاط)
+  const seen = new Set();
+  const uniqueRoutes = routes.filter((r) => {
+    if (seen.has(r.path)) return false;
+    seen.add(r.path);
+    return true;
+  });
+
   const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${allRoutes.map(route => `  <url>
-    <loc>${BASE_URL}${route}</loc>
-    <changefreq>weekly</changefreq>
-    <priority>${getPriority(route)}</priority>
-  </url>`).join('\n')}
+${uniqueRoutes
+    .map(
+      (r) => `  <url>
+    <loc>${BASE_URL}${r.path}</loc>
+    <lastmod>${r.lastmod || today}</lastmod>
+    <changefreq>${r.changefreq}</changefreq>
+    <priority>${r.priority}</priority>
+  </url>`,
+    )
+    .join('\n')}
 </urlset>`;
 
-  return sitemap;
+  const outputPath = path.join(__dirname, '../public/sitemap.xml');
+  fs.writeFileSync(outputPath, sitemap);
+
+  console.log('Sitemap generated successfully at:', outputPath);
+  console.log(
+    `Sitemap includes ${staticRoutes.length} static pages, ${products.length} products, ${blogPosts.filter((b) => b.published !== false).length} blog posts (total ${uniqueRoutes.length}).`,
+  );
 };
 
-// Determine priority based on route
-const getPriority = (route) => {
-  if (route === '/') return '1.0';
-  if (route === '/shop') return '0.9';
-  if (route.includes('/product/')) return '0.8';
-  if (route === '/blog') return '0.7';
-  if (route.includes('/blog/')) return '0.6';
-  if (route === '/about' || route === '/contact') return '0.5';
-  return '0.4';
-};
-
-// Write sitemap to public directory
-const sitemapContent = generateSitemap();
-const outputPath = path.join(__dirname, '../public/sitemap.xml');
-
-fs.writeFileSync(outputPath, sitemapContent);
-
-console.log('Sitemap generated successfully at:', outputPath);
-console.log('Sitemap URL:', BASE_URL + '/sitemap.xml');
-console.log('');
-console.log('Sitemap includes:');
-console.log('- 7 static pages');
-console.log(`- ${productSlugs.length} product pages`);
-console.log(`- ${blogPostSlugs.length} blog post pages`);
-console.log(`- Total: ${allRoutes.length} pages`);
+main();

@@ -3,10 +3,79 @@ import { useEffect, useState } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { useBlogPosts } from "@/hooks/useBlogPosts";
+import {
+  useSEO,
+  buildArticleJsonLd,
+  buildBreadcrumbJsonLd,
+} from "@/lib/seo";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, Clock, User, ArrowRight } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+
+/** تبدیل ساده Markdown (سرتیترها، لیست‌ها و بولد) به تگ‌های HTML
+    تا ساختار سرتیترها (h2/h3) برای سئوی محتوا در دسترس موتورها باشد. */
+const renderMarkdownContent = (content: string) => {
+  const lines = content.split("\n");
+  const blocks: JSX.Element[] = [];
+  let list: { ordered: boolean; items: string[] } | null = null;
+
+  const inline = (text: string) =>
+    text.split(/(\*\*[^*]+\*\*)/g).map((part, i) =>
+      part.startsWith("**") && part.endsWith("**") ? (
+        <strong key={i}>{part.slice(2, -2)}</strong>
+      ) : (
+        part
+      ),
+    );
+
+  const flushList = (key: string) => {
+    if (!list) return;
+    const current = list;
+    list = null;
+    const items = current.items.map((item, i) => (
+      <li key={i}>{inline(item)}</li>
+    ));
+    blocks.push(
+      current.ordered ? <ol key={key}>{items}</ol> : <ul key={key}>{items}</ul>,
+    );
+  };
+
+  lines.forEach((raw, idx) => {
+    const line = raw.trim();
+    if (!line) {
+      flushList(`list-${idx}`);
+      return;
+    }
+    if (line.startsWith("### ")) {
+      flushList(`list-${idx}`);
+      blocks.push(<h4 key={idx}>{inline(line.slice(4))}</h4>);
+    } else if (line.startsWith("## ")) {
+      flushList(`list-${idx}`);
+      blocks.push(<h3 key={idx}>{inline(line.slice(3))}</h3>);
+    } else if (line.startsWith("# ")) {
+      flushList(`list-${idx}`);
+      blocks.push(<h2 key={idx}>{inline(line.slice(2))}</h2>);
+    } else if (/^[-*] /.test(line)) {
+      if (!list || list.ordered) {
+        flushList(`list-${idx}`);
+        list = { ordered: false, items: [] };
+      }
+      list!.items.push(line.slice(2));
+    } else if (/^\d+\. /.test(line)) {
+      if (!list || !list.ordered) {
+        flushList(`list-${idx}`);
+        list = { ordered: true, items: [] };
+      }
+      list!.items.push(line.replace(/^\d+\. /, ""));
+    } else {
+      flushList(`list-${idx}`);
+      blocks.push(<p key={idx}>{inline(line)}</p>);
+    }
+  });
+  flushList("list-final");
+  return blocks;
+};
 
 const BlogPost = () => {
   const { slug } = useParams();
@@ -35,6 +104,28 @@ const BlogPost = () => {
 
     fetchPost();
   }, [slug, blogPosts, getBlogPostBySlug]);
+
+  // SEO: عنوان، توضیحات، تصویر شاخص و داده ساختاریافته مقاله
+  useSEO({
+    title: post ? `${post.title} | وبلاگ عطر شالیزار` : "وبلاگ عطر شالیزار",
+    description: post
+      ? (post.excerpt ||
+          "مقاله آموزشی درباره برنج ایرانی از وبلاگ عطر شالیزار").slice(0, 160)
+      : "مقالات آموزشی درباره برنج ایرانی",
+    path: `/blog/${slug}`,
+    image: post?.featured_image_url || undefined,
+    type: "article",
+    jsonLd: post
+      ? [
+          buildArticleJsonLd(post),
+          buildBreadcrumbJsonLd([
+            { name: "خانه", path: "/" },
+            { name: "وبلاگ", path: "/blog" },
+            { name: post.title, path: `/blog/${post.slug}` },
+          ]),
+        ]
+      : undefined,
+  });
 
   if (loading) {
     return (
@@ -121,23 +212,20 @@ const BlogPost = () => {
               {/* Featured Image */}
               <div className="relative aspect-video rounded-lg overflow-hidden mb-12">
                 <img
-                  src={post.featured_image_url || '/placeholder-image.jpg'}
+                  src={post.featured_image_url || '/placeholder.svg'}
                   alt={post.title}
                   className="w-full h-full object-cover"
                   onError={(e) => {
                     const target = e.currentTarget;
-                    target.src = '/placeholder-image.jpg';
+                    target.src = '/placeholder.svg';
                   }}
                 />
               </div>
 
               {/* Post Content */}
               <article className="prose prose-lg max-w-none mb-12 text-foreground">
-                <div
-                  className="whitespace-pre-line leading-relaxed"
-                  style={{ lineHeight: '1.8' }}
-                >
-                  {post.content}
+                <div className="leading-relaxed" style={{ lineHeight: '1.8' }}>
+                  {renderMarkdownContent(post.content || "")}
                 </div>
               </article>
 
@@ -159,12 +247,12 @@ const BlogPost = () => {
                           <div className="relative h-40 overflow-hidden">
                             <img
                               // Fix: Use the actual database column name 'featured_image_url' instead of 'image'
-                              src={relatedPost.featured_image_url || '/placeholder-image.jpg'}
+                              src={relatedPost.featured_image_url || '/placeholder.svg'}
                               alt={relatedPost.title}
                               className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                               onError={(e) => {
                                 const target = e.currentTarget;
-                                target.src = '/placeholder-image.jpg';
+                                target.src = '/placeholder.svg';
                               }}
                             />
                           </div>

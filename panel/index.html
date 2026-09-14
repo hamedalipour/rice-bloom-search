@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>پنل مدیریت — عطر شالیزار</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: Tahoma, "Segoe UI", sans-serif; background: #f1f5f4; color: #1f2937; }
+  header { background: #14532d; color: #fff; padding: 14px 24px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+  header h1 { font-size: 18px; }
+  header .spacer { flex: 1; }
+  nav { display: flex; gap: 8px; flex-wrap: wrap; }
+  nav button { background: rgba(255,255,255,.12); color: #fff; border: 0; padding: 9px 18px; border-radius: 8px; cursor: pointer; font-family: inherit; font-size: 14px; }
+  nav button.active { background: #16a34a; font-weight: bold; }
+  main { max-width: 1100px; margin: 24px auto; padding: 0 16px; }
+  section { display: none; }
+  section.active { display: block; }
+  .card { background: #fff; border: 1px solid #e2e8e6; border-radius: 12px; padding: 18px; margin-bottom: 16px; box-shadow: 0 1px 2px rgba(0,0,0,.04); }
+  .toolbar { display: flex; gap: 8px; align-items: center; margin-bottom: 14px; flex-wrap: wrap; }
+  button.btn { background: #16a34a; color: #fff; border: 0; padding: 9px 16px; border-radius: 8px; cursor: pointer; font-family: inherit; }
+  button.btn.secondary { background: #e2e8e6; color: #1f2937; }
+  button.btn.danger { background: #dc2626; }
+  button.btn.small { padding: 5px 10px; font-size: 12px; }
+  button.btn:disabled { opacity: .5; cursor: wait; }
+  label { display: block; font-size: 12px; color: #4b5563; margin: 10px 0 4px; }
+  input[type=text], input[type=number], textarea, select { width: 100%; border: 1px solid #d1d5db; border-radius: 8px; padding: 8px 10px; font-family: inherit; font-size: 14px; }
+  textarea { min-height: 90px; resize: vertical; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0 14px; }
+  .grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0 14px; }
+  .grid4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0 14px; }
+  .row-inline { display: flex; gap: 8px; align-items: center; }
+  .item-row { display: flex; gap: 12px; align-items: center; padding: 10px; border: 1px solid #e2e8e6; border-radius: 10px; margin-bottom: 8px; background: #fafcfa; }
+  .item-row img { width: 56px; height: 56px; object-fit: cover; border-radius: 8px; background: #eee; }
+  .item-row .info { flex: 1; min-width: 0; }
+  .item-row .info b { display: block; }
+  .item-row .info small { color: #6b7280; }
+  .hidden { display: none !important; }
+  #output { background: #0f172a; color: #d1fae5; font-family: Consolas, monospace; font-size: 12px; padding: 12px; border-radius: 8px; white-space: pre-wrap; direction: ltr; text-align: left; max-height: 300px; overflow: auto; }
+  .assets-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; }
+  .asset { position: relative; border: 1px solid #e2e8e6; border-radius: 10px; overflow: hidden; background: #fff; }
+  .asset img { width: 100%; height: 90px; object-fit: cover; display: block; }
+  .asset .meta { padding: 6px; font-size: 10px; color: #6b7280; direction: ltr; text-align: left; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .weight-row { display: grid; grid-template-columns: 2fr 1.4fr auto; gap: 8px; margin-bottom: 8px; align-items: center; }
+  .checkbox-row { display: flex; align-items: center; gap: 6px; margin-top: 12px; }
+  .checkbox-row input { width: auto; }
+  .preview { width: 120px; height: 120px; object-fit: cover; border-radius: 10px; border: 1px solid #e2e8e6; }
+</style>
+</head>
+<body>
+<header>
+  <h1>🌾 پنل مدیریت عطر شالیزار</h1>
+  <div class="spacer"></div>
+  <nav>
+    <button data-tab="products" class="active">محصولات</button>
+    <button data-tab="blog">وبلاگ</button>
+    <button data-tab="assets">تصاویر</button>
+    <button data-tab="publish">انتشار در گیت‌هاب</button>
+  </nav>
+</header>
+<main>
+  <!-- ================= محصولات ================= -->
+  <section id="tab-products" class="active">
+    <div class="card">
+      <div class="toolbar">
+        <button class="btn" onclick="newProduct()">+ محصول جدید</button>
+        <span id="products-count" style="color:#6b7280;font-size:13px"></span>
+      </div>
+      <div id="products-list"></div>
+    </div>
+    <div class="card hidden" id="product-editor">
+      <h3 id="product-editor-title" style="margin-bottom:6px">محصول جدید</h3>
+      <input type="hidden" id="p-id" />
+      <div class="grid2">
+        <div><label>نام محصول *</label><input type="text" id="p-name" /></div>
+        <div><label>اسلاگ (انگلیسی، برای آدرس صفحه) *</label>
+          <div class="row-inline"><input type="text" id="p-slug" dir="ltr" /><button class="btn secondary small" onclick="suggestProductSlug()">ساخت از نام</button></div>
+        </div>
+      </div>
+      <div class="grid4">
+        <div><label>دسته‌بندی</label>
+          <select id="p-category">
+            <option value="tarom">طارم</option>
+            <option value="hashemi">هاشمی</option>
+            <option value="fajr">فجر</option>
+            <option value="shirodi">شیرودی</option>
+          </select>
+        </div>
+        <div><label>قیمت (تومان) *</label><input type="number" id="p-price" /></div>
+        <div><label>قیمت قبل از تخفیف</label><input type="number" id="p-originalPrice" /></div>
+        <div><label>مبدا</label><input type="text" id="p-origin" placeholder="گیلان - لاهیجان" /></div>
+      </div>
+      <div class="grid2">
+        <div><label>توضیح کوتاه (کارت محصول و سئو)</label><textarea id="p-description" style="min-height:70px"></textarea></div>
+        <div><label>توضیحات کامل</label><textarea id="p-longDescription"></textarea></div>
+      </div>
+      <label>ویژگی‌ها (هر خط یک مورد)</label>
+      <textarea id="p-features" style="min-height:70px"></textarea>
+      <label>وزن‌ها و قیمت‌ها</label>
+      <div id="p-weights"></div>
+      <button class="btn secondary small" onclick="addWeightRow()">+ افزودن وزن</button>
+      <div class="grid3" style="margin-top:12px">
+        <div><label>امتیاز (۰ تا ۵)</label><input type="number" id="p-rating" step="0.1" min="0" max="5" /></div>
+        <div><label>تعداد نظرات</label><input type="number" id="p-reviewCount" min="0" /></div>
+        <div class="checkbox-row"><input type="checkbox" id="p-inStock" checked /><span>موجود است</span></div>
+      </div>
+      <label>تصویر محصول</label>
+      <div class="row-inline">
+        <img id="p-image-preview" class="preview" />
+        <div style="flex:1">
+          <input type="text" id="p-image" dir="ltr" placeholder="/assets/products/xxx.jpg" />
+          <div style="margin-top:6px"><input type="file" accept="image/*" onchange="uploadFor(this,'products','p-image')" /></div>
+        </div>
+      </div>
+      <div class="toolbar" style="margin-top:16px">
+        <button class="btn" onclick="saveProduct()">💾 ذخیره محصول</button>
+        <button class="btn secondary" onclick="closeProductEditor()">انصراف</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= وبلاگ ================= -->
+  <section id="tab-blog">
+    <div class="card">
+      <div class="toolbar">
+        <button class="btn" onclick="newPost()">+ مقاله جدید</button>
+        <span id="blog-count" style="color:#6b7280;font-size:13px"></span>
+      </div>
+      <div id="blog-list"></div>
+    </div>
+    <div class="card hidden" id="blog-editor">
+      <h3 id="blog-editor-title" style="margin-bottom:6px">مقاله جدید</h3>
+      <input type="hidden" id="b-id" />
+      <div class="grid2">
+        <div><label>عنوان *</label><input type="text" id="b-title" /></div>
+        <div><label>اسلاگ (انگلیسی) *</label>
+          <div class="row-inline"><input type="text" id="b-slug" dir="ltr" /><button class="btn secondary small" onclick="suggestBlogSlug()">ساخت از عنوان</button></div>
+        </div>
+      </div>
+      <div class="grid2">
+        <div><label>دسته‌بندی (نمایش روی کارت مقاله)</label>
+          <select id="b-category">
+            <option value="دستور پخت">دستور پخت</option>
+            <option value="دانستنی‌ها">دانستنی‌ها</option>
+            <option value="اخبار">اخبار</option>
+          </select>
+        </div>
+        <div><label>مدت مطالعه (نمایشی)</label><input type="text" id="b-readTime" placeholder="۵ دقیقه" /></div>
+      </div>
+      <label>خلاصه (سئو + کارت مقاله)</label>
+      <textarea id="b-excerpt" style="min-height:60px"></textarea>
+      <label>متن مقاله (Markdown — با # و ## سرتیتر بساز تا برای سئو بهتر باشد)</label>
+      <textarea id="b-content" style="min-height:260px;font-family:Consolas,monospace"></textarea>
+      <div class="checkbox-row"><input type="checkbox" id="b-published" checked /><span>منتشر شود (در سایت نمایش داده شود)</span></div>
+      <label>تصویر شاخص</label>
+      <div class="row-inline">
+        <img id="b-image-preview" class="preview" />
+        <div style="flex:1">
+          <input type="text" id="b-image" dir="ltr" placeholder="/assets/blog/xxx.jpg" />
+          <div style="margin-top:6px"><input type="file" accept="image/*" onchange="uploadFor(this,'blog','b-image')" /></div>
+        </div>
+      </div>
+      <div class="toolbar" style="margin-top:16px">
+        <button class="btn" onclick="savePost()">💾 ذخیره مقاله</button>
+        <button class="btn secondary" onclick="closeBlogEditor()">انصراف</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= تصاویر ================= -->
+  <section id="tab-assets">
+    <div class="card">
+      <div class="toolbar">
+        <select id="asset-dir" style="width:auto">
+          <option value="products">پوشه محصولات</option>
+          <option value="blog">پوشه وبلاگ</option>
+        </select>
+        <input type="file" id="asset-file" accept="image/*" />
+        <button class="btn" onclick="uploadAsset()">آپلود</button>
+        <button class="btn secondary" onclick="renderAssets()">بروزرسانی</button>
+      </div>
+      <div id="assets-grid" class="assets-grid"></div>
+    </div>
+  </section>
+
+  <!-- ================= انتشار ================= -->
+  <section id="tab-publish">
+    <div class="card">
+      <h3 style="margin-bottom:8px">انتشار تغییرات در گیت‌هاب</h3>
+      <p style="font-size:13px;color:#6b7280;margin-bottom:12px">
+        تغییرات ذخیره‌شده (فایل‌های JSON و تصاویر) به‌صورت کامیت به شاخه main پوش می‌شود و GitHub Actions خودش سایت را بیلد و منتشر می‌کند.
+      </p>
+      <div id="git-status"></div>
+      <label>پیام کامیت</label>
+      <input type="text" id="commit-message" placeholder="مثلاً: افزودن محصول جدید" />
+      <div class="toolbar" style="margin-top:12px">
+        <button class="btn" id="publish-btn" onclick="publish()">🚀 انتشار (commit + push)</button>
+        <button class="btn secondary" onclick="refreshGitStatus()">بروزرسانی وضعیت</button>
+      </div>
+      <pre id="output"></pre>
+    </div>
+  </section>
+
+</main>
+<script>
+'use strict';
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fa = (n) => Number(n || 0).toLocaleString('fa-IR');
+const API = async (url, opts) => {
+  const res = await fetch(url, opts);
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok || data.ok === false) throw Object.assign(new Error(data.error || 'خطای ناشناخته'), { data });
+  return data;
+};
+
+/* تبدیل حروف فارسی به لاتین برای پیشنهاد اسلاگ */
+const FA_MAP = {'آ':'a','ا':'a','ب':'b','پ':'p','ت':'t','ث':'s','ج':'j','چ':'ch','ح':'h','خ':'kh','د':'d','ذ':'z','ر':'r','ز':'z','ژ':'zh','س':'s','ش':'sh','ص':'s','ض':'z','ط':'t','ظ':'z','ع':'a','غ':'gh','ف':'f','ق':'gh','ک':'k','گ':'g','ل':'l','م':'m','ن':'n','و':'v','ه':'h','ی':'i','ي':'i','ئ':'i','ء':'','ة':'h','ك':'k'};
+function slugify(text) {
+  return String(text).trim().split(/\s+/).map(w => {
+    let out = '';
+    for (const ch of w) out += FA_MAP[ch] !== undefined ? FA_MAP[ch] : ch;
+    return out;
+  }).join('-').toLowerCase().replace(/[^a-z0-9-]+/g, '').replace(/-+/g, '-').replace(/^-|-$/g, '') || 'item';
+}
+function suggestProductSlug() { $('p-slug').value = slugify($('p-name').value); }
+function suggestBlogSlug() { $('b-slug').value = slugify($('b-title').value); }
+
+/* تب‌ها */
+document.querySelectorAll('nav button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('main section').forEach(s => s.classList.remove('active'));
+    btn.classList.add('active');
+    $('tab-' + btn.dataset.tab).classList.add('active');
+    if (btn.dataset.tab === 'publish') refreshGitStatus();
+  });
+});
+
+/* ---------- داده‌ها ---------- */
+let state = { products: [], blogPosts: [] };
+
+async function loadAll() {
+  try {
+    const data = await API('/api/data');
+    state.products = data.products || [];
+    state.blogPosts = data.blogPosts || [];
+    renderProducts();
+    renderBlog();
+  } catch (e) {
+    alert('خطا در خواندن داده‌ها: ' + e.message);
+  }
+}
+/* ---------- محصولات ---------- */
+function renderProducts() {
+  $('products-count').textContent = state.products.length + ' محصول';
+  $('products-list').innerHTML = state.products.map(p => `
+    <div class="item-row">
+      <img src="${esc(p.image)}" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2256%22 height=%2256%22><rect width=%2256%22 height=%2256%22 fill=%22%23eee%22/></svg>'" />
+      <div class="info">
+        <b>${esc(p.name)}</b>
+        <small>اسلاگ: ${esc(p.slug)} · دسته: ${esc(p.category)} · ${fa(p.price)} تومان ${p.inStock ? '' : '· ❌ ناموجود'}</small>
+      </div>
+      <button class="btn secondary small" onclick='editProduct(${JSON.stringify(p).replace(/'/g, "&#39;")})'>ویرایش</button>
+      <button class="btn danger small" onclick="deleteProduct('${esc(p.id)}')">حذف</button>
+    </div>`).join('');
+}
+
+function newProduct() {
+  $('product-editor').classList.remove('hidden');
+  $('product-editor-title').textContent = 'محصول جدید';
+  ['p-id','p-name','p-slug','p-price','p-originalPrice','p-origin','p-description','p-longDescription','p-features','p-rating','p-reviewCount','p-image'].forEach(id => $(id).value = '');
+  $('p-category').value = 'tarom';
+  $('p-inStock').checked = true;
+  $('p-image-preview').src = '';
+  $('p-weights').innerHTML = '';
+  addWeightRow();
+  $('product-editor').scrollIntoView({ behavior: 'smooth' });
+}
+
+function editProduct(p) {
+  newProduct();
+  $('product-editor-title').textContent = 'ویرایش: ' + p.name;
+  $('p-id').value = p.id;
+  $('p-name').value = p.name || '';
+  $('p-slug').value = p.slug || '';
+  $('p-category').value = p.category || 'tarom';
+  $('p-price').value = p.price ?? '';
+  $('p-originalPrice').value = p.originalPrice ?? '';
+  $('p-origin').value = p.origin || '';
+  $('p-description').value = p.description || '';
+  $('p-longDescription').value = p.longDescription || '';
+  $('p-features').value = (p.features || []).join('\n');
+  $('p-rating').value = p.rating ?? '';
+  $('p-reviewCount').value = p.reviewCount ?? '';
+  $('p-inStock').checked = p.inStock !== false;
+  $('p-image').value = p.image || '';
+  $('p-image-preview').src = p.image || '';
+  $('p-weights').innerHTML = '';
+  (p.weights && p.weights.length ? p.weights : [{ value: '', price: '' }]).forEach(w => addWeightRow(w.value, w.price));
+}
+
+function addWeightRow(value, price) {
+  const div = document.createElement('div');
+  div.className = 'weight-row';
+  div.innerHTML = `<input type="text" class="w-value" placeholder="۵ کیلوگرم" value="${esc(value || '')}" />
+    <input type="number" class="w-price" placeholder="قیمت" value="${esc(price || '')}" />
+    <button class="btn danger small" onclick="this.parentElement.remove()">✕</button>`;
+  $('p-weights').appendChild(div);
+}
+
+async function saveProduct() {
+  const weights = [...document.querySelectorAll('#p-weights .weight-row')].map(r => ({
+    value: r.querySelector('.w-value').value.trim(),
+    price: Number(r.querySelector('.w-price').value),
+  })).filter(w => w.value);
+  const body = {
+    id: $('p-id').value || undefined,
+    name: $('p-name').value,
+    slug: $('p-slug').value,
+    category: $('p-category').value,
+    price: Number($('p-price').value),
+    originalPrice: $('p-originalPrice').value ? Number($('p-originalPrice').value) : null,
+    origin: $('p-origin').value,
+    description: $('p-description').value,
+    longDescription: $('p-longDescription').value,
+    features: $('p-features').value.split('\n').map(s => s.trim()).filter(Boolean),
+    weights,
+    rating: Number($('p-rating').value) || 0,
+    reviewCount: Number($('p-reviewCount').value) || 0,
+    inStock: $('p-inStock').checked,
+    image: $('p-image').value || '/placeholder.svg',
+  };
+  try {
+    const res = await API('/api/products/save', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+    state.products = res.products;
+    renderProducts();
+    closeProductEditor();
+    alert('✅ محصول ذخیره شد. برای انتشار در سایت، تب «انتشار» را بزن.');
+  } catch (e) {
+    alert('❌ ' + e.message);
+  }
+}
+
+function deleteProduct(id) {
+  if (!confirm('این محصول حذف شود؟')) return;
+  API('/api/products/delete', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) })
+    .then(res => { state.products = res.products; renderProducts(); })
+    .catch(e => alert('❌ ' + e.message));
+}
+
+function closeProductEditor() { $('product-editor').classList.add('hidden'); }
+/* ---------- وبلاگ ---------- */
+function renderBlog() {
+  $('blog-count').textContent = state.blogPosts.length + ' مقاله';
+  $('blog-list').innerHTML = state.blogPosts.map(p => `
+    <div class="item-row">
+      <img src="${esc(p.featured_image_url)}" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2256%22 height=%2256%22><rect width=%2256%22 height=%2256%22 fill=%22%23eee%22/></svg>'" />
+      <div class="info">
+        <b>${esc(p.title)}</b>
+        <small>اسلاگ: ${esc(p.slug)} · دسته: ${esc((p.tags && p.tags[0]) || '')} ${p.published ? '· ✅ منتشرشده' : '· 📝 پیش‌نویس'}</small>
+      </div>
+      <button class="btn secondary small" onclick='editPost(${JSON.stringify(p).replace(/'/g, "&#39;")})'>ویرایش</button>
+      <button class="btn danger small" onclick="deletePost('${esc(p.id)}')">حذف</button>
+    </div>`).join('');
+}
+
+function newPost() {
+  $('blog-editor').classList.remove('hidden');
+  $('blog-editor-title').textContent = 'مقاله جدید';
+  ['b-id','b-title','b-slug','b-excerpt','b-content','b-image','b-readTime'].forEach(id => $(id).value = '');
+  $('b-category').value = 'دستور پخت';
+  $('b-published').checked = true;
+  $('b-image-preview').src = '';
+  $('blog-editor').scrollIntoView({ behavior: 'smooth' });
+}
+
+function editPost(p) {
+  newPost();
+  $('blog-editor-title').textContent = 'ویرایش: ' + p.title;
+  $('b-id').value = p.id;
+  $('b-title').value = p.title || '';
+  $('b-slug').value = p.slug || '';
+  $('b-category').value = (p.tags && p.tags[0]) || 'دستور پخت';
+  $('b-excerpt').value = p.excerpt || '';
+  $('b-content').value = p.content || '';
+  $('b-published').checked = !!p.published;
+  $('b-image').value = p.featured_image_url || '';
+  $('b-image-preview').src = p.featured_image_url || '';
+}
+
+async function savePost() {
+  const body = {
+    id: $('b-id').value || undefined,
+    title: $('b-title').value,
+    slug: $('b-slug').value,
+    excerpt: $('b-excerpt').value,
+    content: $('b-content').value,
+    category: $('b-category').value,
+    published: $('b-published').checked,
+    featured_image_url: $('b-image').value || '/placeholder.svg',
+  };
+  try {
+    const res = await API('/api/blog/save', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+    state.blogPosts = res.blogPosts;
+    renderBlog();
+    closeBlogEditor();
+    alert('✅ مقاله ذخیره شد. برای انتشار در سایت، تب «انتشار» را بزن.');
+  } catch (e) {
+    alert('❌ ' + e.message);
+  }
+}
+
+function deletePost(id) {
+  if (!confirm('این مقاله حذف شود؟')) return;
+  API('/api/blog/delete', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) })
+    .then(res => { state.blogPosts = res.blogPosts; renderBlog(); })
+    .catch(e => alert('❌ ' + e.message));
+}
+
+function closeBlogEditor() { $('blog-editor').classList.add('hidden'); }
+
+/* ---------- تصاویر ---------- */
+async function renderAssets() {
+  const dir = $('asset-dir').value;
+  try {
+    const res = await API('/api/assets/' + dir);
+    $('assets-grid').innerHTML = res.assets.map(a => `
+      <div class="asset">
+        <img src="${esc(a.url)}" />
+        <button class="btn danger small del" onclick="deleteAsset('${esc(a.filename)}')">✕</button>
+        <div class="meta" title="${esc(a.filename)}">${esc(a.filename)}</div>
+      </div>`).join('') || '<p style="color:#6b7280">هنوز تصویری آپلود نشده است.</p>';
+  } catch (e) {
+    alert('❌ ' + e.message);
+  }
+}
+
+async function uploadAsset() {
+  const input = $('asset-file');
+  if (!input.files || !input.files[0]) return alert('ابتدا یک تصویر انتخاب کن');
+  const fd = new FormData();
+  fd.append('file', input.files[0]);
+  try {
+    const res = await API('/api/upload/' + $('asset-dir').value, { method: 'POST', body: fd });
+    input.value = '';
+    renderAssets();
+    alert('✅ آپلود شد: ' + res.url);
+  } catch (e) {
+    alert('❌ ' + e.message);
+  }
+}
+
+function deleteAsset(filename) {
+  if (!confirm('این تصویر حذف شود؟')) return;
+  API('/api/assets/delete', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ dir: $('asset-dir').value, filename }) })
+    .then(renderAssets)
+    .catch(e => alert('❌ ' + e.message));
+}
+
+/* آپلود سریع داخل فرم محصول/مقاله */
+async function uploadFor(input, dir, targetId) {
+  if (!input.files || !input.files[0]) return;
+  const fd = new FormData();
+  fd.append('file', input.files[0]);
+  try {
+    const res = await API('/api/upload/' + dir, { method: 'POST', body: fd });
+    $(targetId).value = res.url;
+    $(targetId + '-preview').src = res.url;
+  } catch (e) {
+    alert('❌ ' + e.message);
+  }
+}
+/* ---------- انتشار (گیت) ---------- */
+async function refreshGitStatus() {
+  const box = $('git-status');
+  box.innerHTML = '<p style="color:#6b7280">در حال دریافت وضعیت...</p>';
+  try {
+    const res = await API('/api/git/status');
+    const lines = (res.status || '').trim().split('\n').filter(Boolean);
+    const branch = lines.shift() || '';
+    box.innerHTML =
+      `<div class="status-line ok" dir="ltr">${esc(branch)}</div>` +
+      (lines.length
+        ? lines.map(l => `<div class="status-line hint" dir="ltr">${esc(l)}</div>`).join('')
+        : '<div class="status-line ok">همه‌چیز کامیت شده — تغییری برای انتشار نیست</div>');
+  } catch (e) {
+    box.innerHTML = `<div class="status-line err">❌ ${esc(e.message)}</div>` +
+      (e.data && e.data.hint ? `<div class="status-line hint">${esc(e.data.hint)}</div>` : '');
+  }
+}
+
+async function publish() {
+  const btn = $('publish-btn');
+  btn.disabled = true;
+  $('output').textContent = 'در حال انتشار...';
+  try {
+    const res = await API('/api/git/publish', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: $('commit-message').value }),
+    });
+    $('output').textContent = (res.note || '') + '\n\n' + (res.log || []).join('\n');
+    if (res.pushed) { $('commit-message').value = ''; refreshGitStatus(); }
+  } catch (e) {
+    let text = '❌ ' + e.message + '\n' + ((e.data && e.data.detail) || '');
+    if (e.data && e.data.hint) text += '\n💡 ' + e.data.hint;
+    if (e.data && e.data.log) text += '\n' + e.data.log.join('\n');
+    $('output').textContent = text;
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+/* شروع */
+loadAll();
+</script>
+</body>
+</html>

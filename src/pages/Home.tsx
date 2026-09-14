@@ -7,7 +7,7 @@ import Footer from "@/components/Footer";
 import ProductCard from "@/components/ProductCard";
 import { useProducts } from "@/hooks/useProducts";
 import { useBlogPosts } from "@/hooks/useBlogPosts";
-import heroImage from "@/assets/hero-rice-field.jpg";
+import { useSEO, buildItemListJsonLd } from "@/lib/seo";
 import taromImage from "@/assets/rice-tarom.jpg";
 import hashemiImage from "@/assets/rice-hashemi.jpg";
 import fajrImage from "@/assets/rice-fajr.jpg";
@@ -16,11 +16,20 @@ import shirudiImage from "@/assets/rice-shirudi.jpg";
 const Home = () => {
   const { products, loading, error } = useProducts();
   const { blogPosts } = useBlogPosts();
-  
-  console.log('Home page products:', { products, loading, error });
-  
+
   const featuredProducts = products.slice(0, 4);
   const latestPosts = blogPosts.filter(post => post.published).slice(0, 3);
+
+  useSEO({
+    title: "خرید برنج ایرانی اصل و درجه یک | فروشگاه اینترنتی عطر شالیزار",
+    description:
+      "خرید آنلاین برنج ایرانی اصل از عطر شالیزار؛ برنج طارم، هاشمی، فجر و شیرودی مستقیماً از شالیزارهای گیلان و مازندران با قیمت روز و ارسال سریع به سراسر ایران.",
+    path: "/",
+    jsonLd: buildItemListJsonLd(
+      "محصولات برنج عطر شالیزار",
+      featuredProducts.map((p) => ({ name: p.name, path: `/product/${p.slug}` })),
+    ),
+  });
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -31,8 +40,8 @@ const Home = () => {
         <section className="relative h-[600px] flex items-center justify-center overflow-hidden">
           <div className="absolute inset-0">
             <img
-              src={heroImage}
-              alt="شالیزار سرسبز ایرانی"
+              src="/hero-rice-field.jpg"
+              alt="شالیزار سرسبز برنج ایرانی در شمال کشور - عطر شالیزار"
               className="w-full h-full object-cover"
             />
             <div className="absolute inset-0 bg-gradient-to-r from-background/90 to-background/50" />
@@ -210,12 +219,12 @@ const Home = () => {
                   <Card className="overflow-hidden hover:shadow-lg transition-all duration-300 h-full border-border">
                     <div className="relative h-48 overflow-hidden">
                       <img
-                        src={post.featured_image_url || '/placeholder-image.jpg'}
+                        src={post.featured_image_url || '/placeholder.svg'}
                         alt={post.title}
                         className="w-full h-full object-cover hover:scale-110 transition-transform duration-500"
                         onError={(e) => {
                           const target = e.currentTarget;
-                          target.src = '/placeholder-image.jpg';
+                          target.src = '/placeholder.svg';
                         }}
                       />
                     </div>

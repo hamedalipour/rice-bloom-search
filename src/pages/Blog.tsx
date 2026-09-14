@@ -2,12 +2,27 @@ import { Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { useBlogPosts } from "@/hooks/useBlogPosts";
+import { useSEO, buildItemListJsonLd } from "@/lib/seo";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, Clock, User } from "lucide-react";
 
 const Blog = () => {
   const { blogPosts, loading } = useBlogPosts();
+
+  const publishedPosts = blogPosts.filter(post => post.published);
+
+  // SEO: فهرست مقالات + داده ساختاریافته
+  useSEO({
+    title: "وبلاگ عطر شالیزار | آموزش پخت برنج ایرانی و نکات آشپزی",
+    description:
+      "مقالات آموزشی درباره برنج ایرانی؛ راهنمای کامل پخت برنج دم‌کشیده، تفاوت برنج طارم و هاشمی، روش صحیح نگهداری برنج و نکات آشپزی ایرانی در وبلاگ عطر شالیزار.",
+    path: "/blog",
+    jsonLd: buildItemListJsonLd(
+      "مقالات وبلاگ عطر شالیزار",
+      publishedPosts.map((p) => ({ name: p.title, path: `/blog/${p.slug}` })),
+    ),
+  });
 
   // Get unique categories from database posts
   const categories = [...new Set(blogPosts.map(post => 
@@ -65,12 +80,12 @@ const Blog = () => {
                   <Card className="overflow-hidden hover:shadow-lg transition-all duration-300 h-full group border-border">
                     <div className="relative h-56 overflow-hidden">
                       <img
-                        src={post.featured_image_url || '/placeholder-image.jpg'}
+                        src={post.featured_image_url || '/placeholder.svg'}
                         alt={post.title}
                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                         onError={(e) => {
                           const target = e.currentTarget;
-                          target.src = '/placeholder-image.jpg';
+                          target.src = '/placeholder.svg';
                         }}
                       />
                       <Badge className="absolute top-4 right-4 bg-primary text-primary-foreground">

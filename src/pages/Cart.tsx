@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { useCart } from '@/contexts/CartContext';
+import { useSEO } from '@/lib/seo';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -9,6 +10,13 @@ import { ShoppingCart, Minus, Plus, Trash2, ArrowRight } from 'lucide-react';
 
 const Cart = () => {
   const { items, totalPrice, updateQuantity, removeItem, clearCart } = useCart();
+
+  // SEO: سبد خرید نباید ایندکس شود
+  useSEO({
+    title: "سبد خرید | عطر شالیزار",
+    description: "سبد خرید فروشگاه برنج عطر شالیزار",
+    noindex: true,
+  });
 
   if (items.length === 0) {
     return (

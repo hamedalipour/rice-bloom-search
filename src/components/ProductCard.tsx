@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import { ShoppingCart, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
@@ -49,28 +50,27 @@ const ProductCard = ({ product }: ProductCardProps) => {
     }
   };
 
-  const handleProductClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    // Use simple navigation instead of React Router to avoid potential conflicts
-    window.location.href = `/product/${product.slug}`;
-  };
-
   const itemInCart = isInCart(product.id);
   const cartQuantity = getCartItemQuantity(product.id);
 
   return (
     <Card className="group overflow-hidden hover:shadow-lg transition-all duration-300 border-border">
-      <div onClick={handleProductClick} className="cursor-pointer">
+      {/* لینک واقعی به صفحه محصول — برای کرال‌پذیری موتورهای جستجو الزامی است */}
+      <Link
+        to={`/product/${product.slug}`}
+        className="block cursor-pointer"
+        aria-label={`مشاهده و خرید ${product.name}`}
+      >
         <div className="relative overflow-hidden bg-muted aspect-square">
           <img
-            src={product.image_url || '/placeholder-image.jpg'}
-            alt={product.name}
+            src={product.image_url || '/placeholder.svg'}
+            alt={`${product.name} - خرید برنج ایرانی`}
             className="object-cover w-full h-full group-hover:scale-110 transition-transform duration-500"
             loading="lazy"
             onError={(e) => {
               // Handle image loading errors
               const target = e.target as HTMLImageElement;
-              target.src = '/placeholder-image.jpg';
+              target.src = '/placeholder.svg';
             }}
           />
           {discount > 0 && (
@@ -84,14 +84,17 @@ const ProductCard = ({ product }: ProductCardProps) => {
             </Badge>
           )}
         </div>
-      </div>
+      </Link>
 
       <CardContent className="p-4">
-        <div onClick={handleProductClick} className="cursor-pointer">
-          <h3 className="font-bold text-lg mb-2 text-foreground hover:text-primary transition-colors line-clamp-1">
+        <h3 className="font-bold text-lg mb-2 line-clamp-1">
+          <Link
+            to={`/product/${product.slug}`}
+            className="text-foreground hover:text-primary transition-colors"
+          >
             {product.name}
-          </h3>
-        </div>
+          </Link>
+        </h3>
         <p className="text-muted-foreground text-sm mb-3 line-clamp-2">{product.description}</p>
         
         <div className="flex items-center gap-1 mb-3">

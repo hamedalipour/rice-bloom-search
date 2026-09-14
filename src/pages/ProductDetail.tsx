@@ -4,7 +4,6 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { useProducts } from "@/hooks/useProducts";
 import { useCart } from "@/contexts/CartContext";
-import { supabase } from '@/integrations/supabase/client';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -18,10 +17,15 @@ import { Badge } from "@/components/ui/badge";
 import { Star, ShoppingCart, CheckCircle2, Truck, Shield, ArrowRight } from "lucide-react";
 import { toast } from "sonner";
 import ProductCard from "@/components/ProductCard";
+import {
+  useSEO,
+  buildProductJsonLd,
+  buildBreadcrumbJsonLd,
+} from "@/lib/seo";
 
 const ProductDetail = () => {
   const { slug } = useParams();
-  const { products } = useProducts();
+  const { products, loading: productsLoading } = useProducts();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -36,32 +40,53 @@ const ProductDetail = () => {
       return;
     }
 
-    // Set a timeout to prevent infinite loading
-    const timeoutId = setTimeout(() => {
-      setLoading(false);
-      setError("زمان بارگذاری به پایان رسید. لطفاً دوباره تلاش کنید.");
-    }, 5000); // 5 second timeout
-
-    // Try to find the product in the available products
-    const foundProduct = products.find(p => p.slug === slug);
-    
-    if (foundProduct) {
-      clearTimeout(timeoutId);
-      setProduct(foundProduct);
-      setLoading(false);
-      setError(null);
-    } else {
-      // Simple approach - just show not found if not in products list
-      clearTimeout(timeoutId);
-      setLoading(false);
-      setError("محصول یافت نشد");
+    // تا زمانی که لیست محصولات در حال دریافت است، در حالت لودینگ می‌مانیم
+    if (productsLoading) {
+      setLoading(true);
+      return;
     }
 
-    // Cleanup function
-    return () => {
-      clearTimeout(timeoutId);
-    };
-  }, [slug, products]);
+    const foundProduct = products.find(p => p.slug === slug);
+
+    if (foundProduct) {
+      setProduct(foundProduct);
+      setError(null);
+    } else {
+      setProduct(null);
+      setError("محصول یافت نشد");
+    }
+    setLoading(false);
+  }, [slug, products, productsLoading]);
+
+  // SEO: عنوان، توضیحات، تصویر و داده ساختاریافته اختصاصی هر محصول
+  const seoPath = `/product/${slug}`;
+  const seoTitle = product
+    ? ((product as any).meta_title ||
+        `${product.name} | خرید آنلاین با قیمت روز و ارسال سریع`)
+    : "در حال بارگذاری محصول";
+  const seoDescription = product
+    ? ((product as any).meta_description ||
+        product.description ||
+        product.long_description ||
+        "").slice(0, 160)
+    : "مشخصات، قیمت روز و خرید آنلاین این محصول از فروشگاه عطر شالیزار";
+  useSEO({
+    title: seoTitle,
+    description: seoDescription,
+    path: seoPath,
+    image: product?.image_url || undefined,
+    type: "product",
+    jsonLd: product
+      ? [
+          buildProductJsonLd(product),
+          buildBreadcrumbJsonLd([
+            { name: "خانه", path: "/" },
+            { name: "فروشگاه", path: "/shop" },
+            { name: product.name, path: seoPath },
+          ]),
+        ]
+      : undefined,
+  });
 
   if (loading) {
     return (
@@ -171,12 +196,12 @@ const ProductDetail = () => {
               <div className="space-y-4">
                 <div className="relative aspect-square rounded-lg overflow-hidden bg-muted">
                   <img
-                    src={product.image_url || '/placeholder-image.jpg'}
-                    alt={product.name}
+                    src={product.image_url || '/placeholder.svg'}
+                    alt={`${product.name} - خرید برنج ایرانی`}
                     className="w-full h-full object-cover"
                     onError={(e) => {
                       const target = e.target as HTMLImageElement;
-                      target.src = '/placeholder-image.jpg';
+                      target.src = '/placeholder.svg';
                     }}
                   />
                   {discount > 0 && (

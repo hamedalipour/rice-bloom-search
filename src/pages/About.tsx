@@ -1,10 +1,18 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { useSEO } from "@/lib/seo";
 import { Card, CardContent } from "@/components/ui/card";
 import { CheckCircle2, Heart, Users, Award } from "lucide-react";
 import aboutImage from "@/assets/about-us.jpg";
 
 const About = () => {
+  useSEO({
+    title: "درباره عطر شالیزار | فروشنده مستقیم برنج ایرانی از شمال کشور",
+    description:
+      "داستان عطر شالیزار؛ خرید مستقیم برنج از کشاورزان شالیزارهای گیلان و مازندران بدون واسطه، با تعهد به کیفیت اصل و رضایت بیش از هزار خانواده ایرانی.",
+    path: "/about",
+  });
+
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />

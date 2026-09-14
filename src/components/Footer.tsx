@@ -3,6 +3,8 @@ import { Phone, Mail, MapPin } from "lucide-react";
 import faviconImage from "@/assets/favicon.png";
 
 const Footer = () => {
+  const year = new Date().toLocaleDateString("fa-IR", { year: "numeric" });
+
   return (
     <footer className="bg-muted/50 border-t border-border mt-20">
       <div className="container mx-auto px-4 py-12">
@@ -98,7 +100,7 @@ const Footer = () => {
 
         <div className="mt-8 pt-8 border-t border-border text-center">
           <p className="text-muted-foreground text-sm">
-            © ۱۴۰۳ عطر شالیزار. تمامی حقوق محفوظ است.
+            © {year} عطر شالیزار. تمامی حقوق محفوظ است.
           </p>
         </div>
       </div>

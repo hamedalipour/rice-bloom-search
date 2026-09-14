@@ -15,6 +15,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
+import { useSEO, buildBreadcrumbJsonLd } from "@/lib/seo";
 
 const Shop = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -27,18 +28,39 @@ const Shop = () => {
   const [sortBy, setSortBy] = useState("default");
   const [priceRange, setPriceRange] = useState([0, 400000]);
 
-  // Debug logging
-  useEffect(() => {
-    console.log("Shop component mounted");
-    console.log("Loading:", loading);
-    console.log("Error:", error);
-    console.log("Products:", products.length);
-  }, [loading, error, products]);
+  const categoryLabel =
+    selectedCategory === "all"
+      ? null
+      : sampleCategories.find((c) => c.slug === selectedCategory)?.name;
+
+  // SEO: عنوان و توضیحات اختصاصی فروشگاه (و هر دسته‌بندی)
+  useSEO({
+    title: categoryLabel
+      ? `خرید ${categoryLabel} با بهترین قیمت و کیفیت | عطر شالیزار`
+      : "فروشگاه برنج ایرانی | خرید آنلاین انواع برنج با قیمت روز – عطر شالیزار",
+    description: categoryLabel
+      ? `قیمت روز و خرید اینترنتی ${categoryLabel} اصل از شالیزارهای شمال کشور با انتخاب وزن (۵، ۱۰ و ۲۵ کیلویی) و ارسال سریع به سراسر ایران از فروشگاه عطر شالیزار.`
+      : "خرید آنلاین انواع برنج ایرانی (طارم، هاشمی، فجر و شیرودی) با مقایسه قیمت، انتخاب وزن دلخواه و ارسال سریع از فروشگاه اینترنتی عطر شالیزار.",
+    path:
+      selectedCategory === "all"
+        ? "/shop"
+        : `/shop?category=${selectedCategory}`,
+    jsonLd: buildBreadcrumbJsonLd([
+      { name: "خانه", path: "/" },
+      { name: "فروشگاه", path: "/shop" },
+      ...(categoryLabel
+        ? [
+            {
+              name: categoryLabel,
+              path: `/shop?category=${selectedCategory}`,
+            },
+          ]
+        : []),
+    ]),
+  });
 
   // Generate categories from products
   const categories = useMemo(() => {
-    console.log("Generating categories from", products.length, "products");
-
     // Use sample categories data
     return sampleCategories.map((cat) => ({
       name: cat.name,
@@ -47,12 +69,6 @@ const Shop = () => {
   }, [products]);
 
   const filteredProducts = useMemo(() => {
-    console.log(
-      "Filtering products. Total:",
-      products.length,
-      "Category:",
-      selectedCategory,
-    );
     let filtered = [...products];
 
     // Filter by category
@@ -60,12 +76,6 @@ const Shop = () => {
       // category_id in database is already in english lowercase (hashemi, tarom, fajr, shirodi)
       // So we can directly compare with selectedCategory
       filtered = filtered.filter((p) => p.category_id === selectedCategory);
-      console.log(
-        "After category filter:",
-        filtered.length,
-        "products with category:",
-        selectedCategory,
-      );
     }
 
     // Filter by price range
@@ -89,7 +99,6 @@ const Shop = () => {
         break;
     }
 
-    console.log("Filtered products:", filtered.length);
     return filtered;
   }, [products, selectedCategory, sortBy, priceRange]);
 

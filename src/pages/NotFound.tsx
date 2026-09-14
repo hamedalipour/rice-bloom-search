@@ -4,12 +4,23 @@ import { Button } from "@/components/ui/button";
 import { Home, ArrowRight } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { useSEO } from "@/lib/seo";
 import { logInvalidRouteAccess } from "@/lib/routeUtils";
 
 const NotFound = () => {
   const location = useLocation();
 
+  // SEO: صفحه 404 نباید توسط موتورهای جستجو ایندکس شود
+  useSEO({
+    title: "صفحه یافت نشد (404) | عطر شالیزار",
+    description:
+      "صفحه مورد نظر در فروشگاه عطر شالیزار پیدا نشد؛ از فروشگاه برنج ایرانی ما دیدن کنید.",
+    path: location.pathname,
+    noindex: true,
+  });
+
   useEffect(() => {
+
     // Log the invalid route access
     logInvalidRouteAccess(location.pathname);
   }, [location.pathname]);
