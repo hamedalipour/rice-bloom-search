@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#4a1d4f"/>
+      <stop offset="1" stop-color="#a05fb4"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="600" fill="url(#bg)"/>
+  <ellipse cx="400" cy="470" rx="240" ry="40" fill="#00000033"/>
+  <path d="M300 300 q100 -80 200 0 q-20 90 -100 92 q-80 -2 -100 -92 z" fill="#f7eef5"/>
+  <path d="M320 322 q80 -60 160 0 q-16 66 -80 68 q-64 -2 -80 -68 z" fill="#c98dd4"/>
+  <text x="400" y="560" text-anchor="middle" font-family="Tahoma" font-size="34" fill="#f7eef5">دمنوش آرامش</text>
+  <text x="400" y="150" text-anchor="middle" font-size="64">🌸</text>
+</svg>

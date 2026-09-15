@@ -6,7 +6,7 @@ export interface Product {
   id: string;
   name: string;
   slug: string;
-  /** اسلاگ انگلیسی دسته‌بندی: tarom | hashemi | fajr | shirodi */
+  /** اسلاگ انگلیسی دسته‌بندی: tarom | hashemi | fajr | shirodi | chai-siah | chai-sabz | damnoosh */
   category: string;
   price: number;
   originalPrice?: number | null;
@@ -19,6 +19,9 @@ export interface Product {
   rating: number;
   reviewCount: number;
   inStock: boolean;
+  /** سئوی اختصاصی محصول (اختیاری) — در متاتگ‌های صفحه محصول استفاده می‌شود */
+  metaTitle?: string | null;
+  metaDescription?: string | null;
 }
 
 export const products: Product[] = productsData as Product[];
@@ -28,6 +31,9 @@ export const categories = [
   { name: "هاشمی", slug: "hashemi" },
   { name: "فجر", slug: "fajr" },
   { name: "شیرودی", slug: "shirodi" },
+  { name: "چای سیاه", slug: "chai-siah" },
+  { name: "چای سبز", slug: "chai-sabz" },
+  { name: "دمنوش", slug: "damnoosh" },
 ];
 
 export const categoryName = (slug: string): string =>

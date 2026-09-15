@@ -54,8 +54,8 @@ export const toProductRow = (p: (typeof localProducts)[number]): Product => ({
   in_stock: p.inStock !== undefined ? p.inStock : true,
   gallery_images: [],
   is_featured: false,
-  meta_title: null,
-  meta_description: null,
+  meta_title: p.metaTitle ?? null,
+  meta_description: p.metaDescription ?? null,
   created_at: "",
   updated_at: "",
 });

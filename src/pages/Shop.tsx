@@ -26,7 +26,7 @@ const Shop = () => {
     categoryFromUrl || "all",
   );
   const [sortBy, setSortBy] = useState("default");
-  const [priceRange, setPriceRange] = useState([0, 400000]);
+  const [priceRange, setPriceRange] = useState([0, 2000000]);
 
   const categoryLabel =
     selectedCategory === "all"
@@ -37,10 +37,10 @@ const Shop = () => {
   useSEO({
     title: categoryLabel
       ? `خرید ${categoryLabel} با بهترین قیمت و کیفیت | عطر شالیزار`
-      : "فروشگاه برنج ایرانی | خرید آنلاین انواع برنج با قیمت روز – عطر شالیزار",
+      : "فروشگاه برنج و چای ایرانی | خرید آنلاین انواع برنج و چای با قیمت روز – عطر شالیزار",
     description: categoryLabel
       ? `قیمت روز و خرید اینترنتی ${categoryLabel} اصل از شالیزارهای شمال کشور با انتخاب وزن (۵، ۱۰ و ۲۵ کیلویی) و ارسال سریع به سراسر ایران از فروشگاه عطر شالیزار.`
-      : "خرید آنلاین انواع برنج ایرانی (طارم، هاشمی، فجر و شیرودی) با مقایسه قیمت، انتخاب وزن دلخواه و ارسال سریع از فروشگاه اینترنتی عطر شالیزار.",
+      : "خرید آنلاین انواع برنج ایرانی (طارم، هاشمی، فجر و شیرودی) و چای اصل شمال (لاهیجان، سبز و دمنوش) با مقایسه قیمت، انتخاب وزن دلخواه و ارسال سریع از فروشگاه اینترنتی عطر شالیزار.",
     path:
       selectedCategory === "all"
         ? "/shop"
@@ -218,7 +218,7 @@ const Shop = () => {
                       <Slider
                         value={priceRange}
                         onValueChange={setPriceRange}
-                        max={400000}
+                        max={2000000}
                         step={10000}
                         className="mb-4"
                       />

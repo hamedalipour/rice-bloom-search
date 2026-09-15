@@ -84,6 +84,9 @@
             <option value="hashemi">هاشمی</option>
             <option value="fajr">فجر</option>
             <option value="shirodi">شیرودی</option>
+            <option value="chai-siah">چای سیاه</option>
+            <option value="chai-sabz">چای سبز</option>
+            <option value="damnoosh">دمنوش</option>
           </select>
         </div>
         <div><label>قیمت (تومان) *</label><input type="number" id="p-price" /></div>
@@ -110,6 +113,14 @@
         <div style="flex:1">
           <input type="text" id="p-image" dir="ltr" placeholder="/assets/products/xxx.jpg" />
           <div style="margin-top:6px"><input type="file" accept="image/*" onchange="uploadFor(this,'products','p-image')" /></div>
+        </div>
+      </div>
+      <div style="margin-top:16px;border-top:1px solid #e2e8e6;padding-top:10px">
+        <h4 style="margin-bottom:4px">🔍 سئوی اختصاصی محصول (اختیاری)</h4>
+        <p style="font-size:11px;color:#6b7280;margin-bottom:8px">اگر خالی بماند، از نام و توضیحات محصول ساخته می‌شود. عنوان را زیر ۶۰ کاراکتر و توضیحات را زیر ۱۶۰ کاراکتر نگه دار.</p>
+        <div class="grid2">
+          <div><label>عنوان سئو (Meta Title)</label><input type="text" id="p-metaTitle" placeholder="خرید چای لاهیجان اصل با قیمت روز | عطر شالیزار" /></div>
+          <div><label>توضیحات سئو (Meta Description)</label><textarea id="p-metaDescription" style="min-height:56px" placeholder="توضیحی جذاب با کلیدواژه اصلی که در نتایج گوگل نمایش داده می‌شود"></textarea></div>
         </div>
       </div>
       <div class="toolbar" style="margin-top:16px">
@@ -269,7 +280,7 @@ function renderProducts() {
 function newProduct() {
   $('product-editor').classList.remove('hidden');
   $('product-editor-title').textContent = 'محصول جدید';
-  ['p-id','p-name','p-slug','p-price','p-originalPrice','p-origin','p-description','p-longDescription','p-features','p-rating','p-reviewCount','p-image'].forEach(id => $(id).value = '');
+  ['p-id','p-name','p-slug','p-price','p-originalPrice','p-origin','p-description','p-longDescription','p-features','p-rating','p-reviewCount','p-image','p-metaTitle','p-metaDescription'].forEach(id => $(id).value = '');
   $('p-category').value = 'tarom';
   $('p-inStock').checked = true;
   $('p-image-preview').src = '';
@@ -296,6 +307,8 @@ function editProduct(p) {
   $('p-inStock').checked = p.inStock !== false;
   $('p-image').value = p.image || '';
   $('p-image-preview').src = p.image || '';
+  $('p-metaTitle').value = p.metaTitle || '';
+  $('p-metaDescription').value = p.metaDescription || '';
   $('p-weights').innerHTML = '';
   (p.weights && p.weights.length ? p.weights : [{ value: '', price: '' }]).forEach(w => addWeightRow(w.value, w.price));
 }
@@ -330,6 +343,8 @@ async function saveProduct() {
     reviewCount: Number($('p-reviewCount').value) || 0,
     inStock: $('p-inStock').checked,
     image: $('p-image').value || '/placeholder.svg',
+    metaTitle: $('p-metaTitle').value || null,
+    metaDescription: $('p-metaDescription').value || null,
   };
   try {
     const res = await API('/api/products/save', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });

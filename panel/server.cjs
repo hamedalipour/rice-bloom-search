@@ -131,6 +131,8 @@ app.post('/api/products/save', (req, res) => {
       rating: Math.min(5, Math.max(0, Number(p.rating) || 0)),
       reviewCount: Math.max(0, Number(p.reviewCount) || 0),
       inStock: !!p.inStock,
+      metaTitle: p.metaTitle ? String(p.metaTitle).trim().slice(0, 70) : null,
+      metaDescription: p.metaDescription ? String(p.metaDescription).trim().slice(0, 165) : null,
     };
 
     const idx = items.findIndex((x) => x.id === product.id);

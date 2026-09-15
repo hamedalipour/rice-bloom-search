@@ -21,12 +21,12 @@ const Home = () => {
   const latestPosts = blogPosts.filter(post => post.published).slice(0, 3);
 
   useSEO({
-    title: "خرید برنج ایرانی اصل و درجه یک | فروشگاه اینترنتی عطر شالیزار",
+    title: "خرید برنج و چای ایرانی اصل | فروشگاه اینترنتی عطر شالیزار",
     description:
-      "خرید آنلاین برنج ایرانی اصل از عطر شالیزار؛ برنج طارم، هاشمی، فجر و شیرودی مستقیماً از شالیزارهای گیلان و مازندران با قیمت روز و ارسال سریع به سراسر ایران.",
+      "خرید آنلاین برنج ایرانی اصل (طارم، هاشمی، فجر، شیرودی) و چای اصل شمال (چای لاهیجان، چای سبز و دمنوش) مستقیماً از شالیزارها و باغ‌های گیلان و مازندران با قیمت روز و ارسال سریع به سراسر ایران.",
     path: "/",
     jsonLd: buildItemListJsonLd(
-      "محصولات برنج عطر شالیزار",
+      "محصولات برنج و چای عطر شالیزار",
       featuredProducts.map((p) => ({ name: p.name, path: `/product/${p.slug}` })),
     ),
   });
@@ -53,7 +53,7 @@ const Home = () => {
                 عطر شالیزار در خانه شما
               </h1>
               <p className="text-xl md:text-2xl mb-8 text-muted-foreground">
-                بهترین برنج‌های ایرانی از شالیزارهای شمال کشور، مستقیم به سفره شما
+                بهترین برنج‌های ایرانی از شالیزارهای شمال کشور و چای اصل لاهیجان، مستقیم به سفره شما
               </p>
               <div className="flex flex-wrap gap-4">
                 <Button asChild variant="hero" size="lg">
@@ -75,19 +75,21 @@ const Home = () => {
           <div className="container mx-auto px-4">
             <div className="text-center mb-12">
               <h2 className="text-3xl md:text-4xl font-bold mb-4 text-foreground">
-                انواع برنج ایرانی
+                انواع برنج و چای ایرانی
               </h2>
               <p className="text-muted-foreground text-lg">
-                برنج مورد علاقه خود را انتخاب کنید
+                محصول مورد علاقه خود را انتخاب کنید
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {[
                 { name: "برنج طارم", image: taromImage, slug: "tarom" },
                 { name: "برنج هاشمی", image: hashemiImage, slug: "hashemi" },
                 { name: "برنج فجر", image: fajrImage, slug: "fajr" },
-                { name: "برنج شیرودی", image: shirudiImage, slug: "shirudi" }
+                { name: "برنج شیرودی", image: shirudiImage, slug: "shirodi" },
+                { name: "چای سیاه لاهیجان", image: "/assets/chai-siah.svg", slug: "chai-siah" },
+                { name: "چای سبز و دمنوش", image: "/assets/chai-sabz.svg", slug: "chai-sabz" }
               ].map((category) => (
                 <Link
                   key={category.slug}
@@ -100,6 +102,7 @@ const Home = () => {
                         src={category.image}
                         alt={category.name}
                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                        onError={(e) => { e.currentTarget.src = "/placeholder.svg"; }}
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-background/90 to-transparent flex items-end">
                         <h3 className="text-2xl font-bold p-6 text-foreground">

@@ -21,13 +21,26 @@ const renderMarkdownContent = (content: string) => {
   let list: { ordered: boolean; items: string[] } | null = null;
 
   const inline = (text: string) =>
-    text.split(/(\*\*[^*]+\*\*)/g).map((part, i) =>
-      part.startsWith("**") && part.endsWith("**") ? (
-        <strong key={i}>{part.slice(2, -2)}</strong>
-      ) : (
-        part
-      ),
-    );
+    text.split(/(\*\*[^*]+\*\*|\[[^\]]+\]\([^)\s]+\))/g).map((part, i) => {
+      if (part.startsWith("**") && part.endsWith("**")) {
+        return <strong key={i}>{part.slice(2, -2)}</strong>;
+      }
+      // لینک‌های داخلی [متن](/مسیر) → react-router (سئو: لینک‌سازی داخلی)
+      const m = part.match(/^\[([^\]]+)\]\(([^)\s]+)\)$/);
+      if (m) {
+        const [, label, href] = m;
+        return href.startsWith("/") ? (
+          <Link key={i} to={href} className="text-primary font-medium underline decoration-primary/40 underline-offset-4 hover:text-primary/80">
+            {label}
+          </Link>
+        ) : (
+          <a key={i} href={href} target="_blank" rel="noopener noreferrer" className="text-primary font-medium underline underline-offset-4 hover:text-primary/80">
+            {label}
+          </a>
+        );
+      }
+      return part;
+    });
 
   const flushList = (key: string) => {
     if (!list) return;

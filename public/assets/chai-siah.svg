@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#3b2415"/>
+      <stop offset="1" stop-color="#8a5a2b"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="600" fill="url(#bg)"/>
+  <ellipse cx="400" cy="470" rx="240" ry="40" fill="#00000033"/>
+  <path d="M270 260 h260 v40 a130 90 0 0 1 -260 0 z" fill="#f5ede1"/>
+  <path d="M270 260 h260 v12 a130 78 0 0 1 -260 0 z" fill="#6b3f1d"/>
+  <path d="M530 272 q70 -8 62 52 q-6 44 -66 34" fill="none" stroke="#f5ede1" stroke-width="14" stroke-linecap="round"/>
+  <text x="400" y="560" text-anchor="middle" font-family="Tahoma" font-size="34" fill="#f5ede1">چای سیاه لاهیجان</text>
+  <text x="400" y="150" text-anchor="middle" font-size="64">🍵</text>
+</svg>
