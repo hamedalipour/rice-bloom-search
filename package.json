@@ -8,7 +8,7 @@
     "dev": "vite",
     "dev:full": "concurrently \"npm run dev\" \"npm run panel\"",
     "panel": "node panel/server.cjs",
-    "build": "npm run sitemap && vite build",
+    "build": "npm run sitemap && vite build && node scripts/generateSpaRoutes.cjs",
     "build:cf": "npm install && npm run sitemap && vite build",
     "build:dev": "npm run sitemap && vite build --mode development",
     "build:prod": "npm run sitemap && vite build --mode production",
