@@ -343,12 +343,26 @@ app.post('/api/git/publish', async (req, res) => {
 
 
 // ---------- شروع ----------
-app.listen(PORT, HOST, () => {
+const server = app.listen(PORT, HOST, () => {
   console.log('');
   console.log('  🌾 پنل مدیریت عطر شالیزار');
   console.log(`  ▸ آدرس:      http://${HOST}:${PORT}`);
   console.log(`  ▸ محصولات:   ${DATA_FILES.products}`);
   console.log(`  ▸ وبلاگ:     ${DATA_FILES.blogPosts}`);
   console.log(`  ▸ تصاویر:    ${ASSET_DIRS.products}`);
+  console.log('  ▸ برای بستن این پنجره را ببند (Ctrl+C)');
   console.log('');
 });
+
+server.on('error', (e) => {
+  if (e && e.code === 'EADDRINUSE') {
+    console.error('');
+    console.error('⛔ پورت 3001 اشغال است — احتمالاً پنل قبلاً در یک پنجره دیگر باز است.');
+    console.error('   راه‌حل: پنجره قبلی پنل را ببند، یا در Task Manager پردازه node را End Task کن.');
+    console.error('');
+  } else {
+    console.error('⛔ خطا در اجرای سرور پنل:', e && e.message ? e.message : e);
+  }
+  process.exit(1);
+});
+
