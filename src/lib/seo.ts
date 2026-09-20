@@ -233,6 +233,17 @@ export const buildItemListJsonLd = (
   })),
 });
 
+/** پرسش و پاسخ‌های متداول – برای نتایج غنی (Rich Results) پرسش‌های گوگل */
+export const buildFaqJsonLd = (faqs: { question: string; answer: string }[]) => ({
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: faqs.map((f) => ({
+    "@type": "Question",
+    name: f.question,
+    acceptedAnswer: { "@type": "Answer", text: f.answer },
+  })),
+});
+
 /** اطلاعات فروشگاه (Store) – در صفحه تماس استفاده می‌شود */
 export const buildStoreJsonLd = () => ({
   "@context": "https://schema.org",

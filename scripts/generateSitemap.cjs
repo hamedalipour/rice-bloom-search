@@ -14,6 +14,12 @@ const staticRoutes = [
   { path: '/contact', priority: '0.5', changefreq: 'monthly' },
 ];
 
+// صفحات دسته‌بندی اختصاصی (سئوی قوی‌تر برای هر گروه محصول)
+const categoryRoutes = [
+  { path: '/category/berenj', priority: '0.8', changefreq: 'weekly' },
+  { path: '/category/chai', priority: '0.8', changefreq: 'weekly' },
+];
+
 const isoDate = (d) => {
   const t = d ? new Date(d).getTime() : NaN;
   return Number.isFinite(t) ? new Date(t).toISOString().slice(0, 10) : null;
@@ -43,6 +49,7 @@ const main = () => {
 
   const routes = [
     ...staticRoutes,
+    ...categoryRoutes,
     ...products.map((p) => ({
       path: `/product/${p.slug}`,
       priority: '0.8',

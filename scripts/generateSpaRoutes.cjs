@@ -58,6 +58,23 @@ writeRoute('/contact', {
   description: 'راه‌های تماس با فروشگاه عطر شالیزار برای سفارش تلفنی برنج و چای ایرانی؛ پاسخگویی ۹ صبح تا ۹ شب.',
 });
 
+// صفحات دسته‌بندی
+const categoryPages = [
+  {
+    slug: 'berenj',
+    title: 'خرید برنج ایرانی اصل | قیمت روز برنج طارم، هاشمی، فجر و شیرودی – ' + SITE,
+    description: 'خرید آنلاین برنج ایرانی اصل با قیمت روز؛ برنج طارم، هاشمی، فجر و شیرودی برداشت تازه از شالیزارهای گیلان و مازندران با ارسال سریع به سراسر ایران.',
+  },
+  {
+    slug: 'chai',
+    title: 'خرید چای ایرانی اصل لاهیجان | چای سیاه، سبز و دمنوش – ' + SITE,
+    description: 'خرید چای ایرانی اصل لاهیجان؛ چای سیاه بهاره، چای سبز باروتی و دمنوش گل محمدی، مستقیم از باغ‌های چای گیلان با بسته‌بندی مطمئن و ارسال سریع.',
+  },
+];
+for (const c of categoryPages) {
+  writeRoute(`/category/${c.slug}`, { title: c.title, description: c.description });
+}
+
 // صفحات محصول
 for (const p of products) {
   writeRoute(`/product/${p.slug}`, {
@@ -74,4 +91,4 @@ for (const b of blogPosts) {
   });
 }
 
-console.log(`✅ SPA routes generated: ${4 + products.length + blogPosts.length} pages (static 4 + ${products.length} products + ${blogPosts.length} posts)`);
+console.log(`✅ SPA routes generated: ${4 + categoryPages.length + products.length + blogPosts.length} pages (static 4 + ${categoryPages.length} categories + ${products.length} products + ${blogPosts.length} posts)`);

@@ -56,23 +56,28 @@ const Footer = () => {
             <h3 className="text-lg font-bold mb-4 text-foreground">دسته‌بندی‌ها</h3>
             <ul className="space-y-2">
               <li>
-                <Link to="/shop?category=tarom" className="text-muted-foreground hover:text-primary transition-colors text-sm">
-                  برنج طارم
+                <Link to="/category/berenj" className="text-muted-foreground hover:text-primary transition-colors text-sm font-medium">
+                  برنج ایرانی اصل
                 </Link>
               </li>
               <li>
-                <Link to="/shop?category=hashemi" className="text-muted-foreground hover:text-primary transition-colors text-sm">
-                  برنج هاشمی
+                <Link to="/category/chai" className="text-muted-foreground hover:text-primary transition-colors text-sm font-medium">
+                  چای ایرانی لاهیجان
                 </Link>
               </li>
               <li>
-                <Link to="/shop?category=fajr" className="text-muted-foreground hover:text-primary transition-colors text-sm">
-                  برنج فجر
+                <Link to="/product/chai-siah-lahijan-daraje-yek" className="text-muted-foreground hover:text-primary transition-colors text-sm">
+                  چای سیاه لاهیجان درجه یک
                 </Link>
               </li>
               <li>
-                <Link to="/shop?category=shirudi" className="text-muted-foreground hover:text-primary transition-colors text-sm">
-                  برنج شیرودی
+                <Link to="/product/chai-sabz-barooti-gilan" className="text-muted-foreground hover:text-primary transition-colors text-sm">
+                  چای سبز باروتی گیلان
+                </Link>
+              </li>
+              <li>
+                <Link to="/product/damnoosh-aramesh-gol-mohammadi" className="text-muted-foreground hover:text-primary transition-colors text-sm">
+                  دمنوش آرامش گل محمدی
                 </Link>
               </li>
             </ul>

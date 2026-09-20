@@ -7,11 +7,53 @@ import Footer from "@/components/Footer";
 import ProductCard from "@/components/ProductCard";
 import { useProducts } from "@/hooks/useProducts";
 import { useBlogPosts } from "@/hooks/useBlogPosts";
-import { useSEO, buildItemListJsonLd } from "@/lib/seo";
+import { useSEO, buildItemListJsonLd, buildFaqJsonLd } from "@/lib/seo";
 import taromImage from "@/assets/rice-tarom.jpg";
-import hashemiImage from "@/assets/rice-hashemi.jpg";
-import fajrImage from "@/assets/rice-fajr.jpg";
-import shirudiImage from "@/assets/rice-shirudi.jpg";
+
+/** سؤالات متداول صفحه اصلی — همراه با FAQPage Schema در JSON-LD */
+const FAQ_DATA: { question: string; answer: string }[] = [
+  {
+    question: "چطور از فروشگاه عطر شالیزار سفارش بدهم؟",
+    answer:
+      "محصول مورد نظر را به سبد خرید اضافه کنید و فرم سفارش را تکمیل کنید؛ یا سفارش تلفنی خود را به شماره 09377893307 اعلام کنید. پاسخگویی هر روز از ۹ صبح تا ۹ شب است.",
+  },
+  {
+    question: "ارسال سفارش چند روز طول می‌کشد؟",
+    answer:
+      "سفارش‌ها با پست پیشتاز و تیپاکس ارسال می‌شوند؛ تهران و کرج معمولاً ۲ تا ۳ روز کاری و سایر شهرها ۳ تا ۵ روز کاری به طول می‌انجامد.",
+  },
+  {
+    question: "هزینه ارسال چقدر است؟",
+    answer:
+      "هزینه ارسال بر اساس وزن مرسوله و شهر مقصد محاسبه می‌شود و برای سفارش‌های حجیم (ساک‌های چندکیلویی برنج) تخفیف ارسال در نظر گرفته می‌شود. برای اطلاع دقیق قبل از سفارش با ما تماس بگیرید.",
+  },
+  {
+    question: "برنج‌های شما از کجا تأمین می‌شود؟",
+    answer:
+      "برنج‌ها مستقیم از شالیزارهای گیلان و مازندران و بدون واسطه تهیه می‌شوند؛ برداشت تازه‌ی هر فصل، شال‌گیری و عیارسنجی دستی پیش از بسته‌بندی انجام می‌شود.",
+  },
+  {
+    question: "تفاوت برنج طارم و هاشمی چیست؟",
+    answer:
+      "برنج طارم عطر قوی‌تر و دانه‌ی کشیده‌تری دارد؛ برنج هاشمی لعاب بیشتری دارد و به «سلطان برنج‌های مهمانی» معروف است. راهنمای کامل را در مقاله «تفاوت برنج طارم و هاشمی» بخوانید.",
+  },
+  {
+    question: "چای لاهیجان اصل را چگونه تشخیص بدهم؟",
+    answer:
+      "چای اصل برگ کامل دارد، عطرش طبیعی و ملایم است و دم‌کرده‌اش رنگ عسلی شفاف می‌گیرد؛ چای‌های خارجی معمولاً دانه شکسته و رنگ تیره‌ی مصنوعی دارند. راهنمای کامل در مقاله «چای لاهیجان چیست» آمده است.",
+  },
+  {
+    question: "بسته‌بندی برنج و چای چگونه است؟",
+    answer:
+      "برنج در ساک‌های ۵ و ۱۰ کیلویی و چای در بسته‌های ۲۵۰ گرمی و نیم‌کیلویی بسته‌بندی می‌شود. بسته‌بندی‌ها دو لایه و مطمئن است تا تازگی محصول تا لحظه‌ی رسیدن حفظ شود.",
+  },
+  {
+    question: "پرداخت چطور انجام می‌شود؟",
+    answer:
+      "پرداخت از طریق درگاه امن بانکی سایت انجام می‌شود. برای هماهنگی روش‌های دیگر پرداخت (مثل کارت به کارت) با پشتیبانی تماس بگیرید.",
+  },
+];
+
 
 const Home = () => {
   const { products, loading, error } = useProducts();
@@ -25,10 +67,13 @@ const Home = () => {
     description:
       "خرید آنلاین برنج ایرانی اصل (طارم، هاشمی، فجر، شیرودی) و چای اصل شمال (چای لاهیجان، چای سبز و دمنوش) مستقیماً از شالیزارها و باغ‌های گیلان و مازندران با قیمت روز و ارسال سریع به سراسر ایران.",
     path: "/",
-    jsonLd: buildItemListJsonLd(
-      "محصولات برنج و چای عطر شالیزار",
-      featuredProducts.map((p) => ({ name: p.name, path: `/product/${p.slug}` })),
-    ),
+    jsonLd: [
+      buildItemListJsonLd(
+        "محصولات برنج و چای عطر شالیزار",
+        featuredProducts.map((p) => ({ name: p.name, path: `/product/${p.slug}` })),
+      ),
+      buildFaqJsonLd(FAQ_DATA),
+    ],
   });
 
   return (
@@ -82,35 +127,57 @@ const Home = () => {
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {[
-                { name: "برنج طارم", image: taromImage, slug: "tarom" },
-                { name: "برنج هاشمی", image: hashemiImage, slug: "hashemi" },
-                { name: "برنج فجر", image: fajrImage, slug: "fajr" },
-                { name: "برنج شیرودی", image: shirudiImage, slug: "shirodi" },
-                { name: "چای سیاه لاهیجان", image: "/assets/chai-siah.svg", slug: "chai-siah" },
-                { name: "چای سبز و دمنوش", image: "/assets/chai-sabz.svg", slug: "chai-sabz" }
-              ].map((category) => (
-                <Link
-                  key={category.slug}
-                  to={`/shop?category=${category.slug}`}
-                  className="group"
-                >
+                {
+                  name: "برنج ایرانی اصل",
+                  desc: "طارم، هاشمی، فجر و شیرودی",
+                  image: taromImage,
+                  to: "/category/berenj",
+                  alt: "خرید برنج ایرانی اصل - ساک برنج طارم عطر شالیزار",
+                },
+                {
+                  name: "چای ایرانی لاهیجان",
+                  desc: "چای سیاه، چای سبز و دمنوش",
+                  image: "/assets/chai-siah.jpg",
+                  to: "/category/chai",
+                  alt: "خرید چای ایرانی اصل لاهیجان - عطر شالیزار",
+                },
+              ].map((cat) => (
+                <Link key={cat.to} to={cat.to} className="group">
                   <Card className="overflow-hidden hover:shadow-xl transition-all duration-300">
-                    <div className="relative h-48 overflow-hidden">
+                    <div className="relative h-64 overflow-hidden">
                       <img
-                        src={category.image}
-                        alt={category.name}
+                        src={cat.image}
+                        alt={cat.alt}
                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                         onError={(e) => { e.currentTarget.src = "/placeholder.svg"; }}
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-background/90 to-transparent flex items-end">
-                        <h3 className="text-2xl font-bold p-6 text-foreground">
-                          {category.name}
-                        </h3>
+                      <div className="absolute inset-0 bg-gradient-to-t from-background/95 to-transparent flex items-end">
+                        <div className="p-6">
+                          <h3 className="text-2xl font-bold text-foreground">{cat.name}</h3>
+                          <p className="text-sm text-muted-foreground mt-1">{cat.desc}</p>
+                        </div>
                       </div>
                     </div>
                   </Card>
+                </Link>
+              ))}
+            </div>
+
+            {/* لینک‌های سریع محصولات (لینک‌سازی داخلی) */}
+            <div className="flex flex-wrap justify-center gap-x-6 gap-y-2 mt-8 text-sm">
+              {[
+                ["برنج طارم", "/product/berenj-tarom-mahali-daraje-yek"],
+                ["برنج هاشمی", "/product/berenj-hashemi-moattar"],
+                ["برنج فجر", "/product/berenj-fajr-gilan"],
+                ["برنج شیرودی", "/product/berenj-shirudi-sonati"],
+                ["چای سیاه لاهیجان", "/product/chai-siah-lahijan-daraje-yek"],
+                ["چای سبز باروتی", "/product/chai-sabz-barooti-gilan"],
+                ["دمنوش گل محمدی", "/product/damnoosh-aramesh-gol-mohammadi"],
+              ].map(([label, to]) => (
+                <Link key={to} to={to} className="text-muted-foreground hover:text-primary transition-colors">
+                  {label}
                 </Link>
               ))}
             </div>
@@ -244,6 +311,36 @@ const Home = () => {
                     </CardContent>
                   </Card>
                 </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* FAQ Section – با FAQPage Schema برای نتایج غنی گوگل */}
+        <section className="py-20 bg-muted/30">
+          <div className="container mx-auto px-4">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl md:text-4xl font-bold mb-4 text-foreground">
+                سؤالات متداول
+              </h2>
+              <p className="text-muted-foreground text-lg">
+                هر آنچه پیش از خرید برنج و چای ایرانی باید بدانید
+              </p>
+            </div>
+            <div className="max-w-3xl mx-auto space-y-3">
+              {FAQ_DATA.map((faq, i) => (
+                <details
+                  key={i}
+                  className="group bg-background border border-border rounded-lg overflow-hidden"
+                >
+                  <summary className="flex items-center justify-between cursor-pointer list-none p-5 font-semibold text-foreground hover:text-primary transition-colors">
+                    {faq.question}
+                    <span className="text-primary text-xl leading-none transition-transform group-open:rotate-45">
+                      +
+                    </span>
+                  </summary>
+                  <p className="px-5 pb-5 text-muted-foreground leading-7">{faq.answer}</p>
+                </details>
               ))}
             </div>
           </div>
