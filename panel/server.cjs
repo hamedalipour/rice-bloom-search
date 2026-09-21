@@ -41,6 +41,10 @@ app.use(express.json({ limit: '2mb' }));
 // پیش‌نمایش تصاویر آپلودشده داخل پنل
 app.use('/assets', express.static(path.join(PUBLIC_DIR, 'assets')));
 
+// رابط کاربری پنل (panel/index.html) در آدرس ریشه
+app.use('/', express.static(__dirname));
+app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
+
 // ---------- ابزارهای کمکی ----------
 function readJson(file) {
   return JSON.parse(fs.readFileSync(file, 'utf8'));
