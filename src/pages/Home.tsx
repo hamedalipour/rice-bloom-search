@@ -138,7 +138,7 @@ const Home = () => {
                 },
                 {
                   name: "چای ایرانی لاهیجان",
-                  desc: "چای سیاه، چای سبز و دمنوش",
+                  desc: "چای سیاه، بهاره و چوب شمال",
                   image: "/assets/chai-siah.jpg",
                   to: "/category/chai",
                   alt: "خرید چای ایرانی اصل لاهیجان - عطر شالیزار",
@@ -168,13 +168,10 @@ const Home = () => {
             {/* لینک‌های سریع محصولات (لینک‌سازی داخلی) */}
             <div className="flex flex-wrap justify-center gap-x-6 gap-y-2 mt-8 text-sm">
               {[
-                ["برنج طارم", "/product/berenj-tarom-mahali-daraje-yek"],
-                ["برنج هاشمی", "/product/berenj-hashemi-moattar"],
-                ["برنج فجر", "/product/berenj-fajr-gilan"],
-                ["برنج شیرودی", "/product/berenj-shirudi-sonati"],
+                ["برنج هاشمی معطر", "/product/berenj-hashemi-moattar"],
                 ["چای سیاه لاهیجان", "/product/chai-siah-lahijan-daraje-yek"],
-                ["چای سبز باروتی", "/product/chai-sabz-barooti-gilan"],
-                ["دمنوش گل محمدی", "/product/damnoosh-aramesh-gol-mohammadi"],
+                ["چای بهاره ممتاز", "/product/chai-bahareh-momtaz-shomal"],
+                ["چای چوب شمال", "/product/chai-sabz-barooti-gilan"],
               ].map(([label, to]) => (
                 <Link key={to} to={to} className="text-muted-foreground hover:text-primary transition-colors">
                   {label}

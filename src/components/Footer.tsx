@@ -71,13 +71,13 @@ const Footer = () => {
                 </Link>
               </li>
               <li>
-                <Link to="/product/chai-sabz-barooti-gilan" className="text-muted-foreground hover:text-primary transition-colors text-sm">
-                  چای سبز باروتی گیلان
+                <Link to="/product/chai-bahareh-momtaz-shomal" className="text-muted-foreground hover:text-primary transition-colors text-sm">
+                  چای بهاره ممتاز شمال
                 </Link>
               </li>
               <li>
-                <Link to="/product/damnoosh-aramesh-gol-mohammadi" className="text-muted-foreground hover:text-primary transition-colors text-sm">
-                  دمنوش آرامش گل محمدی
+                <Link to="/product/chai-sabz-barooti-gilan" className="text-muted-foreground hover:text-primary transition-colors text-sm">
+                  چای چوب شمال (ساقه‌دار)
                 </Link>
               </li>
             </ul>
