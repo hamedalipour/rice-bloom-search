@@ -1,35 +1,5 @@
 [
   {
-    "id": "1",
-    "name": "برنج طارم محلی درجه یک",
-    "slug": "berenj-tarom-mahali-daraje-yek",
-    "category": "tarom",
-    "price": 285000,
-    "originalPrice": 320000,
-    "image": "/rice-tarom.jpg",
-    "description": "برنج طارم محلی با کیفیت عالی و عطر و طعم بی‌نظیر",
-    "longDescription": "برنج طارم محلی درجه یک از بهترین شالیزارهای شمال کشور تهیه شده است. این برنج با دانه‌های بلند و باریک، عطر خاص و ری کردن مناسب برای پخت انواع غذاهای ایرانی ایده‌آل است.",
-    "origin": "گیلان - لاهیجان",
-    "features": [
-      "دانه بلند و باریک",
-      "عطر و طعم منحصر به فرد",
-      "ری کردن عالی",
-      "مناسب برای پلو و دم‌کشیده",
-      "بدون شکستگی"
-    ],
-    "weights": [
-      {
-        "value": "5 کیلوگرم",
-        "price": 23250000
-      }
-    ],
-    "rating": 4.8,
-    "reviewCount": 127,
-    "inStock": true,
-    "metaTitle": null,
-    "metaDescription": null
-  },
-  {
     "id": "2",
     "name": "برنج هاشمی معطر",
     "slug": "berenj-hashemi-moattar",
@@ -50,100 +20,22 @@
     "weights": [
       {
         "value": "5 کیلوگرم",
-        "price": 320000
-      },
-      {
-        "value": "10 کیلوگرم",
-        "price": 620000
-      },
-      {
-        "value": "25 کیلوگرم",
-        "price": 1480000
+        "price": 2650000
       }
     ],
     "rating": 4.9,
     "reviewCount": 203,
-    "inStock": true
-  },
-  {
-    "id": "3",
-    "name": "برنج فجر گیلان",
-    "slug": "berenj-fajr-gilan",
-    "category": "fajr",
-    "price": 245000,
-    "originalPrice": null,
-    "image": "/rice-fajr.jpg",
-    "description": "برنج فجر با قیمت مناسب و کیفیت مطلوب",
-    "longDescription": "برنج فجر گیلان یک گزینه اقتصادی و با کیفیت برای استفاده روزمره است. این برنج با دانه‌های متوسط و پخت راحت، انتخاب مناسبی برای خانواده‌های ایرانی است.",
-    "origin": "گیلان - رشت",
-    "features": [
-      "قیمت مناسب",
-      "کیفیت خوب",
-      "دانه متوسط",
-      "پخت راحت",
-      "مناسب مصرف روزانه"
-    ],
-    "weights": [
-      {
-        "value": "5 کیلوگرم",
-        "price": 245000
-      },
-      {
-        "value": "10 کیلوگرم",
-        "price": 475000
-      },
-      {
-        "value": "25 کیلوگرم",
-        "price": 1150000
-      }
-    ],
-    "rating": 4.5,
-    "reviewCount": 89,
-    "inStock": true
-  },
-  {
-    "id": "4",
-    "name": "برنج شیرودی سنتی",
-    "slug": "berenj-shirudi-sonati",
-    "category": "shirodi",
-    "price": 295000,
-    "originalPrice": null,
-    "image": "/rice-shirudi.jpg",
-    "description": "برنج شیرودی اصیل با طعم سنتی",
-    "longDescription": "برنج شیرودی از منطقه شیرود مازندران با روش سنتی کشت و برداشت می‌شود. این برنج با دانه‌های کوچکتر و طعم خاص خود محبوبیت زیادی دارد.",
-    "origin": "مازندران - شیرود",
-    "features": [
-      "کشت سنتی",
-      "طعم اصیل",
-      "دانه کوچک",
-      "چسبندگی مناسب",
-      "مناسب برای کته"
-    ],
-    "weights": [
-      {
-        "value": "5 کیلوگرم",
-        "price": 295000
-      },
-      {
-        "value": "10 کیلوگرم",
-        "price": 570000
-      },
-      {
-        "value": "25 کیلوگرم",
-        "price": 1380000
-      }
-    ],
-    "rating": 4.7,
-    "reviewCount": 156,
-    "inStock": true
+    "inStock": true,
+    "metaTitle": null,
+    "metaDescription": null
   },
   {
     "id": "5",
-    "name": "چای سیاه لاهیجان درجه یک",
+    "name": "چای سیاه لاهیجان درجه یک (قلم)",
     "slug": "chai-siah-lahijan-daraje-yek",
     "category": "chai-siah",
-    "price": 98000,
-    "originalPrice": 115000,
+    "price": 650000,
+    "originalPrice": 700000,
     "image": "/assets/chai-siah.jpg",
     "description": "چای سیاه لاهیجان اصل با عطر و رنگ کهربایی؛ مستقیم از باغ‌های چای شمال",
     "longDescription": "چای سیاه لاهیجان درجه یک از باغ‌های چای لاهیجان گیلان با برگ‌های یکدست، عطر ماندگار و رنگ کهربایی درخشان. این چای سنتی شمال کشور بدون هیچ افزودنی و کاملاً طبیعی بسته‌بندی می‌شود و برای دم کردن روزانه و پذیرایی ایده‌آل است.",
@@ -157,16 +49,8 @@
     ],
     "weights": [
       {
-        "value": "۱۰۰ گرم",
-        "price": 98000
-      },
-      {
-        "value": "۲۵۰ گرم",
-        "price": 225000
-      },
-      {
-        "value": "۵۰۰ گرم",
-        "price": 395000
+        "value": "1 کیلو گرم",
+        "price": 650000
       }
     ],
     "rating": 4.9,
@@ -180,7 +64,7 @@
     "name": "چای بهاره ممتاز شمال",
     "slug": "chai-bahareh-momtaz-shomal",
     "category": "chai-siah",
-    "price": 118000,
+    "price": 980000,
     "originalPrice": null,
     "image": "/assets/products/1790009663990-0200b5.jfif",
     "description": "چای بهاره برگ اول با طعم ملایم و عطر تازه؛ چیدمان بهار از باغ‌های شمال",
@@ -195,16 +79,8 @@
     ],
     "weights": [
       {
-        "value": "۱۰۰ گرم",
-        "price": 118000
-      },
-      {
-        "value": "۲۵۰ گرم",
-        "price": 275000
-      },
-      {
-        "value": "۵۰۰ گرم",
-        "price": 485000
+        "value": "1 کیلوگرم",
+        "price": 980000
       }
     ],
     "rating": 5,
@@ -215,13 +91,13 @@
   },
   {
     "id": "7",
-    "name": "چای سبز باروتی گیلان",
+    "name": "چای چوب شمال (ساقه دار)",
     "slug": "chai-sabz-barooti-gilan",
     "category": "chai-sabz",
-    "price": 105000,
+    "price": 450000,
     "originalPrice": null,
-    "image": "/assets/chai-sabz.jpg",
-    "description": "چای سبز باروتی (گلوله‌ای) با عطر بی‌نظیر؛ مناسب رژیم و سلامت",
+    "image": "/assets/products/1790013663386-97bb9d.png",
+    "description": "چای چوب شمال",
     "longDescription": "چای سبز باروتی یا گلوله‌ای از برگ‌های پیچیده‌شده به شکل دانه‌های ریز تهیه می‌شود؛ عطر بسیار قوی، طعم تلخ مطلوب و خواص آنتی‌اکسیدان بالا از مزایای این چای است. برای کسانی که چای سبز تند و پرعطر دوست دارند انتخاب اول است.",
     "origin": "گیلان - لنگرود",
     "features": [
@@ -233,16 +109,8 @@
     ],
     "weights": [
       {
-        "value": "۱۰۰ گرم",
-        "price": 105000
-      },
-      {
-        "value": "۲۵۰ گرم",
-        "price": 240000
-      },
-      {
-        "value": "۵۰۰ گرم",
-        "price": 430000
+        "value": "1 کیلوگرم",
+        "price": 450000
       }
     ],
     "rating": 4.8,
