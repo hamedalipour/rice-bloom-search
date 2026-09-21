@@ -103,10 +103,23 @@ const Footer = () => {
           </div>
         </div>
 
-        <div className="mt-8 pt-8 border-t border-border text-center">
+        <div className="mt-8 pt-8 border-t border-border flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="text-muted-foreground text-sm">
             © {year} عطر شالیزار. تمامی حقوق محفوظ است.
           </p>
+          <a
+            referrerpolicy="origin"
+            target="_blank"
+            href="https://trustseal.enamad.ir/?id=695498&Code=gxLZrsDM5sXpG2L7zbLC236ex2ihsq1O"
+            aria-label="نماد اعتماد الکترونیکی – عطر شالیزار"
+          >
+            <img
+              referrerpolicy="origin"
+              src="https://trustseal.enamad.ir/logo.aspx?id=695498&Code=gxLZrsDM5sXpG2L7zbLC236ex2ihsq1O"
+              alt="نماد اعتماد الکترونیکی"
+              className="h-24 w-auto"
+            />
+          </a>
         </div>
       </div>
     </footer>

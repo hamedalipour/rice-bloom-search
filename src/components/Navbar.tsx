@@ -22,9 +22,23 @@ const Navbar = () => {
 
   return (
     <nav className="sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border">
-      {/* نوار بالای صفحه با شماره تماس */}
+      {/* نوار بالای صفحه با شماره تماس + نماد اعتماد */}
       <div className="hidden md:block bg-primary text-primary-foreground py-2 px-4 text-sm">
-        <div className="container mx-auto flex justify-end">
+        <div className="container mx-auto flex items-center justify-between">
+          <a
+            referrerpolicy="origin"
+            target="_blank"
+            href="https://trustseal.enamad.ir/?id=695498&Code=gxLZrsDM5sXpG2L7zbLC236ex2ihsq1O"
+            aria-label="نماد اعتماد الکترونیکی – عطر شالیزار"
+            className="shrink-0"
+          >
+            <img
+              referrerpolicy="origin"
+              src="https://trustseal.enamad.ir/logo.aspx?id=695498&Code=gxLZrsDM5sXpG2L7zbLC236ex2ihsq1O"
+              alt="نماد اعتماد الکترونیکی"
+              className="h-9 w-auto"
+            />
+          </a>
           <div className="flex items-center gap-2">
             <span>تلفن سفارشات:</span>
             <span className="font-bold" dir="ltr">{ORDER_PHONE}</span>
