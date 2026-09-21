@@ -60,7 +60,11 @@ const Home = () => {
   const { blogPosts } = useBlogPosts();
 
   const featuredProducts = products.slice(0, 4);
-  const latestPosts = blogPosts.filter(post => post.published).slice(0, 3);
+  // ۳ مقاله جدیدترین (مرتب‌سازی بر اساس تاریخ) — برای سئو و تازگی محتوا
+const latestPosts = [...blogPosts]
+  .filter((post) => post.published)
+  .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+  .slice(0, 3);
 
   useSEO({
     title: "خرید برنج و چای ایرانی اصل | فروشگاه اینترنتی عطر شالیزار",
