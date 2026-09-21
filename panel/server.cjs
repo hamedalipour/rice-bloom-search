@@ -45,6 +45,39 @@ app.use('/assets', express.static(path.join(PUBLIC_DIR, 'assets')));
 app.use('/', express.static(__dirname));
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
 
+// ---------- IndexNow: اعلام سریع تغییرات به Bing/Yandex/Seznam بعد از هر انتشار ----------
+const INDEXNOW_KEY = 'atre-shalizar-idxnow-7f3a9c2e5b8d416a';
+const SITE_HOST = 'atre-shalizar.ir';
+function pingIndexNow() {
+  try {
+    const payload = {
+      host: SITE_HOST,
+      key: INDEXNOW_KEY,
+      keyLocation: `https://${SITE_HOST}/${INDEXNOW_KEY}.txt`,
+      urlList: [
+        `https://${SITE_HOST}/`,
+        `https://${SITE_HOST}/shop`,
+        `https://${SITE_HOST}/blog`,
+        `https://${SITE_HOST}/category/berenj`,
+        `https://${SITE_HOST}/category/chai`,
+        ...readJson(DATA_FILES.products).map((p) => `https://${SITE_HOST}/product/${p.slug}`),
+        ...readJson(DATA_FILES.blogPosts)
+          .filter((b) => b.published !== false)
+          .map((b) => `https://${SITE_HOST}/blog/${b.slug}`),
+      ],
+    };
+    fetch('https://api.indexnow.org/indexnow', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json; charset=utf-8' },
+      body: JSON.stringify(payload),
+    })
+      .then((r) => console.log(`IndexNow: ${r.status} (${payload.urlList.length} URL اعلام شد)`))
+      .catch((e) => console.log('IndexNow ping ناموفق (بی‌اهمیت): ' + e.message));
+  } catch (e) {
+    console.log('IndexNow ping ناموفق (بی‌اهمیت): ' + e.message);
+  }
+}
+
 // ---------- ابزارهای کمکی ----------
 function readJson(file) {
   return JSON.parse(fs.readFileSync(file, 'utf8'));
@@ -313,8 +346,10 @@ app.post('/api/git/publish', async (req, res) => {
         });
       const push2 = await runGit(['push', 'origin', 'main']);
       log.push(push2.stdout + push2.stderr);
-      if (push2.ok)
+      if (push2.ok) {
+        pingIndexNow();
         return res.json({ ok: true, pushed: true, note: 'پس از rebase، تغییرات پوش شد؛ دیپلوی Actions شروع می‌شود.', log });
+      }
       return res.status(500).json({
         ok: false,
         pushed: false,
@@ -334,6 +369,7 @@ app.post('/api/git/publish', async (req, res) => {
         log,
       });
 
+    pingIndexNow();
     res.json({ ok: true, pushed: true, note: 'تغییرات به گیت‌هاب پوش شد؛ دیپلوی خودکار Actions شروع می‌شود.', log });
   } catch (e) {
     const hint =

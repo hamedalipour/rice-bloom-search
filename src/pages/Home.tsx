@@ -150,6 +150,7 @@ const Home = () => {
                       <img
                         src={cat.image}
                         alt={cat.alt}
+                        loading="lazy"
                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                         onError={(e) => { e.currentTarget.src = "/placeholder.svg"; }}
                       />
@@ -288,6 +289,7 @@ const Home = () => {
                       <img
                         src={post.featured_image_url || '/placeholder.svg'}
                         alt={post.title}
+                        loading="lazy"
                         className="w-full h-full object-cover hover:scale-110 transition-transform duration-500"
                         onError={(e) => {
                           const target = e.currentTarget;

@@ -262,6 +262,7 @@ const BlogPost = () => {
                               // Fix: Use the actual database column name 'featured_image_url' instead of 'image'
                               src={relatedPost.featured_image_url || '/placeholder.svg'}
                               alt={relatedPost.title}
+                              loading="lazy"
                               className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                               onError={(e) => {
                                 const target = e.currentTarget;

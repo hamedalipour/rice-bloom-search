@@ -123,6 +123,7 @@ const CategoryPage = () => {
                         <img
                           src={post.featured_image_url || "/placeholder.svg"}
                           alt={post.title}
+                          loading="lazy"
                           className="w-full h-full object-cover hover:scale-110 transition-transform duration-500"
                           onError={(e) => {
                             e.currentTarget.src = "/placeholder.svg";
