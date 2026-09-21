@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Phone, ShoppingCart, Trash2, MapPin } from "lucide-react";
 
-const ORDER_PHONE = "09377893307";
+const ORDER_PHONE = "09354299785";
 const priceFmt = (n: number) => Number(n || 0).toLocaleString("fa-IR");
 
 /**

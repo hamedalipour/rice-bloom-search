@@ -13,7 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { useState } from "react";
 import { useCart } from "@/contexts/CartContext";
 
-const ORDER_PHONE = "09377893307";
+const ORDER_PHONE = "09354299785";
 const priceFmt = (n: number) => Number(n || 0).toLocaleString("fa-IR");
 
 const Navbar = () => {

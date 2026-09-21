@@ -10,7 +10,7 @@ export const SITE = {
   url: "https://atre-shalizar.ir",
   description:
     "فروشگاه اینترنتی عطر شالیزار – خرید آنلاین برنج ایرانی اصل (طارم، هاشمی، فجر و شیرودی) مستقیماً از شالیزارهای شمال کشور با بهترین قیمت و ارسال سریع به سراسر ایران.",
-  phone: "+989377893307",
+  phone: "+989354299785",
   email: "hamedalipour38@gmail.com",
   logo: "/favicon.png",
   ogImage: "/og-image.jpg",
