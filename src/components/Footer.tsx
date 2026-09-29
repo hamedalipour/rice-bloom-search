@@ -117,6 +117,7 @@ const Footer = () => {
               referrerpolicy="origin"
               src="https://trustseal.enamad.ir/logo.aspx?id=695498&Code=gxLZrsDM5sXpG2L7zbLC236ex2ihsq1O"
               alt="نماد اعتماد الکترونیکی"
+              loading="lazy"
               className="h-24 w-auto"
             />
           </a>

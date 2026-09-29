@@ -22,10 +22,20 @@ import {
   buildProductJsonLd,
   buildBreadcrumbJsonLd,
 } from "@/lib/seo";
+import { useBlogPosts } from "@/hooks/useBlogPosts";
+
+/** راهنمای خرید: برای هر دسته محصول، مقالات مرتبط وبلاگ (سئو: لینک‌سازی داخلی موضوعی) */
+const GUIDE_POSTS: Record<string, string[]> = {
+  hashemi: ["barenj-hashemi-moattar-chist", "rahnama-pokht-berenj-irani", "tafavot-berenj-tarom-hashemi"],
+  "chai-siah": ["chai-lahijan-chist-rahnemaye-kharid", "chai-bahareh-chist-va-rahnemaye-kharid", "dam-kardan-chai-irani-droost"],
+  "chai-sabz": ["chai-chob-chist-tafavot-ba-chai-siah", "tafavot-chai-siah-va-chai-sabz", "dam-kardan-chai-irani-droost"],
+  damnoosh: ["dam-kardan-chai-irani-droost", "chai-chob-chist-tafavot-ba-chai-siah"],
+};
 
 const ProductDetail = () => {
   const { slug } = useParams();
   const { products, loading: productsLoading } = useProducts();
+  const { blogPosts: allBlogPosts } = useBlogPosts();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -141,6 +151,12 @@ const ProductDetail = () => {
   const relatedProducts = products.filter(
     (p) => p.id !== product.id
   ).slice(0, 4);
+
+  // مقالات راهنمای خرید مرتبط با دسته این محصول (لینک‌سازی داخلی موضوعی)
+  const guidePosts = (GUIDE_POSTS[(product as any).category_id] || [])
+    .map((s) => (allBlogPosts as any[]).find((p) => p.slug === s && p.published))
+    .filter(Boolean)
+    .slice(0, 3);
 
   const weights = Array.isArray(product.weights) ? product.weights : [];
   const features = Array.isArray(product.features) ? product.features : [];
@@ -361,6 +377,29 @@ const ProductDetail = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                   {relatedProducts.map((relatedProduct) => (
                     <ProductCard key={relatedProduct.id} product={relatedProduct} />
+                  ))}
+                </div>
+              </section>
+            )}
+
+            {/* راهنمای خرید – مقالات مرتبط با این محصول (سئو: لینک‌سازی داخلی موضوعی) */}
+            {guidePosts.length > 0 && (
+              <section>
+                <h2 className="text-2xl md:text-3xl font-bold mb-8 text-foreground">
+                  راهنمای خرید و مقالات مرتبط
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  {guidePosts.map((post: any) => (
+                    <Link key={post.id} to={`/blog/${post.slug}`} className="group">
+                      <Card className="h-full border-border hover:shadow-lg transition-all duration-300">
+                        <CardContent className="p-5">
+                          <h3 className="font-bold mb-2 text-foreground group-hover:text-primary transition-colors line-clamp-2">
+                            {post.title}
+                          </h3>
+                          <p className="text-sm text-muted-foreground line-clamp-3">{post.excerpt}</p>
+                        </CardContent>
+                      </Card>
+                    </Link>
                   ))}
                 </div>
               </section>

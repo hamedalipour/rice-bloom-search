@@ -14,9 +14,9 @@ const Blog = () => {
 
   // SEO: فهرست مقالات + داده ساختاریافته
   useSEO({
-    title: "وبلاگ عطر شالیزار | آموزش پخت برنج ایرانی و نکات آشپزی",
+    title: "وبلاگ برنج و چای ایرانی | آموزش پخت و راهنمای خرید – عطر شالیزار",
     description:
-      "مقالات آموزشی درباره برنج ایرانی؛ راهنمای کامل پخت برنج دم‌کشیده، تفاوت برنج طارم و هاشمی، روش صحیح نگهداری برنج و نکات آشپزی ایرانی در وبلاگ عطر شالیزار.",
+      "مقالات آموزشی برنج و چای ایرانی؛ راهنمای پخت برنج دم‌کشیده، خرید برنج هاشمی معطر، چای بهاره و چای چوب اصل لاهیجان، تفاوت چای‌ها و نکات نگهداری در وبلاگ عطر شالیزار.",
     path: "/blog",
     jsonLd: buildItemListJsonLd(
       "مقالات وبلاگ عطر شالیزار",
@@ -48,10 +48,15 @@ const Blog = () => {
         {/* Page Header */}
         <section className="bg-muted/50 py-12 border-b border-border">
           <div className="container mx-auto px-4">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4 text-foreground">وبلاگ</h1>
-            <p className="text-lg text-muted-foreground">
-              مقالات آموزشی درباره برنج و نحوه پخت آن
+            <h1 className="text-4xl md:text-5xl font-bold mb-4 text-foreground">وبلاگ برنج و چای ایرانی</h1>
+            <p className="text-lg text-muted-foreground mb-4">
+              مقالات آموزشی خرید، پخت و نگهداری برنج ایرانی و راهنمای چای اصل لاهیجان
             </p>
+            <div className="flex flex-wrap gap-4 text-sm font-medium">
+              <Link to="/category/berenj" className="text-primary hover:underline">خرید برنج ایرانی</Link>
+              <Link to="/category/chai" className="text-primary hover:underline">خرید چای ایرانی</Link>
+              <Link to="/shop" className="text-primary hover:underline">همه محصولات فروشگاه</Link>
+            </div>
           </div>
         </section>
 
