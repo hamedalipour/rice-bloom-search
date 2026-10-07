@@ -5,7 +5,7 @@ import ProductCard from "@/components/ProductCard";
 import { useProducts } from "@/hooks/useProducts";
 import { useBlogPosts } from "@/hooks/useBlogPosts";
 import { CATEGORY_PAGES } from "@/data/products";
-import { useSEO, buildBreadcrumbJsonLd, buildItemListJsonLd } from "@/lib/seo";
+import { useSEO, buildBreadcrumbJsonLd, buildItemListJsonLd, buildFaqJsonLd } from "@/lib/seo";
 import NotFound from "@/pages/NotFound";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -43,6 +43,16 @@ const CategoryPage = () => {
             page.name,
             categoryProducts.map((p) => ({ name: p.name, path: `/product/${p.slug}` })),
           ),
+          ...(page.faq
+            ? [
+                buildFaqJsonLd(
+                  (page.faq as readonly { q: string; a: string }[]).map((f) => ({
+                    question: f.q,
+                    answer: f.a,
+                  })),
+                ),
+              ]
+            : []),
         ]
       : undefined,
   });
@@ -107,6 +117,34 @@ const CategoryPage = () => {
             </div>
           </div>
         </section>
+
+        {/* سؤالات متداول دسته‌بندی – با FAQPage Schema */}
+        {(page.faq as readonly { q: string; a: string }[] | undefined) &&
+          (page.faq as readonly { q: string; a: string }[]).length > 0 && (
+          <section className="py-16">
+            <div className="container mx-auto px-4 max-w-3xl">
+              <h2 className="text-2xl md:text-3xl font-bold mb-8 text-foreground">
+                سؤالات متداول {page.name}
+              </h2>
+              <div className="space-y-3">
+                {(page.faq as readonly { q: string; a: string }[]).map((f, i) => (
+                  <details
+                    key={i}
+                    className="group bg-background border border-border rounded-lg overflow-hidden"
+                  >
+                    <summary className="flex items-center justify-between cursor-pointer list-none p-5 font-semibold text-foreground hover:text-primary transition-colors">
+                      {f.q}
+                      <span className="text-primary text-xl leading-none transition-transform group-open:rotate-45">
+                        +
+                      </span>
+                    </summary>
+                    <p className="px-5 pb-5 text-muted-foreground leading-7">{f.a}</p>
+                  </details>
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
 
         {/* مقالات مرتبط – لینک‌سازی داخلی */}
         {relatedPosts.length > 0 && (

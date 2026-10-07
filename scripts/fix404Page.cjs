@@ -1,4 +1,6 @@
-<!doctype html>
+// بازنویسی 404.html به صفحه ۴۰۴ واقعی (بدون ریدایرکت نرم به خانه)
+const fs = require('fs');
+const html = `<!doctype html>
 <html lang="fa" dir="rtl">
   <head>
     <meta charset="UTF-8" />
@@ -36,3 +38,6 @@
     </main>
   </body>
 </html>
+`;
+fs.writeFileSync('public/404.html', html, 'utf8');
+console.log('404.html rewritten (' + html.length + ' chars)');
