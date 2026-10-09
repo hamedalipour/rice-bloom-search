@@ -34,6 +34,7 @@ export const categories = [
   { name: "چای سیاه", slug: "chai-siah" },
   { name: "چای سبز", slug: "chai-sabz" },
   { name: "دمنوش", slug: "damnoosh" },
+  { name: "بادام آستانه", slug: "badam" },
 ];
 
 export const categoryName = (slug: string): string =>

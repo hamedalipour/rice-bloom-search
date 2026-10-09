@@ -30,6 +30,7 @@ const GUIDE_POSTS: Record<string, string[]> = {
   "chai-siah": ["chai-lahijan-chist-rahnemaye-kharid", "chai-bahareh-chist-va-rahnemaye-kharid", "dam-kardan-chai-irani-droost"],
   "chai-sabz": ["chai-chob-chist-tafavot-ba-chai-siah", "tafavot-chai-siah-va-chai-sabz", "dam-kardan-chai-irani-droost"],
   damnoosh: ["dam-kardan-chai-irani-droost", "chai-chob-chist-tafavot-ba-chai-siah"],
+  badam: ["badam-astane-chist-rahnemaye-kharid"],
 };
 
 const ProductDetail = () => {
