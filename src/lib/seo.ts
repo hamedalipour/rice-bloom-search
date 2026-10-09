@@ -148,14 +148,59 @@ export const buildBreadcrumbJsonLd = (items: BreadcrumbItem[]) => ({
   })),
 });
 
+/** قیمت‌ها در سایت تومان است؛ استاندارد ISO ارز ایران «ریال» است (تومان × ۱۰) */
+const toRial = (toman: number): string => String(Math.round(toman * 10));
+
+/** تاریخ اعتبار قیمت — یک سال آینده (قیمت‌های محصولات ثابت و دستی هستند) */
+const priceValidUntil = (): string =>
+  new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+
 /** خروجی useProducts (اسنک‌کیس دیتابیس) را به Schema محصول تبدیل می‌کند */
 export const buildProductJsonLd = (product: any) => {
   const weights = Array.isArray(product?.weights) ? product.weights : [];
+  // همه قیمت‌های موجود: وزن‌ها + قیمت پایه کارت
   const candidates = [
     ...weights.map((w: any) => Number(w?.price)).filter((n: number) => n > 0),
     Number(product?.price) || 0,
-  ];
-  const price = candidates.length ? Math.min(...candidates) : 0;
+  ].filter((n: number) => n > 0);
+
+  // قیمت‌های یکتا و مرتب‌شده برای تشخیص بازه
+  const distinct = [...new Set(candidates)].sort((a, b) => a - b);
+
+  const availability = product?.in_stock
+    ? "https://schema.org/InStock"
+    : "https://schema.org/OutOfStock";
+
+  /**
+   * اگر محصول چند قیمت متفاوت دارد (مثلاً بادام با وزن‌های نیم‌کیلو/یک‌کیلو/دو‌کیلو)،
+   * یک عدد واحد یا ارزان‌ترین قیمت نادرست است — چون با قیمت کارت صفحه یکی نیست.
+   * در این حالت AggregateOffer با بازه واقعی lowPrice/highPrice اعلام می‌شود تا
+   * گوگل دقیقاً همان بازه‌ای را ببیند که کاربر در سایت انتخاب می‌کند.
+   */
+  const offers =
+    distinct.length > 1
+      ? {
+          "@type": "AggregateOffer",
+          url: `${SITE.url}/product/${product?.slug}`,
+          priceCurrency: "IRR",
+          lowPrice: toRial(distinct[0]),
+          highPrice: toRial(distinct[distinct.length - 1]),
+          offerCount: distinct.length,
+          availability,
+          itemCondition: "https://schema.org/NewCondition",
+          priceValidUntil: priceValidUntil(),
+          seller: { "@type": "Organization", name: SITE.name },
+        }
+      : {
+          "@type": "Offer",
+          url: `${SITE.url}/product/${product?.slug}`,
+          priceCurrency: "IRR",
+          price: toRial(distinct[0] ?? 0),
+          availability,
+          itemCondition: "https://schema.org/NewCondition",
+          priceValidUntil: priceValidUntil(),
+          seller: { "@type": "Organization", name: SITE.name },
+        };
 
   return {
     "@context": "https://schema.org",
@@ -179,21 +224,7 @@ export const buildProductJsonLd = (product: any) => {
         worstRating: 1,
       },
     }),
-    offers: {
-      "@type": "Offer",
-      url: `${SITE.url}/product/${product?.slug}`,
-      priceCurrency: "IRR",
-      // قیمت‌ها در سایت تومان است؛ استاندارد ISO ارز ایران «ریال» است (تومان × ۱۰)
-      price: String(Math.round(price * 10)),
-      availability: product?.in_stock
-        ? "https://schema.org/InStock"
-        : "https://schema.org/OutOfStock",
-      itemCondition: "https://schema.org/NewCondition",
-      priceValidUntil: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000)
-        .toISOString()
-        .slice(0, 10),
-      seller: { "@type": "Organization", name: SITE.name },
-    },
+    offers,
   };
 };
 

@@ -49,6 +49,10 @@
     ],
     "weights": [
       {
+        "value": "نیم کیلو گرم",
+        "price": 325000
+      },
+      {
         "value": "1 کیلو گرم",
         "price": 650000
       }
@@ -124,7 +128,7 @@
     "name": "بادام آستانه",
     "slug": "badam-astane",
     "category": "tarom",
-    "price": 450000,
+    "price": 950000,
     "originalPrice": null,
     "image": "/assets/products/1791570387524-307e9f.jpg",
     "description": "بادام آستانه اصل با مغز پر و درشت، مستقیم از باغ‌های آستانه قوچان گلستان",
@@ -139,7 +143,7 @@
     ],
     "weights": [
       {
-        "value": "۵۰۰ گرم",
+        "value": "نیم کیلو",
         "price": 475000
       },
       {
