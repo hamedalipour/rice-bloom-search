@@ -74,7 +74,7 @@ const Home = () => {
   const { products, loading, error } = useProducts();
   const { blogPosts } = useBlogPosts();
 
-  const featuredProducts = products.slice(0, 4);
+  const featuredProducts = products;
   // ۳ مقاله جدیدترین (مرتب‌سازی بر اساس تاریخ) — برای سئو و تازگی محتوا
 const latestPosts = [...blogPosts]
   .filter((post) => post.published)
@@ -207,10 +207,10 @@ const latestPosts = [...blogPosts]
             <div className="flex items-center justify-between mb-12">
               <div>
                 <h2 className="text-3xl md:text-4xl font-bold mb-4 text-foreground">
-                  محصولات پیشنهادی
+                  محصولات فروشگاه
                 </h2>
                 <p className="text-muted-foreground text-lg">
-                  محبوب‌ترین برنج‌های ما
+                  برنج ایرانی، چای لاهیجان و بادام آستانه
                 </p>
               </div>
               <Button asChild variant="outline">
@@ -221,7 +221,7 @@ const latestPosts = [...blogPosts]
               </Button>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {featuredProducts && featuredProducts.length > 0 ? (
                 featuredProducts.map((product) => (
                   <div key={product.id}>
