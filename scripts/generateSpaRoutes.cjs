@@ -21,7 +21,19 @@ const readJson = (rel) => {
 
 const shell = fs.readFileSync(path.join(DIST, 'index.html'), 'utf8');
 
-function writeRoute(route, { title, description }) {
+/** تبدیل مسیر نسبی تصویر به URL مطلق */
+const absoluteUrl = (p) => {
+  if (!p) return null;
+  return /^https?:\/\//i.test(p) ? p : `${BASE_URL}${p.startsWith('/') ? p : `/${p}`}`;
+};
+
+/**
+ * تزریق متای اختصاصی هر مسیر روی پوسته استاتیک.
+ * علاوه بر title/description/canonical، تصویر شاخص همان صفحه (og:image و twitter:image)
+ * هم تزریق می‌شود تا پیش‌نمایش اشتراک‌گذاری لینک در تلگرام/واتساپ/اینستاگرام
+ * عکس واقعی همان محصول/مقاله را نشان دهد، نه عکس عمومی سایت.
+ */
+function writeRoute(route, { title, description, image }) {
   const safeTitle = String(title || SITE).replace(/</g, ' ');
   const safeDesc = String(description || '').replace(/"/g, '”').slice(0, 300);
   const canonical = `${BASE_URL}${route === '/' ? '/' : route}`;
@@ -31,7 +43,21 @@ function writeRoute(route, { title, description }) {
     .replace(/<link rel="canonical" href="[^"]*"/, `<link rel="canonical" href="${canonical}"`)
     .replace(/<meta property="og:title" content="[^"]*"/, `<meta property="og:title" content="${safeTitle}"`)
     .replace(/<meta property="og:description" content="[^"]*"/, `<meta property="og:description" content="${safeDesc}"`)
-    .replace(/<meta property="og:url" content="[^"]*"/, `<meta property="og:url" content="${canonical}"`);
+    .replace(/<meta property="og:url" content="[^"]*"/, `<meta property="og:url" content="${canonical}"`)
+    .replace(/<meta name="twitter:title" content="[^"]*"/, `<meta name="twitter:title" content="${safeTitle}"`)
+    .replace(/<meta name="twitter:description" content="[^"]*"/, `<meta name="twitter:description" content="${safeDesc}"`);
+
+  const imageUrl = absoluteUrl(image);
+  if (imageUrl) {
+    html = html
+      .replace(/<meta property="og:image" content="[^"]*"/, `<meta property="og:image" content="${imageUrl}"`)
+      .replace(/<meta name="twitter:image" content="[^"]*"/, `<meta name="twitter:image" content="${imageUrl}"`)
+      // ابعاد ثابت 1200x630 برای این تصاویر نادرست است؛ حذفشان می‌کنیم تا
+      // موتورهای اشتراک‌گذاری خودشان ابعاد واقعی را از فایل بخوانند.
+      .replace(/[ \t]*<meta property="og:image:width" content="[^"]*"\s*\/>\n?/g, '')
+      .replace(/[ \t]*<meta property="og:image:height" content="[^"]*"\s*\/>\n?/g, '');
+  }
+
   const dir = path.join(DIST, route);
   fs.mkdirSync(dir, { recursive: true });
   fs.writeFileSync(path.join(dir, 'index.html'), html, 'utf8');
@@ -80,6 +106,7 @@ for (const p of products) {
   writeRoute(`/product/${p.slug}`, {
     title: p.metaTitle || `${p.name} | خرید آنلاین با قیمت روز – ${SITE}`,
     description: p.metaDescription || p.description || '',
+    image: p.image,
   });
 }
 
@@ -88,6 +115,7 @@ for (const b of blogPosts) {
   writeRoute(`/blog/${b.slug}`, {
     title: b.meta_title || `${b.title} | وبلاگ ${SITE}`,
     description: b.meta_description || b.excerpt || '',
+    image: b.featured_image_url,
   });
 }
 
