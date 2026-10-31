@@ -77,7 +77,17 @@
   </head>
 
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <!-- اسکلتون اولیه: به‌محض اجرای React جایگزین می‌شود.
+           هدف: حذف صفحه سفید و اسپینر در اولین بازدید. -->
+      <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#f0fdf4,#dcfce7)">
+        <div style="text-align:center">
+          <img src="/favicon.png" alt="" width="72" height="72" style="display:block;margin:0 auto 16px;border-radius:16px;box-shadow:0 8px 24px rgba(34,197,94,.25)" />
+          <div style="width:56px;height:56px;margin:0 auto;border:4px solid #bbf7d0;border-top-color:#21c45d;border-radius:50%;animation:atrs-spin .8s linear infinite"></div>
+        </div>
+      </div>
+      <style>body{margin:0}html{scroll-behavior:smooth}@keyframes atrs-spin{to{transform:rotate(360deg)}}</style>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

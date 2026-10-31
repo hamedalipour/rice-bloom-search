@@ -6,10 +6,11 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { CartProvider } from "@/contexts/CartContext";
 
-/* Code-splitting: هر صفحه در چانک جداگانه بارگذاری می‌شود
-   تا حجم جاوااسکریپت اولیه (و نمره Core Web Vitals) کاهش یابد.
+/* Code-splitting: فقط صفحه اصلی eager است تا اولین بازدید بدون اسپینر
+   (بدون درخواست دوم برای چانک Home) رندر شود؛ بقیه صفحات در چانک جداگانه
+   بارگذاری می‌شوند تا حجم جاوااسکریپت اولیه (و نمره Core Web Vitals) کاهش یابد.
    مدیریت محتوا دیگر در سایت عمومی نیست — از پنل محلی (panel/server.cjs) انجام می‌شود. */
-const Home = lazy(() => import("./pages/Home"));
+import Home from "./pages/Home";
 const Shop = lazy(() => import("./pages/Shop"));
 const ProductDetail = lazy(() => import("./pages/ProductDetail"));
 const CategoryPage = lazy(() => import("./pages/CategoryPage"));

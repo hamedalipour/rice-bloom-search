@@ -194,6 +194,47 @@ If you encounter "new row violates row-level security policy" errors when upload
 ### Database Schema
 The application is designed to work with the current database schema. If you encounter column errors, the app will gracefully handle missing fields.
 
+## 💳 **درگاه پرداخت (زرین‌پال)**
+
+سایت اکنون دو روش پرداخت پشتیبانی می‌کند:
+
+1. **پرداخت آنلاین** — از طریق درگاه زرین‌پال (سندباکس در حالت توسعه)
+2. **سفارش تلفنی** — مشتری با تماس با شماره فروشگاه سفارش را نهایی می‌کند
+
+### فعال‌سازی درگاه پرداخت
+
+1. یک Merchant ID از [زرین‌پال](https://zarinpal.com) دریافت کنید.
+2. فایل `.env.example` را کپی کرده و نام آن را `.env` بگذارید:
+   ```bash
+   cp .env.example .env
+   ```
+3. مقادیر زیر را در `.env` پر کنید:
+   - `ZARINPAL_MERCHANT_ID` — کد Merchant از پنل زرین‌پال
+   - `ZARINPAL_SANDBOX` — `"true"` برای محیط آزمایشی، `"false"` برای Production
+   - `FRONTEND_BASE_URL` — آدرس سایت (مثلاً `http://localhost:5173`)
+   - `VITE_PANEL_API_BASE` — آدرس سرور پنل مدیریت (مثلاً `http://127.0.0.1:3001`)
+
+4. سرور پنل مدیریت را اجرا کنید (Backend برای درخواست/تایید پرداخت):
+   ```bash
+   npm run panel
+   ```
+5. سایت را اجرا کنید:
+   ```bash
+   npm run dev
+   ```
+6. به صفحه `/checkout` بروید، نام و شماره تماس را وارد کنید و دکمه **پرداخت آنلاین با درگاه زرین‌پال** را بزنید.
+
+> ⚠️ در محیط آزمایشی (sandbox) هیچ مبلغی از حساب کاربر کسر نمی‌شود. قبل از انتقال به Production، Merchant ID را به حالت Production تغییر داده و `ZARINPAL_SANDBOX=false` تنظیم کنید.
+
+### فلو پرداخت
+```
+سبد خرید → فرم پرداخت (نام/تلفن/آدرس) → درخواست Authority از درگاه
+→ هدایت کاربر به صفحه پرداخت زرین‌پال → بازگشت به مسیر verify در سرور
+→ تایید پرداخت → ذخیره سفارش با وضعیت "paid" → redirect به صفحه موفقیت
+```
+
+سفارشات در `panel/data/orders.json` ذخیره می‌شوند و از طریق مسیر `GET /api/orders` در سرور پنل قابل‌مشاهده هستند.
+
 ## 🚀 **Deployment**
 
 ### Vercel Deployment

@@ -36,6 +36,11 @@ const Navbar = () => {
               referrerpolicy="origin"
               src="https://trustseal.enamad.ir/logo.aspx?id=695498&Code=gxLZrsDM5sXpG2L7zbLC236ex2ihsq1O"
               alt="نماد اعتماد الکترونیکی"
+              loading="lazy"
+              decoding="async"
+              fetchpriority="low"
+              width="66"
+              height="36"
               className="h-9 w-auto"
             />
           </a>

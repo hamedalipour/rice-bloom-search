@@ -382,6 +382,182 @@ app.post('/api/git/publish', async (req, res) => {
 
 
 
+// ---------- داده سفارشات ----------
+const ORDERS_FILE = path.join(ROOT, 'panel', 'data', 'orders.json');
+if (!fs.existsSync(path.join(ROOT, 'panel', 'data')))
+  fs.mkdirSync(path.join(ROOT, 'panel', 'data'), { recursive: true });
+
+// تنظیمات زرین‌پال
+const ZARINPAL_MERCHANT_ID = process.env.ZARINPAL_MERCHANT_ID || '';
+const ZARINPAL_SANDBOX = process.env.ZARINPAL_SANDBOX !== 'false';
+function zarinpalBase() {
+  return ZARINPAL_SANDBOX
+    ? 'https://sandbox.zarinpal.com/pg/v4/payment'
+    : 'https://api.zarinpal.com/pg/v4/payment';
+}
+function zarinpalStartUrl(authority) {
+  return ZARINPAL_SANDBOX
+    ? `https://sandbox.zarinpal.com/pg/StartPay/${authority}`
+    : `https://www.zarinpal.com/pg/StartPay/${authority}`;
+}
+function frontendBase() {
+  return process.env.FRONTEND_BASE_URL || 'http://localhost:5173';
+}
+
+// ---- درخواست پرداخت (ساخت سفارش + درخواست Authority از درگاه) ----
+app.post('/api/payment/request', async (req, res) => {
+  try {
+    const { amount, callback_url, description, customer_name, customer_email, customer_mobile } = req.body || {};
+    if (!amount || Number(amount) <= 0)
+      return res.status(400).json({ ok: false, error: 'مبلغ نامعتبر است' });
+    if (!callback_url) return res.status(400).json({ ok: false, error: 'آدرس بازگشت الزامی است' });
+
+    const id = crypto.randomUUID();
+    const now = new Date().toISOString();
+    const order = {
+      id,
+      created_at: now,
+      amount: Number(amount),
+      status: 'pending',
+      customer: { name: customer_name || '', email: customer_email || '', mobile: customer_mobile || '' },
+      callback_url,
+      description: description || '',
+      authority: null,
+      ref_id: null,
+      paid_at: null,
+    };
+
+    const orders = readJsonOrders();
+    orders.unshift(order);
+    writeJsonOrders(orders);
+
+    // درخواست به درگاه زرین‌پال
+    const payload = {
+      merchant_id: ZARINPAL_MERCHANT_ID,
+      amount: Number(amount),
+      callback_url,
+      description: description || 'سند پرداخت',
+      ...(customer_mobile ? { mobile: customer_mobile } : {}),
+      ...(customer_email ? { email: customer_email } : {}),
+    };
+
+    let authority = null;
+    let gatewayUrl = null;
+    try {
+      const rr = await fetch(zarinpalBase() + '/request.json', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const data = await rr.json();
+      if (data.code === 100 && data.data && data.data.authority) {
+        authority = data.data.authority;
+        gatewayUrl = zarinpalStartUrl(authority);
+        // به‌روزرسانی سفارش با authority
+        const oIdx = orders.findIndex((o) => o.id === id);
+        if (oIdx >= 0) {
+          orders[oIdx].authority = authority;
+          writeJsonOrders(orders);
+        }
+      } else {
+        console.error('ZarinPal request error:', data);
+      }
+    } catch (e) {
+      console.error('ZarinPal request failed:', e.message);
+    }
+
+    res.json({
+      ok: !!authority,
+      authority,
+      url: gatewayUrl,
+      message: authority ? 'درگاه پرداخت ایجاد شد' : 'اتصال به درگاه پرداخت ناموفق بود',
+      orderId: id,
+    });
+  } catch (e) {
+    res.status(500).json({ ok: false, error: e.message });
+  }
+});
+
+// ---- تایید پرداخت (بازگشت از درگاه) ----
+app.post('/api/payment/verify', async (req, res) => {
+  try {
+    const { authority, amount } = req.body || {};
+    if (!authority) return res.status(400).json({ ok: false, error: 'شناسه پرداخت ارسال نشده است' });
+
+    const orders = readJsonOrders();
+    const oIdx = orders.findIndex((o) => o.authority === authority);
+    if (oIdx < 0) return res.status(404).json({ ok: false, error: 'سفارش یافت نشد' });
+    const order = orders[oIdx];
+
+    // تایید از درگاه
+    let verified = false;
+    let ref_id = null;
+    let message = '';
+    try {
+      const payload = {
+        merchant_id: ZARINPAL_MERCHANT_ID,
+        amount: order.amount,
+        authority,
+      };
+      const rr = await fetch(zarinpalBase() + '/verify.json', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const data = await rr.json();
+      if (data.code === 100 && data.data) {
+        verified = true;
+        ref_id = data.data.ref_id || null;
+        message = 'پرداخت با موفقیت تایید شد';
+      } else {
+        message = data.message || 'تایید پرداخت ناموفق بود';
+        console.error('ZarinPal verify error:', data);
+      }
+    } catch (e) {
+      message = 'خطا در ارتباط با درگاه پرداخت';
+      console.error('ZarinPal verify failed:', e.message);
+    }
+
+    if (verified) {
+      order.status = 'paid';
+      order.ref_id = ref_id;
+      order.paid_at = new Date().toISOString();
+      writeJsonOrders(orders);
+      return res.redirect(`${frontendBase()}/checkout?payment=success&authority=${authority}`);
+    } else {
+      order.status = 'failed';
+      writeJsonOrders(orders);
+      return res.redirect(`${frontendBase()}/checkout?payment=fail&authority=${authority}`);
+    }
+  } catch (e) {
+    res.status(500).json({ ok: false, error: e.message });
+  }
+});
+
+// ---- لیست سفارشات (برای مراجع admin) ----
+app.get('/api/orders', (_req, res) => {
+  try {
+    const orders = readJsonOrders();
+    res.json({ ok: true, orders });
+  } catch (e) {
+    res.status(500).json({ ok: false, error: e.message });
+  }
+});
+
+function readJsonOrders() {
+  try {
+    return JSON.parse(fs.readFileSync(ORDERS_FILE, 'utf8'));
+  } catch (e) {
+    return [];
+  }
+}
+
+function writeJsonOrders(data) {
+  const serialized = JSON.stringify(data, null, 2) + '\n';
+  JSON.parse(serialized); // sanity check
+  fs.writeFileSync(ORDERS_FILE, serialized, 'utf8');
+}
+
 // ---------- شروع ----------
 const server = app.listen(PORT, HOST, () => {
   console.log('');
