@@ -101,22 +101,24 @@ const latestPosts = [...blogPosts]
       
       <main className="flex-1">
         {/* Hero Section */}
-        <section className="relative h-[600px] flex items-center justify-center overflow-hidden">
+        <section className="relative flex h-[560px] items-end overflow-hidden sm:h-[600px] sm:items-center">
           <div className="absolute inset-0">
             <img
               src="/hero-rice-field.jpg"
               alt="شالیزار سرسبز برنج ایرانی در شمال کشور - عطر شالیزار"
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover object-center"
             />
-            <div className="absolute inset-0 bg-gradient-to-r from-background/90 to-background/50" />
+            {/* لایه خوانایی: موبایل = محو از پایین (متن پایین می‌نشیند و بالا تصویر معلوم است)
+                دسکتاپ = محو افقی، قوی سمت راست (سمت متن در RTL) تا منظر سمت چپ دید داشته باشد */}
+            <div className="absolute inset-0 bg-gradient-to-t from-background via-background/85 to-background/10 sm:bg-gradient-to-l sm:from-background/90 sm:via-background/55 sm:to-background/50" />
           </div>
-          
-          <div className="container mx-auto px-4 relative z-10">
+
+          <div className="container mx-auto relative z-10 px-4 pb-8 sm:pb-0">
             <div className="max-w-2xl">
-              <h1 className="text-3xl md:text-4xl font-bold mb-6 text-foreground leading-snug">
+              <h1 className="text-3xl md:text-4xl font-bold mb-6 text-foreground leading-snug drop-shadow-sm">
                 برنج و چای ایرانی اصل، مستقیم از شالیزار تا سفره شما
               </h1>
-              <div className="flex flex-wrap gap-4">
+              <div className="flex flex-wrap gap-3 sm:gap-4">
                 <Button asChild variant="hero" size="lg">
                   <Link to="/shop">
                     مشاهده محصولات
