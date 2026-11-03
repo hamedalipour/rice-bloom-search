@@ -118,7 +118,12 @@ const Footer = () => {
               src="https://trustseal.enamad.ir/logo.aspx?id=695498&Code=gxLZrsDM5sXpG2L7zbLC236ex2ihsq1O"
               alt="نماد اعتماد الکترونیکی"
               loading="lazy"
+              decoding="async"
+              fetchpriority="low"
+              width="66"
+              height="36"
               className="h-24 w-auto"
+              onError={(e) => { e.currentTarget.style.display = 'none'; }}
             />
           </a>
         </div>

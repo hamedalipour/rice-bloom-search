@@ -42,6 +42,7 @@ const Navbar = () => {
               width="66"
               height="36"
               className="h-9 w-auto"
+              onError={(e) => { e.currentTarget.style.display = 'none'; }}
             />
           </a>
           <div className="flex items-center gap-2">
