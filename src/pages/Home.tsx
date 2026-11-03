@@ -160,6 +160,8 @@ const latestPosts = [...blogPosts]
                   image: "/assets/chai-siah.jpg",
                   to: "/category/chai",
                   alt: "خرید چای ایرانی اصل لاهیجان - عطر شالیزار",
+                  // زوم روی کاسه چای تا متن‌ها و حاشیه‌های تبلیغاتی عکس از کادر خارج شوند
+                  imgCls: "scale-[1.45] origin-[42%_56%] group-hover:scale-[1.55]",
                 },
               ].map((cat) => (
                 <Link key={cat.to} to={cat.to} className="group">
@@ -169,7 +171,7 @@ const latestPosts = [...blogPosts]
                         src={cat.image}
                         alt={cat.alt}
                         loading="lazy"
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                        className={`w-full h-full object-cover transition-transform duration-500 group-hover:scale-110 ${cat.imgCls ?? ""}`}
                         onError={(e) => { e.currentTarget.src = "/placeholder.svg"; }}
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-background/95 to-transparent flex items-end">
