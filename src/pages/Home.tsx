@@ -116,9 +116,6 @@ const latestPosts = [...blogPosts]
               <h1 className="text-3xl md:text-4xl font-bold mb-6 text-foreground leading-snug">
                 برنج و چای ایرانی اصل، مستقیم از شالیزار تا سفره شما
               </h1>
-              <p className="text-xl md:text-2xl mb-8 text-muted-foreground">
-                بهترین برنج‌های ایرانی از شالیزارهای شمال کشور و چای اصل لاهیجان، مستقیم به سفره شما
-              </p>
               <div className="flex flex-wrap gap-4">
                 <Button asChild variant="hero" size="lg">
                   <Link to="/shop">
