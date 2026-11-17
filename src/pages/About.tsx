@@ -1,16 +1,24 @@
+import { Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { useSEO } from "@/lib/seo";
+import { useSEO, buildStoreJsonLd, buildBreadcrumbJsonLd } from "@/lib/seo";
 import { Card, CardContent } from "@/components/ui/card";
 import { CheckCircle2, Heart, Users, Award } from "lucide-react";
 import aboutImage from "@/assets/about-us.jpg";
 
 const About = () => {
   useSEO({
-    title: "درباره عطر شالیزار | فروشنده مستقیم برنج ایرانی از شمال کشور",
+    title: "درباره عطر شالیزار | تأمین مستقیم برنج و چای شمال",
     description:
-      "داستان عطر شالیزار؛ خرید مستقیم برنج از کشاورزان شالیزارهای گیلان و مازندران بدون واسطه، با تعهد به کیفیت اصل و رضایت بیش از هزار خانواده ایرانی.",
+      "داستان عطر شالیزار؛ خرید مستقیم برنج از شالیزارهای گیلان و مازندران و چای لاهیجان از باغ‌های شمال، بدون واسطه و با تعهد به کیفیت اصل و رضایت مشتریان.",
     path: "/about",
+    jsonLd: [
+      buildStoreJsonLd(),
+      buildBreadcrumbJsonLd([
+        { name: "خانه", path: "/" },
+        { name: "درباره ما", path: "/about" },
+      ]),
+    ],
   });
 
   return (
@@ -21,9 +29,11 @@ const About = () => {
         {/* Page Header */}
         <section className="bg-muted/50 py-12 border-b border-border">
           <div className="container mx-auto px-4">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4 text-foreground">درباره ما</h1>
+            <h1 className="text-4xl md:text-5xl font-bold mb-4 text-foreground">
+              درباره عطر شالیزار
+            </h1>
             <p className="text-lg text-muted-foreground">
-              داستان ما، مأموریت ما و تعهد ما به کیفیت
+              داستان ما، مأموریت ما و تعهد ما به کیفیت برنج و چای ایرانی
             </p>
           </div>
         </section>
@@ -48,6 +58,19 @@ const About = () => {
                   <p>
                     از طارم مازندران گرفته تا هاشمی گیلان، هر دانه برنج ما داستانی از زحمت کشاورزان،
                     خاک حاصلخیز شمال و عشق به سنت‌های کهن ایرانی را روایت می‌کند.
+                  </p>
+                  <p>
+                    در کنار برنج، چای لاهیجان را هم مستقیم از باغ‌های چای گیلان
+                    تأمین می‌کنیم؛ چای سیاه، چای بهاره و چای چوب (ساقه‌دار) بدون
+                    رنگ و عطر افزودنی. اگر تازه با ما آشنا شده‌اید، از صفحه‌های{" "}
+                    <Link to="/category/berenj/" className="text-primary hover:underline">
+                      برنج ایرانی
+                    </Link>{" "}
+                    و{" "}
+                    <Link to="/category/chai/" className="text-primary hover:underline">
+                      چای ایرانی
+                    </Link>{" "}
+                    شروع کنید.
                   </p>
                 </div>
               </div>

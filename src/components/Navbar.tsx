@@ -26,19 +26,19 @@ const Navbar = () => {
       <div className="hidden md:block bg-primary text-primary-foreground py-2 px-4 text-sm">
         <div className="container mx-auto flex items-center justify-between">
           <a
-            referrerpolicy="origin"
+            referrerPolicy="origin"
             target="_blank"
             href="https://trustseal.enamad.ir/?id=695498&Code=gxLZrsDM5sXpG2L7zbLC236ex2ihsq1O"
             aria-label="نماد اعتماد الکترونیکی – عطر شالیزار"
             className="shrink-0"
           >
             <img
-              referrerpolicy="origin"
+              referrerPolicy="origin"
               src="https://trustseal.enamad.ir/logo.aspx?id=695498&Code=gxLZrsDM5sXpG2L7zbLC236ex2ihsq1O"
               alt="نماد اعتماد الکترونیکی"
               loading="lazy"
               decoding="async"
-              fetchpriority="low"
+              fetchPriority="low"
               width="66"
               height="36"
               className="h-9 w-auto"
@@ -73,19 +73,19 @@ const Navbar = () => {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="center">
                 <DropdownMenuItem asChild>
-                  <Link to="/shop">همه محصولات</Link>
+                  <Link to="/shop/">همه محصولات</Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
-                  <Link to="/category/berenj">برنج ایرانی</Link>
+                  <Link to="/category/berenj/">برنج ایرانی</Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
-                  <Link to="/category/chai">چای ایرانی</Link>
+                  <Link to="/category/chai/">چای ایرانی</Link>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-            <Link to="/blog" className="text-foreground hover:text-primary transition-colors">وبلاگ</Link>
-            <Link to="/about" className="text-foreground hover:text-primary transition-colors">درباره ما</Link>
-            <Link to="/contact" className="text-foreground hover:text-primary transition-colors">تماس با ما</Link>
+            <Link to="/blog/" className="text-foreground hover:text-primary transition-colors">وبلاگ</Link>
+            <Link to="/about/" className="text-foreground hover:text-primary transition-colors">درباره ما</Link>
+            <Link to="/contact/" className="text-foreground hover:text-primary transition-colors">تماس با ما</Link>
           </div>
 
           {/* سبد خرید + منوی موبایل */}
@@ -101,7 +101,7 @@ const Navbar = () => {
                   )}
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="left" className="w-80">
+              <DropdownMenuContent align="end" className="w-80">
                 {items.length === 0 ? (
                   <div className="p-4 text-center text-sm text-muted-foreground">
                     سبد خرید شما خالی است
@@ -127,7 +127,9 @@ const Navbar = () => {
                               >
                                 <Minus className="h-3 w-3" />
                               </button>
-                              <span className="text-sm">{priceFmt(item.quantity)}</span>
+                              <span className="text-sm">
+                                {Number(item.quantity || 0).toLocaleString("fa-IR")}
+                              </span>
                               <button
                                 className="p-1 border rounded"
                                 onClick={() => updateQuantity(item.id, item.quantity + 1, item.weight?.value)}
@@ -153,10 +155,10 @@ const Navbar = () => {
                       </div>
                       <div className="grid gap-2">
                         <Button asChild size="sm">
-                          <Link to="/checkout">مشاهده و ثبت سفارش</Link>
+                          <Link to="/checkout/">مشاهده و ثبت سفارش</Link>
                         </Button>
                         <DropdownMenuItem asChild>
-                          <Link to="/cart" className="w-full text-center">مشاهده سبد خرید</Link>
+                          <Link to="/cart/" className="w-full text-center">مشاهده سبد خرید</Link>
                         </DropdownMenuItem>
                       </div>
                     </div>
@@ -183,13 +185,13 @@ const Navbar = () => {
 
             <div className="flex flex-col gap-4">
               <Link to="/" className="text-foreground hover:text-primary transition-colors" onClick={() => setIsMenuOpen(false)}>خانه</Link>
-              <Link to="/shop" className="text-foreground hover:text-primary transition-colors" onClick={() => setIsMenuOpen(false)}>فروشگاه</Link>
+              <Link to="/shop/" className="text-foreground hover:text-primary transition-colors" onClick={() => setIsMenuOpen(false)}>فروشگاه</Link>
               <Link to="/category/berenj" className="text-foreground hover:text-primary transition-colors pr-2" onClick={() => setIsMenuOpen(false)}>برنج ایرانی</Link>
               <Link to="/category/chai" className="text-foreground hover:text-primary transition-colors pr-2" onClick={() => setIsMenuOpen(false)}>چای ایرانی</Link>
-              <Link to="/blog" className="text-foreground hover:text-primary transition-colors" onClick={() => setIsMenuOpen(false)}>وبلاگ</Link>
-              <Link to="/about" className="text-foreground hover:text-primary transition-colors" onClick={() => setIsMenuOpen(false)}>درباره ما</Link>
-              <Link to="/contact" className="text-foreground hover:text-primary transition-colors" onClick={() => setIsMenuOpen(false)}>تماس با ما</Link>
-              <Link to="/cart" className="text-foreground hover:text-primary transition-colors" onClick={() => setIsMenuOpen(false)}>سبد خرید</Link>
+              <Link to="/blog/" className="text-foreground hover:text-primary transition-colors" onClick={() => setIsMenuOpen(false)}>وبلاگ</Link>
+              <Link to="/about/" className="text-foreground hover:text-primary transition-colors" onClick={() => setIsMenuOpen(false)}>درباره ما</Link>
+              <Link to="/contact/" className="text-foreground hover:text-primary transition-colors" onClick={() => setIsMenuOpen(false)}>تماس با ما</Link>
+              <Link to="/cart/" className="text-foreground hover:text-primary transition-colors" onClick={() => setIsMenuOpen(false)}>سبد خرید</Link>
             </div>
           </div>
         )}

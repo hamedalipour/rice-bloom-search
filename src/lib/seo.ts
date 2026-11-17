@@ -7,13 +7,21 @@ import { useEffect } from "react";
 
 export const SITE = {
   name: "عطر شالیزار",
+  alternateName: "Atre Shalizar",
   url: "https://atre-shalizar.ir",
   description:
-    "فروشگاه اینترنتی عطر شالیزار – خرید آنلاین برنج ایرانی اصل (طارم، هاشمی، فجر و شیرودی) مستقیماً از شالیزارهای شمال کشور با بهترین قیمت و ارسال سریع به سراسر ایران.",
+    "فروشگاه اینترنتی عطر شالیزار – خرید آنلاین برنج ایرانی اصل (هاشمی معطر، طارم، فجر و شیرودی) و چای لاهیجان (سیاه، بهاره و چوب) مستقیماً از شالیزارها و باغ‌های شمال کشور با قیمت روز و ارسال سریع به سراسر ایران.",
   phone: "+989354299785",
   email: "hamedalipour38@gmail.com",
   logo: "/favicon.png",
   ogImage: "/og-image.jpg",
+  address: {
+    streetAddress:
+      "لاهیجان، میدان چهارپادشاه، خیابان کاشف غربی، نبش کاشف غربی پنج، فروشگاه مهدوی",
+    addressLocality: "لاهیجان",
+    addressRegion: "گیلان",
+    addressCountry: "IR",
+  },
 };
 
 /** تبدیل مسیر نسبی تصویر به URL مطلق (برای استفاده در Schema و OG) */
@@ -22,6 +30,24 @@ export const absoluteUrl = (path?: string | null): string | undefined => {
   if (/^https?:\/\//i.test(path)) return path;
   return `${SITE.url}${path.startsWith("/") ? path : `/${path}`}`;
 };
+
+/**
+ * نرمال‌سازی مسیر صفحه به شکل canonical.
+ * GitHub Pages هر مسیر را از پوشه‌ی هم‌نام سرو می‌کند و آدرس بدون اسلش را
+ * با 301 به آدرس اسلش‌دار هدایت می‌کند؛ پس canonical هم باید اسلش پایانی داشته باشد
+ * تا سیگنال‌های تکراری (بدون اسلش / با اسلش) به یک URL واحد اشاره کنند.
+ */
+export const canonicalPath = (path = "/"): string => {
+  const [rawPath = "/"] = String(path).split(/[?#]/);
+  let normalized = rawPath.startsWith("/") ? rawPath : `/${rawPath}`;
+  normalized = normalized.replace(/\/{2,}/g, "/");
+  if (!normalized.endsWith("/")) normalized += "/";
+  return normalized;
+};
+
+/** آدرس مطلق canonical یک صفحه */
+export const canonicalUrl = (path = "/"): string =>
+  `${SITE.url}${canonicalPath(path)}`;
 
 const PAGE_JSONLD_ID = "page-json-ld";
 
@@ -81,7 +107,7 @@ export const useSEO = ({
   const jsonLdKey = JSON.stringify(jsonLd);
 
   useEffect(() => {
-    const canonicalUrl = `${SITE.url}${path === "/" ? "" : path}`;
+    const pageUrl = canonicalUrl(path);
     const imageUrl = absoluteUrl(image) || absoluteUrl(SITE.ogImage)!;
 
     document.title = title;
@@ -91,16 +117,15 @@ export const useSEO = ({
       "name",
       "robots",
       noindex
-        ? "noindex, nofollow"
+        ? "noindex, follow"
         : "index, follow, max-image-preview:large, max-snippet:-1",
     );
-    setLink("canonical", canonicalUrl);
-
+    setLink("canonical", pageUrl);
 
     // Open Graph (تلگرام، واتس‌اپ، فیس‌بوک و ...)
     setMeta("property", "og:title", title);
     setMeta("property", "og:description", description);
-    setMeta("property", "og:url", canonicalUrl);
+    setMeta("property", "og:url", pageUrl);
     setMeta("property", "og:type", type);
     setMeta("property", "og:image", imageUrl);
     setMeta("property", "og:image:alt", title);
@@ -144,7 +169,7 @@ export const buildBreadcrumbJsonLd = (items: BreadcrumbItem[]) => ({
     "@type": "ListItem",
     position: index + 1,
     name: item.name,
-    item: absoluteUrl(item.path),
+    item: canonicalUrl(item.path),
   })),
 });
 
@@ -157,15 +182,23 @@ const priceValidUntil = (): string =>
 
 /** خروجی useProducts (اسنک‌کیس دیتابیس) را به Schema محصول تبدیل می‌کند */
 export const buildProductJsonLd = (product: any) => {
-  const weights = Array.isArray(product?.weights) ? product.weights : [];
-  // همه قیمت‌های موجود: وزن‌ها + قیمت پایه کارت
-  const candidates = [
-    ...weights.map((w: any) => Number(w?.price)).filter((n: number) => n > 0),
-    Number(product?.price) || 0,
-  ].filter((n: number) => n > 0);
+  const weights: any[] = Array.isArray(product?.weights) ? product.weights : [];
+  const weightPrices: number[] = weights
+    .map((w: any) => Number(w?.price))
+    .filter((n: number) => n > 0);
+
+  /**
+   * اگر وزن‌های قیمت‌دار وجود دارند، فقط همان‌ها منبع قیمت هستند.
+   * price پایه در برخی محصولات «قیمت هر کیلو» است و با بسته‌ی پیش‌فرض
+   * (مثلاً ۵ کیلوگرم) یکی نیست؛ افزودنش به بازه، قیمت نادرست می‌سازد.
+   */
+  const candidates: number[] = weightPrices.length
+    ? weightPrices
+    : [Number(product?.price) || 0].filter((n: number) => n > 0);
 
   // قیمت‌های یکتا و مرتب‌شده برای تشخیص بازه
-  const distinct = [...new Set(candidates)].sort((a, b) => a - b);
+  const distinct = [...new Set<number>(candidates)].sort((a, b) => a - b);
+  const productUrl = canonicalUrl(`/product/${product?.slug}`);
 
   const availability = product?.in_stock
     ? "https://schema.org/InStock"
@@ -181,7 +214,7 @@ export const buildProductJsonLd = (product: any) => {
     distinct.length > 1
       ? {
           "@type": "AggregateOffer",
-          url: `${SITE.url}/product/${product?.slug}`,
+          url: productUrl,
           priceCurrency: "IRR",
           lowPrice: toRial(distinct[0]),
           highPrice: toRial(distinct[distinct.length - 1]),
@@ -193,7 +226,7 @@ export const buildProductJsonLd = (product: any) => {
         }
       : {
           "@type": "Offer",
-          url: `${SITE.url}/product/${product?.slug}`,
+          url: productUrl,
           priceCurrency: "IRR",
           price: toRial(distinct[0] ?? 0),
           availability,
@@ -206,6 +239,7 @@ export const buildProductJsonLd = (product: any) => {
     "@context": "https://schema.org",
     "@type": "Product",
     name: product?.name,
+    url: productUrl,
     description:
       product?.meta_description ||
       product?.description ||
@@ -213,8 +247,9 @@ export const buildProductJsonLd = (product: any) => {
       undefined,
     image: absoluteUrl(product?.image_url || product?.image),
     sku: product?.slug,
-    category: product?.category_id || product?.category,
-    brand: { "@type": "Brand", name: SITE.name },
+    category:
+      product?.category_name || product?.category_id || product?.category,
+    brand: { "@type": "Brand", name: SITE.name, alternateName: SITE.alternateName },
     ...(product?.rating > 0 && {
       aggregateRating: {
         "@type": "AggregateRating",
@@ -229,23 +264,30 @@ export const buildProductJsonLd = (product: any) => {
 };
 
 /** پست بلاگ (از دیتابیس) را به Schema مقاله تبدیل می‌کند */
-export const buildArticleJsonLd = (post: any) => ({
-  "@context": "https://schema.org",
-  "@type": "Article",
-  headline: post?.title,
-  description: post?.excerpt || undefined,
-  image: absoluteUrl(post?.featured_image_url) || absoluteUrl(SITE.ogImage),
-  datePublished: post?.created_at,
-  dateModified: post?.updated_at || post?.created_at,
-  inLanguage: "fa-IR",
-  author: { "@type": "Organization", name: SITE.name },
-  publisher: {
-    "@type": "Organization",
-    name: SITE.name,
-    logo: { "@type": "ImageObject", url: absoluteUrl(SITE.logo) },
-  },
-  mainEntityOfPage: `${SITE.url}/blog/${post?.slug}`,
-});
+export const buildArticleJsonLd = (post: any) => {
+  const postUrl = canonicalUrl(`/blog/${post?.slug}`);
+  return {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: post?.title,
+    description: post?.meta_description || post?.excerpt || undefined,
+    image: absoluteUrl(post?.featured_image_url) || absoluteUrl(SITE.ogImage),
+    datePublished: post?.created_at,
+    dateModified: post?.updated_at || post?.created_at,
+    inLanguage: "fa-IR",
+    articleSection: Array.isArray(post?.tags) ? post.tags[0] : undefined,
+    keywords: Array.isArray(post?.tags) ? post.tags.join(", ") : undefined,
+    author: { "@type": "Organization", name: SITE.name, url: canonicalUrl("/about") },
+    publisher: {
+      "@type": "Organization",
+      name: SITE.name,
+      alternateName: SITE.alternateName,
+      logo: { "@type": "ImageObject", url: absoluteUrl(SITE.logo) },
+    },
+    mainEntityOfPage: { "@type": "WebPage", "@id": postUrl },
+    url: postUrl,
+  };
+};
 
 /** لیست محصولات/مقالات برای صفحه‌های فهرستی */
 export const buildItemListJsonLd = (
@@ -260,7 +302,7 @@ export const buildItemListJsonLd = (
     "@type": "ListItem",
     position: index + 1,
     name: item.name,
-    url: absoluteUrl(item.path),
+    url: canonicalUrl(item.path),
   })),
 });
 
@@ -281,18 +323,60 @@ export const buildStoreJsonLd = () => ({
   "@type": "Store",
   "@id": `${SITE.url}/#store`,
   name: SITE.name,
-  url: SITE.url,
+  alternateName: SITE.alternateName,
+  url: canonicalUrl("/"),
   logo: absoluteUrl(SITE.logo),
   image: absoluteUrl(SITE.ogImage),
   description: SITE.description,
   telephone: SITE.phone,
   email: SITE.email,
   priceRange: "$$",
+  currenciesAccepted: "IRR",
+  paymentAccepted: "کارت بانکی، پرداخت آنلاین",
   address: {
     "@type": "PostalAddress",
-    addressLocality: "لاهیجان",
-    addressRegion: "گیلان",
-    addressCountry: "IR",
+    ...SITE.address,
+  },
+  areaServed: {
+    "@type": "Country",
+    name: "ایران",
+  },
+  openingHoursSpecification: [
+    {
+      "@type": "OpeningHoursSpecification",
+      dayOfWeek: [
+        "Saturday",
+        "Sunday",
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+      ],
+      opens: "09:00",
+      closes: "14:00",
+    },
+    {
+      "@type": "OpeningHoursSpecification",
+      dayOfWeek: [
+        "Saturday",
+        "Sunday",
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+      ],
+      opens: "17:00",
+      closes: "22:00",
+    },
+  ],
+  contactPoint: {
+    "@type": "ContactPoint",
+    telephone: SITE.phone,
+    contactType: "customer service",
+    areaServed: "IR",
+    availableLanguage: "fa",
   },
 });
 

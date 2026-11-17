@@ -8,6 +8,7 @@ import { useCart } from "@/contexts/CartContext";
 import type { Tables } from "@/integrations/supabase/types";
 
 type Product = Tables<'products'>;
+type CardWeight = { value: string; price: number };
 
 interface ProductCardProps {
   product: Product;
@@ -31,6 +32,14 @@ const ProductCard = ({ product }: ProductCardProps) => {
     ? Math.round(((product.original_price - product.price) / product.original_price) * 100)
     : 0;
 
+  // قیمت کارت باید با بسته‌ی پیش‌فرض صفحه محصول یکی باشد؛
+  // price پایه در برخی محصولات «قیمت هر کیلو» است و با بسته ۵ کیلویی فرق دارد.
+  const cardWeights: CardWeight[] = Array.isArray(product.weights)
+    ? (product.weights as unknown as CardWeight[])
+    : [];
+  const defaultWeight = cardWeights[0];
+  const displayPrice = defaultWeight?.price || product.price;
+
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -42,7 +51,8 @@ const ProductCard = ({ product }: ProductCardProps) => {
         name: product.name,
         slug: product.slug,
         image_url: product.image_url || '',
-        price: product.price,
+        price: displayPrice,
+        weight: defaultWeight,
         inStock: product.in_stock || false,
       });
     } catch (error) {
@@ -52,19 +62,24 @@ const ProductCard = ({ product }: ProductCardProps) => {
 
   const itemInCart = isInCart(product.id);
   const cartQuantity = getCartItemQuantity(product.id);
+  // نام دسته‌بندی برای متن جایگزین تصویر (در تایپ جدول products موجود نیست)
+  const categoryName =
+    (product as { category_name?: string | null }).category_name ||
+    product.category_id ||
+    "محصول اصل";
 
   return (
     <Card className="group overflow-hidden hover:shadow-lg transition-all duration-300 border-border">
       {/* لینک واقعی به صفحه محصول — برای کرال‌پذیری موتورهای جستجو الزامی است */}
       <Link
-        to={`/product/${product.slug}`}
+        to={`/product/${product.slug}/`}
         className="block cursor-pointer"
         aria-label={`مشاهده و خرید ${product.name}`}
       >
         <div className="relative overflow-hidden bg-muted aspect-square">
           <img
             src={product.image_url || '/placeholder.svg'}
-            alt={`${product.name} - خرید برنج ایرانی`}
+            alt={`${product.name} – ${categoryName} – عطر شالیزار`}
             className="object-cover w-full h-full group-hover:scale-110 transition-transform duration-500"
             loading="lazy"
             onError={(e) => {
@@ -89,7 +104,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
       <CardContent className="p-4">
         <h3 className="font-bold text-lg mb-2 line-clamp-1">
           <Link
-            to={`/product/${product.slug}`}
+            to={`/product/${product.slug}/`}
             className="text-foreground hover:text-primary transition-colors"
           >
             {product.name}
@@ -110,8 +125,11 @@ const ProductCard = ({ product }: ProductCardProps) => {
             </span>
           )}
           <span className="text-lg font-bold text-primary">
-            {product.price.toLocaleString('fa-IR')} تومان
+            {displayPrice.toLocaleString('fa-IR')} تومان
           </span>
+          {defaultWeight?.value && (
+            <span className="text-xs text-muted-foreground">({defaultWeight.value})</span>
+          )}
         </div>
       </CardContent>
 

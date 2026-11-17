@@ -31,7 +31,8 @@ const CategoryPage = () => {
     description: page
       ? page.seoDescription
       : "فروشگاه اینترنتی عطر شالیزار – خرید آنلاین برنج و چای ایرانی اصل مستقیماً از شالیزارهای شمال کشور.",
-    path: page ? `/category/${page.slug}` : "/",
+    path: page ? `/category/${page.slug}` : `/category/${slug}`,
+    noindex: !page,
     jsonLd: page
       ? [
           buildBreadcrumbJsonLd([
@@ -70,7 +71,7 @@ const CategoryPage = () => {
             <nav className="text-sm text-muted-foreground mb-4" aria-label="breadcrumb">
               <Link to="/" className="hover:text-primary">خانه</Link>
               <span className="mx-2">/</span>
-              <Link to="/shop" className="hover:text-primary">فروشگاه</Link>
+              <Link to="/shop/" className="hover:text-primary">فروشگاه</Link>
               <span className="mx-2">/</span>
               <span className="text-foreground">{page.name}</span>
             </nav>
@@ -107,9 +108,57 @@ const CategoryPage = () => {
               </div>
             )}
 
+            {/* جدول قیمت روز دسته – قیمت شفاف + محتوای قابل ایندکس */}
+            {!loading && categoryProducts.length > 0 && (
+              <div className="mt-12 max-w-4xl mx-auto overflow-x-auto rounded-xl border border-border bg-background">
+                <table className="w-full min-w-[560px] text-sm">
+                  <thead className="bg-muted/70 text-foreground">
+                    <tr>
+                      <th className="text-right p-4 font-bold">محصول</th>
+                      <th className="text-right p-4 font-bold">وزن بسته</th>
+                      <th className="text-right p-4 font-bold">قیمت</th>
+                      <th className="text-right p-4 font-bold">خرید</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {categoryProducts.flatMap((product) => {
+                      const list =
+                        Array.isArray(product.weights) && product.weights.length
+                          ? product.weights
+                          : [{ value: "بسته", price: product.price }];
+                      return list.map((weight) => (
+                        <tr
+                          key={`${product.id}-${weight.value}`}
+                          className="border-t border-border"
+                        >
+                          <td className="p-4 font-medium text-foreground">
+                            {product.name}
+                          </td>
+                          <td className="p-4 text-muted-foreground">
+                            {weight.value}
+                          </td>
+                          <td className="p-4 font-bold text-primary whitespace-nowrap">
+                            {weight.price.toLocaleString("fa-IR")} تومان
+                          </td>
+                          <td className="p-4">
+                            <Link
+                              to={`/product/${product.slug}/`}
+                              className="text-primary font-medium hover:underline"
+                            >
+                              مشاهده و خرید
+                            </Link>
+                          </td>
+                        </tr>
+                      ));
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
+
             <div className="mt-10 text-center">
               <Button asChild variant="outline">
-                <Link to="/shop">
+                <Link to="/shop/">
                   مشاهده همه محصولات فروشگاه
                   <ArrowRight className="mr-2 h-4 w-4" />
                 </Link>
@@ -155,7 +204,7 @@ const CategoryPage = () => {
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {relatedPosts.map((post) => (
-                  <Link key={post.id} to={`/blog/${post.slug}`}>
+                  <Link key={post.id} to={`/blog/${post.slug}/`}>
                     <Card className="overflow-hidden hover:shadow-lg transition-all duration-300 h-full border-border">
                       <div className="relative h-40 overflow-hidden">
                         <img

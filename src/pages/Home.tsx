@@ -53,9 +53,24 @@ const FAQ_DATA: { question: string; answer: string }[] = [
       "پرداخت از طریق درگاه امن بانکی سایت انجام می‌شود. برای هماهنگی روش‌های دیگر پرداخت (مثل کارت به کارت) با پشتیبانی تماس بگیرید.",
   },
   {
+    question: "چای جوش چیست و چه فرقی با چای چوب دارد؟",
+    answer:
+      "چای جوش به روش سنتی دم کردن چای در کتری گفته می‌شود که اغلب با چای چوب یا چای ساقه‌دار انجام می‌شود؛ چایی پررنگ‌تر و ملایم‌تر از چای قوری. چای جوش یک روش دم کردن است و چای چوب نوع چای؛ توضیح کامل و طرز دم کردن در مقاله «چای جوش چیست» آمده است.",
+  },
+  {
     question: "چای چوب چیست؟",
     answer:
       "چای چوب از ساقه‌ها و شاخه‌های نازک بوته چای تهیه می‌شود؛ نسبت به چای سیاه ملایم‌تر، خوش‌عطرتر و اقتصادی‌تر است و رنگ طلایی روشنی می‌دهد. تفاوت کامل آن با چای سیاه را در مقاله «چای چوب چیست» بخوانید.",
+  },
+  {
+    question: "قیمت برنج هاشمی معطر چقدر است؟",
+    answer:
+      "قیمت برنج هاشمی به وزن بسته و برداشت سال بستگی دارد. قیمت روز بسته ۵ کیلوگرمی در جدول «قیمت روز» همین صفحه و در صفحه محصول «برنج هاشمی معطر» نمایش داده می‌شود.",
+  },
+  {
+    question: "قیمت چای لاهیجان چقدر است؟",
+    answer:
+      "قیمت چای لاهیجان به نوع چای (سیاه، بهاره یا چوب) و وزن بسته بستگی دارد. قیمت روز نیم‌کیلو و یک‌کیلوگرم در جدول «قیمت روز» همین صفحه و در صفحه هر محصول قابل مشاهده است.",
   },
   {
     question: "برنج هاشمی معطر چیست؟",
@@ -76,15 +91,31 @@ const Home = () => {
 
   const featuredProducts = products;
   // ۳ مقاله جدیدترین (مرتب‌سازی بر اساس تاریخ) — برای سئو و تازگی محتوا
-const latestPosts = [...blogPosts]
-  .filter((post) => post.published)
-  .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
-  .slice(0, 3);
+  const latestPosts = [...blogPosts]
+    .filter((post) => post.published)
+    .sort(
+      (a, b) =>
+        new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+    )
+    .slice(0, 3);
+
+  // جدول قیمت روز: همه وزن‌ها را شفاف نشان می‌دهد (کاهش ابهام قیمت = کلیک بیشتر)
+  const priceRows = featuredProducts.flatMap((product) => {
+    const list =
+      Array.isArray(product.weights) && product.weights.length
+        ? product.weights
+        : [{ value: "بسته", price: product.price }];
+    return list.map((weight) => ({
+      product,
+      weight: weight.value,
+      price: weight.price,
+    }));
+  });
 
   useSEO({
-    title: "خرید برنج و چای ایرانی اصل | قیمت روز و ارسال سریع – عطر شالیزار",
+    title: "خرید برنج هاشمی و چای لاهیجان اصل | قیمت روز – عطر شالیزار",
     description:
-      "خرید آنلاین برنج هاشمی معطر اصل، چای لاهیجان (چای سیاه قلم، چای بهاره ممتاز و چای چوب ساقه‌دار) و بادام آستانه مستقیم از شالیزارها و باغ‌های گیلان، مازندران و گلستان با قیمت روز و ارسال سریع به سراسر ایران.",
+      "خرید آنلاین برنج هاشمی معطر و چای لاهیجان اصل (سیاه، بهاره و چوب) مستقیم از شالیزارهای گیلان و مازندران؛ قیمت روز و ارسال سریع به سراسر ایران.",
     path: "/",
     jsonLd: [
       buildItemListJsonLd(
@@ -115,18 +146,26 @@ const latestPosts = [...blogPosts]
 
           <div className="container mx-auto relative z-10 px-4 pb-8 sm:pb-0">
             <div className="max-w-2xl">
-              <h1 className="text-3xl md:text-4xl font-bold mb-6 text-foreground leading-snug drop-shadow-sm">
-                برنج و چای ایرانی اصل، مستقیم از شالیزار تا سفره شما
+              <h1 className="text-3xl md:text-4xl font-bold mb-4 text-foreground leading-snug drop-shadow-sm">
+                خرید برنج ایرانی و چای لاهیجان اصل، مستقیم از شالیزار
               </h1>
+              <p className="text-base md:text-lg text-foreground/80 leading-8 mb-6 max-w-xl">
+                برنج هاشمی معطر، چای سیاه لاهیجان، چای بهاره و{" "}
+                <Link to="/blog/chai-chob-chist-tafavot-ba-chai-siah/" className="font-semibold text-primary underline decoration-primary/30 underline-offset-4 hover:decoration-primary">
+                  چای چوب (ساقه‌دار)
+                </Link>{" "}
+                را بدون واسطه از شالیزارها و باغ‌های گیلان و مازندران تأمین می‌کنیم؛
+                قیمت روز، بسته‌بندی مطمئن و ارسال سریع به سراسر ایران.
+              </p>
               <div className="flex flex-wrap gap-3 sm:gap-4">
                 <Button asChild variant="hero" size="lg">
-                  <Link to="/shop">
+                  <Link to="/shop/">
                     مشاهده محصولات
                     <ArrowRight className="mr-2 h-5 w-5" />
                   </Link>
                 </Button>
                 <Button asChild variant="outline" size="lg">
-                  <Link to="/about">درباره ما</Link>
+                  <Link to="/about/">درباره ما</Link>
                 </Button>
               </div>
             </div>
@@ -151,14 +190,14 @@ const latestPosts = [...blogPosts]
                   name: "برنج ایرانی اصل",
                   desc: "طارم، هاشمی، فجر و شیرودی",
                   image: taromImage,
-                  to: "/category/berenj",
+                  to: "/category/berenj/",
                   alt: "خرید برنج ایرانی اصل - ساک برنج طارم عطر شالیزار",
                 },
                 {
                   name: "چای ایرانی لاهیجان",
                   desc: "چای سیاه، بهاره و چوب شمال",
                   image: "/assets/chai-siah.jpg",
-                  to: "/category/chai",
+                  to: "/category/chai/",
                   alt: "خرید چای ایرانی اصل لاهیجان - عطر شالیزار",
                   // زوم روی کاسه چای تا متن‌ها و حاشیه‌های تبلیغاتی عکس از کادر خارج شوند
                   imgCls: "scale-[1.45] origin-[42%_56%] group-hover:scale-[1.55]",
@@ -189,10 +228,11 @@ const latestPosts = [...blogPosts]
             {/* لینک‌های سریع محصولات (لینک‌سازی داخلی) */}
             <div className="flex flex-wrap justify-center gap-x-6 gap-y-2 mt-8 text-sm">
               {[
-                ["برنج هاشمی معطر", "/product/berenj-hashemi-moattar"],
-                ["چای سیاه لاهیجان", "/product/chai-siah-lahijan-daraje-yek"],
-                ["چای بهاره ممتاز", "/product/chai-bahareh-momtaz-shomal"],
-                ["چای چوب شمال", "/product/chai-sabz-barooti-gilan"],
+                ["برنج هاشمی معطر", "/product/berenj-hashemi-moattar/"],
+                ["چای سیاه لاهیجان", "/product/chai-siah-lahijan-daraje-yek/"],
+                ["چای بهاره ممتاز", "/product/chai-bahareh-momtaz-shomal/"],
+                ["چای چوب شمال", "/product/chai-sabz-barooti-gilan/"],
+                ["چای جوش چیست؟", "/blog/chai-chob-chist-tafavot-ba-chai-siah/"],
               ].map(([label, to]) => (
                 <Link key={to} to={to} className="text-muted-foreground hover:text-primary transition-colors">
                   {label}
@@ -215,7 +255,7 @@ const latestPosts = [...blogPosts]
                 </p>
               </div>
               <Button asChild variant="outline">
-                <Link to="/shop">
+                <Link to="/shop/">
                   مشاهده همه
                   <ArrowRight className="mr-2 h-4 w-4" />
                 </Link>
@@ -235,6 +275,57 @@ const latestPosts = [...blogPosts]
                 </div>
               )}
             </div>
+          </div>
+        </section>
+
+        {/* Price Table – محتوای متنی و قیمت شفاف برای کوئری‌های «قیمت» */}
+        <section className="py-16 bg-muted/30">
+          <div className="container mx-auto px-4">
+            <div className="text-center mb-10">
+              <h2 className="text-3xl md:text-4xl font-bold mb-4 text-foreground">
+                قیمت روز برنج و چای
+              </h2>
+              <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+                قیمت‌ها به تومان و به تفکیک وزن بسته است؛ پیش از ثبت سفارش، وزن دلخواه
+                را در صفحه محصول انتخاب کنید.
+              </p>
+            </div>
+
+            <div className="max-w-4xl mx-auto overflow-x-auto rounded-xl border border-border bg-background">
+              <table className="w-full min-w-[560px] text-sm">
+                <thead className="bg-muted/70 text-foreground">
+                  <tr>
+                    <th className="text-right p-4 font-bold">محصول</th>
+                    <th className="text-right p-4 font-bold">وزن بسته</th>
+                    <th className="text-right p-4 font-bold">قیمت</th>
+                    <th className="text-right p-4 font-bold">خرید</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {priceRows.map(({ product, weight, price }) => (
+                    <tr key={`${product.id}-${weight}`} className="border-t border-border">
+                      <td className="p-4 font-medium text-foreground">{product.name}</td>
+                      <td className="p-4 text-muted-foreground">{weight}</td>
+                      <td className="p-4 font-bold text-primary whitespace-nowrap">
+                        {price.toLocaleString("fa-IR")} تومان
+                      </td>
+                      <td className="p-4">
+                        <Link
+                          to={`/product/${product.slug}/`}
+                          className="text-primary font-medium hover:underline"
+                        >
+                          مشاهده و خرید
+                        </Link>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <p className="text-center text-xs text-muted-foreground mt-4">
+              قیمت‌ها ممکن است با تغییر فصل برداشت و بازار به‌روزرسانی شوند؛ آخرین
+              قیمت در صفحه هر محصول نمایش داده می‌شود.
+            </p>
           </div>
         </section>
 
@@ -294,7 +385,7 @@ const latestPosts = [...blogPosts]
                 </p>
               </div>
               <Button asChild variant="outline">
-                <Link to="/blog">
+                <Link to="/blog/">
                   مشاهده همه
                   <ArrowRight className="mr-2 h-4 w-4" />
                 </Link>
@@ -303,7 +394,7 @@ const latestPosts = [...blogPosts]
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {latestPosts.map((post) => (
-                <Link key={post.id} to={`/blog/${post.slug}`}>
+                <Link key={post.id} to={`/blog/${post.slug}/`}>
                   <Card className="overflow-hidden hover:shadow-lg transition-all duration-300 h-full border-border">
                     <div className="relative h-48 overflow-hidden">
                       <img
@@ -369,13 +460,14 @@ const latestPosts = [...blogPosts]
         <section className="py-20 bg-gradient-to-r from-primary to-accent/80">
           <div className="container mx-auto px-4 text-center">
             <h2 className="text-3xl md:text-4xl font-bold mb-4 text-primary-foreground">
-              آماده برای خرید بهترین برنج ایرانی هستید؟
+              آماده خرید برنج و چای اصل هستید؟
             </h2>
             <p className="text-primary-foreground/90 text-lg mb-8 max-w-2xl mx-auto">
-              همین الان سفارش دهید و از ارسال رایگان به سراسر کشور بهره‌مند شوید
+              محصول را انتخاب کنید و سفارش خود را ثبت کنید؛ برای سفارش تلفنی هم
+              می‌توانید با ۰۹۳۵۴۲۹۹۷۸۵ تماس بگیرید.
             </p>
             <Button asChild size="lg" variant="secondary">
-              <Link to="/shop">شروع خرید</Link>
+              <Link to="/shop/">شروع خرید</Link>
             </Button>
           </div>
         </section>

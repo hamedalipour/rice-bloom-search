@@ -8,7 +8,7 @@ const Footer = () => {
   return (
     <footer className="bg-muted/50 border-t border-border mt-20">
       <div className="container mx-auto px-4 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
           {/* About */}
           <div>
             <div className="flex items-center gap-3 mb-4">
@@ -20,7 +20,8 @@ const Footer = () => {
               <h3 className="text-lg font-bold text-foreground">عطر شالیزار</h3>
             </div>
             <p className="text-muted-foreground text-sm leading-relaxed">
-              فروشگاه آنلاین برنج ایرانی اصل با بهترین کیفیت و قیمت مناسب. اعتماد شما سرمایه ماست.
+              فروشگاه آنلاین برنج ایرانی اصل و چای لاهیجان؛ تأمین مستقیم از
+              شالیزارها و باغ‌های گیلان و مازندران با قیمت روز و ارسال سریع.
             </p>
           </div>
 
@@ -29,22 +30,22 @@ const Footer = () => {
             <h3 className="text-lg font-bold mb-4 text-foreground">دسترسی سریع</h3>
             <ul className="space-y-2">
               <li>
-                <Link to="/shop" className="text-muted-foreground hover:text-primary transition-colors text-sm">
+                <Link to="/shop/" className="text-muted-foreground hover:text-primary transition-colors text-sm">
                   فروشگاه
                 </Link>
               </li>
               <li>
-                <Link to="/blog" className="text-muted-foreground hover:text-primary transition-colors text-sm">
+                <Link to="/blog/" className="text-muted-foreground hover:text-primary transition-colors text-sm">
                   وبلاگ
                 </Link>
               </li>
               <li>
-                <Link to="/about" className="text-muted-foreground hover:text-primary transition-colors text-sm">
+                <Link to="/about/" className="text-muted-foreground hover:text-primary transition-colors text-sm">
                   درباره ما
                 </Link>
               </li>
               <li>
-                <Link to="/contact" className="text-muted-foreground hover:text-primary transition-colors text-sm">
+                <Link to="/contact/" className="text-muted-foreground hover:text-primary transition-colors text-sm">
                   تماس با ما
                 </Link>
               </li>
@@ -56,28 +57,60 @@ const Footer = () => {
             <h3 className="text-lg font-bold mb-4 text-foreground">دسته‌بندی‌ها</h3>
             <ul className="space-y-2">
               <li>
-                <Link to="/category/berenj" className="text-muted-foreground hover:text-primary transition-colors text-sm font-medium">
+                <Link to="/category/berenj/" className="text-muted-foreground hover:text-primary transition-colors text-sm font-medium">
                   برنج ایرانی اصل
                 </Link>
               </li>
               <li>
-                <Link to="/category/chai" className="text-muted-foreground hover:text-primary transition-colors text-sm font-medium">
+                <Link to="/category/chai/" className="text-muted-foreground hover:text-primary transition-colors text-sm font-medium">
                   چای ایرانی لاهیجان
                 </Link>
               </li>
               <li>
-                <Link to="/product/chai-siah-lahijan-daraje-yek" className="text-muted-foreground hover:text-primary transition-colors text-sm">
+                <Link to="/product/chai-siah-lahijan-daraje-yek/" className="text-muted-foreground hover:text-primary transition-colors text-sm">
                   چای سیاه لاهیجان درجه یک
                 </Link>
               </li>
               <li>
-                <Link to="/product/chai-bahareh-momtaz-shomal" className="text-muted-foreground hover:text-primary transition-colors text-sm">
+                <Link to="/product/chai-bahareh-momtaz-shomal/" className="text-muted-foreground hover:text-primary transition-colors text-sm">
                   چای بهاره ممتاز شمال
                 </Link>
               </li>
               <li>
-                <Link to="/product/chai-sabz-barooti-gilan" className="text-muted-foreground hover:text-primary transition-colors text-sm">
+                <Link to="/product/chai-sabz-barooti-gilan/" className="text-muted-foreground hover:text-primary transition-colors text-sm">
                   چای چوب شمال (ساقه‌دار)
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* راهنمای خرید – لینک‌سازی داخلی سراسری به مقالات پول‌ساز */}
+          <div>
+            <h3 className="text-lg font-bold mb-4 text-foreground">راهنمای خرید</h3>
+            <ul className="space-y-2">
+              <li>
+                <Link to="/blog/chai-chob-chist-tafavot-ba-chai-siah/" className="text-muted-foreground hover:text-primary transition-colors text-sm">
+                  چای جوش چیست؟
+                </Link>
+              </li>
+              <li>
+                <Link to="/blog/chai-bahareh-chist-va-rahnemaye-kharid/" className="text-muted-foreground hover:text-primary transition-colors text-sm">
+                  چای بهاره چیست؟
+                </Link>
+              </li>
+              <li>
+                <Link to="/blog/dam-kardan-chai-irani-droost/" className="text-muted-foreground hover:text-primary transition-colors text-sm">
+                  طرز دم کردن چای ایرانی
+                </Link>
+              </li>
+              <li>
+                <Link to="/blog/barenj-hashemi-moattar-chist/" className="text-muted-foreground hover:text-primary transition-colors text-sm">
+                  برنج هاشمی معطر چیست؟
+                </Link>
+              </li>
+              <li>
+                <Link to="/blog/tafavot-berenj-tarom-hashemi/" className="text-muted-foreground hover:text-primary transition-colors text-sm">
+                  تفاوت برنج طارم و هاشمی
                 </Link>
               </li>
             </ul>
@@ -108,13 +141,13 @@ const Footer = () => {
             © {year} عطر شالیزار. تمامی حقوق محفوظ است.
           </p>
           <a
-            referrerpolicy="origin"
+            referrerPolicy="origin"
             target="_blank"
             href="https://trustseal.enamad.ir/?id=695498&Code=gxLZrsDM5sXpG2L7zbLC236ex2ihsq1O"
             aria-label="نماد اعتماد الکترونیکی – عطر شالیزار"
           >
             <img
-              referrerpolicy="origin"
+              referrerPolicy="origin"
               src="https://trustseal.enamad.ir/logo.aspx?id=695498&Code=gxLZrsDM5sXpG2L7zbLC236ex2ihsq1O"
               alt="نماد اعتماد الکترونیکی"
               loading="lazy"
