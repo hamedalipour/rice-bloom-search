@@ -164,7 +164,7 @@ const articleJsonLd = (b) => {
  * هم تزریق می‌شود تا پیش‌نمایش اشتراک‌گذاری لینک در تلگرام/واتساپ/اینستاگرام
  * عکس واقعی همان محصول/مقاله را نشان دهد، نه عکس عمومی سایت.
  */
-function writeRoute(route, { title, description, image, type = 'website', published, modified, jsonLd }) {
+function writeRoute(route, { title, description, image, type = 'website', published, modified, jsonLd, noindex = false }) {
   const safeTitle = String(title || SITE).replace(/</g, ' ');
   const safeDesc = String(description || '').replace(/"/g, '”').slice(0, 300);
   // GitHub Pages مسیر بدون اسلش را با 301 به مسیر اسلش‌دار هدایت می‌کند؛
@@ -182,6 +182,12 @@ function writeRoute(route, { title, description, image, type = 'website', publis
     .replace(/<meta property="og:url" content="[^"]*"/, `<meta property="og:url" content="${canonical}"`)
     .replace(/<meta property="og:type" content="[^"]*"/, `<meta property="og:type" content="${type}"`)
     .replace(/<meta property="og:image:alt" content="[^"]*"/, `<meta property="og:image:alt" content="${safeTitle}"`)
+    .replace(
+      /<meta name="robots" content="[^"]*"/,
+      `<meta name="robots" content="${
+        noindex ? 'noindex, follow' : 'index, follow, max-image-preview:large, max-snippet:-1'
+      }"`,
+    )
     .replace(/<meta name="twitter:title" content="[^"]*"/, `<meta name="twitter:title" content="${safeTitle}"`)
     .replace(/<meta name="twitter:description" content="[^"]*"/, `<meta name="twitter:description" content="${safeDesc}"`);
 
@@ -257,6 +263,19 @@ writeRoute('/contact', {
   jsonLd: [breadcrumbJsonLd([HOME, { name: 'تماس با ما', path: '/contact' }])],
 });
 
+// صفحات کاربردی (بدون ایندکس) — بدون این دو مسیر، بازدید مستقیم /cart/ و
+// /checkout/ روی گیت‌هاب پیجز به ۴۰۴ می‌خورد و سبد خرید باز نمی‌شود.
+writeRoute('/cart', {
+  title: 'سبد خرید | عطر شالیزار',
+  description: 'سبد خرید فروشگاه عطر شالیزار؛ مرور محصولات انتخابی، ویرایش تعداد و ادامه فرایند خرید.',
+  noindex: true,
+});
+writeRoute('/checkout', {
+  title: 'ثبت سفارش | فروشگاه عطر شالیزار',
+  description: 'نهایی کردن سفارش برنج و چای ایرانی؛ انتخاب روش پرداخت و ارسال.',
+  noindex: true,
+});
+
 // صفحات دسته‌بندی
 const categoryPages = [
   {
@@ -329,4 +348,7 @@ for (const b of blogPosts) {
   });
 }
 
-console.log(`✅ SPA routes generated: ${4 + categoryPages.length + products.length + blogPosts.length} pages (static 4 + ${categoryPages.length} categories + ${products.length} products + ${blogPosts.length} posts)`);
+console.log(
+  `✅ SPA routes generated: ${6 + categoryPages.length + products.length + blogPosts.length} pages ` +
+    `(static 4 + 2 transactional + ${categoryPages.length} categories + ${products.length} products + ${blogPosts.length} posts)`,
+);

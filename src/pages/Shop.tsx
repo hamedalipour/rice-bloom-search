@@ -272,7 +272,10 @@ const Shop = () => {
                       مرتب‌سازی:
                     </span>
                     <Select value={sortBy} onValueChange={setSortBy}>
-                      <SelectTrigger className="w-[200px]">
+                      <SelectTrigger
+                        className="w-[200px]"
+                        aria-label="مرتب‌سازی محصولات"
+                      >
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>

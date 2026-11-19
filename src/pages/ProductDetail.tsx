@@ -389,7 +389,7 @@ const ProductDetail = () => {
 
                 {/* مشخصات محصول – محتوای متنی قابل ایندکس */}
                 <div className="mb-6">
-                  <h3 className="font-bold text-lg mb-3 text-foreground">مشخصات محصول</h3>
+                  <h2 className="font-bold text-lg mb-3 text-foreground">مشخصات محصول</h2>
                   <dl className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
                     <div className="rounded-lg border border-border p-3">
                       <dt className="text-muted-foreground mb-1">منبع تولید</dt>
@@ -426,7 +426,7 @@ const ProductDetail = () => {
                 {/* Features */}
                 {features.length > 0 && (
                   <div className="mb-6">
-                    <h3 className="font-bold text-lg mb-3 text-foreground">ویژگی‌ها:</h3>
+                    <h2 className="font-bold text-lg mb-3 text-foreground">ویژگی‌ها:</h2>
                     <ul className="space-y-2">
                       {features.map((feature, index) => (
                         <li key={index} className="flex items-center gap-2 text-muted-foreground">
@@ -441,12 +441,12 @@ const ProductDetail = () => {
                 {/* Weight Selection */}
                 {weights.length > 0 && (
                   <div className="mb-6">
-                    <h3 className="font-bold text-lg mb-3 text-foreground">انتخاب وزن:</h3>
+                    <h2 className="font-bold text-lg mb-3 text-foreground">انتخاب وزن:</h2>
                     <Select
                       value={selectedWeight.toString()}
                       onValueChange={(value) => setSelectedWeight(parseInt(value))}
                     >
-                      <SelectTrigger className="w-full">
+                      <SelectTrigger className="w-full" aria-label="انتخاب وزن بسته">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>

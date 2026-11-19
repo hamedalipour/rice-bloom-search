@@ -92,7 +92,14 @@ const Navbar = () => {
           <div className="flex items-center gap-4">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="relative">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="relative"
+                  aria-label={
+                    itemCount > 0 ? `سبد خرید، ${itemCount} کالا` : "سبد خرید"
+                  }
+                >
                   <ShoppingCart className="h-5 w-5" />
                   {itemCount > 0 && (
                     <Badge className="absolute -top-1 -left-1 bg-primary text-primary-foreground text-xs rounded-full h-5 w-5 flex items-center justify-center p-0">
@@ -167,7 +174,14 @@ const Navbar = () => {
               </DropdownMenuContent>
             </DropdownMenu>
 
-            <Button variant="ghost" size="icon" className="md:hidden" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="md:hidden"
+              aria-label={isMenuOpen ? "بستن منو" : "باز کردن منو"}
+              aria-expanded={isMenuOpen}
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+            >
               {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
             </Button>
           </div>
@@ -186,8 +200,8 @@ const Navbar = () => {
             <div className="flex flex-col gap-4">
               <Link to="/" className="text-foreground hover:text-primary transition-colors" onClick={() => setIsMenuOpen(false)}>خانه</Link>
               <Link to="/shop/" className="text-foreground hover:text-primary transition-colors" onClick={() => setIsMenuOpen(false)}>فروشگاه</Link>
-              <Link to="/category/berenj" className="text-foreground hover:text-primary transition-colors pr-2" onClick={() => setIsMenuOpen(false)}>برنج ایرانی</Link>
-              <Link to="/category/chai" className="text-foreground hover:text-primary transition-colors pr-2" onClick={() => setIsMenuOpen(false)}>چای ایرانی</Link>
+              <Link to="/category/berenj/" className="text-foreground hover:text-primary transition-colors pr-2" onClick={() => setIsMenuOpen(false)}>برنج ایرانی</Link>
+              <Link to="/category/chai/" className="text-foreground hover:text-primary transition-colors pr-2" onClick={() => setIsMenuOpen(false)}>چای ایرانی</Link>
               <Link to="/blog/" className="text-foreground hover:text-primary transition-colors" onClick={() => setIsMenuOpen(false)}>وبلاگ</Link>
               <Link to="/about/" className="text-foreground hover:text-primary transition-colors" onClick={() => setIsMenuOpen(false)}>درباره ما</Link>
               <Link to="/contact/" className="text-foreground hover:text-primary transition-colors" onClick={() => setIsMenuOpen(false)}>تماس با ما</Link>

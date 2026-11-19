@@ -74,7 +74,14 @@ const ProductCard = ({ product }: ProductCardProps) => {
       <Link
         to={`/product/${product.slug}/`}
         className="block cursor-pointer"
-        aria-label={`مشاهده و خرید ${product.name}`}
+        // نام دسترس‌پذیر باید همه‌ی متن دیده‌شده داخل لینک (تخفیف/ناموجود) را شامل شود
+        aria-label={[
+          discount > 0 ? `${discount}٪ تخفیف` : null,
+          !product.in_stock ? "ناموجود" : null,
+          `مشاهده و خرید ${product.name}`,
+        ]
+          .filter(Boolean)
+          .join(" – ")}
       >
         <div className="relative overflow-hidden bg-muted aspect-square">
           <img
