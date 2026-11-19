@@ -6,18 +6,20 @@ const path = require('path');
 const BASE_URL = 'https://atre-shalizar.ir';
 
 // صفحات ثابت و ارزشمند برای ایندکس
+// همه مسیرها با اسلش پایانی نوشته می‌شوند؛ GitHub Pages نسخه بدون اسلش را
+// با 301 به همین URL هدایت می‌کند و sitemap باید آدرس نهایی را اعلام کند.
 const staticRoutes = [
   { path: '/', priority: '1.0', changefreq: 'daily' },
-  { path: '/shop', priority: '0.9', changefreq: 'daily' },
-  { path: '/blog', priority: '0.7', changefreq: 'weekly' },
-  { path: '/about', priority: '0.5', changefreq: 'monthly' },
-  { path: '/contact', priority: '0.5', changefreq: 'monthly' },
+  { path: '/shop/', priority: '0.9', changefreq: 'daily' },
+  { path: '/blog/', priority: '0.7', changefreq: 'weekly' },
+  { path: '/about/', priority: '0.5', changefreq: 'monthly' },
+  { path: '/contact/', priority: '0.5', changefreq: 'monthly' },
 ];
 
 // صفحات دسته‌بندی اختصاصی (سئوی قوی‌تر برای هر گروه محصول)
 const categoryRoutes = [
-  { path: '/category/berenj', priority: '0.8', changefreq: 'weekly' },
-  { path: '/category/chai', priority: '0.8', changefreq: 'weekly' },
+  { path: '/category/berenj/', priority: '0.8', changefreq: 'weekly' },
+  { path: '/category/chai/', priority: '0.8', changefreq: 'weekly' },
 ];
 
 const isoDate = (d) => {
@@ -41,28 +43,23 @@ const main = () => {
   const products = readJson('src/data/products.json');
   const blogPosts = readJson('src/data/blogPosts.json');
 
-  // آخرین تغییر محصولات = زمان ویرایش فایل داده توسط پنل
-  const productsFileTime = isoDate(
-    fs.statSync(path.join(__dirname, '..', 'src/data/products.json')).mtime,
-  );
-  const today = new Date().toISOString().slice(0, 10);
-
   const routes = [
     ...staticRoutes,
     ...categoryRoutes,
+    // lastmod محصولات عمداً حذف شده است: تاریخ فایل داده در هر build عوض می‌شود
+    // و lastmod غیرواقعی، اعتبار sitemap را نزد گوگل پایین می‌آورد.
     ...products.map((p) => ({
-      path: `/product/${p.slug}`,
+      path: `/product/${p.slug}/`,
       priority: '0.8',
       changefreq: 'weekly',
-      lastmod: productsFileTime || today,
     })),
     ...blogPosts
       .filter((b) => b.published !== false)
       .map((b) => ({
-        path: `/blog/${b.slug}`,
+        path: `/blog/${b.slug}/`,
         priority: '0.6',
         changefreq: 'monthly',
-        lastmod: isoDate(b.updated_at) || isoDate(b.created_at) || today,
+        lastmod: isoDate(b.updated_at) || isoDate(b.created_at),
       })),
   ];
 
@@ -77,14 +74,16 @@ const main = () => {
   const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${uniqueRoutes
-    .map(
-      (r) => `  <url>
-    <loc>${BASE_URL}${r.path}</loc>
-    <lastmod>${r.lastmod || today}</lastmod>
+    .map((r) => {
+      const lastmod = r.lastmod
+        ? `\n    <lastmod>${r.lastmod}</lastmod>`
+        : '';
+      return `  <url>
+    <loc>${BASE_URL}${r.path}</loc>${lastmod}
     <changefreq>${r.changefreq}</changefreq>
     <priority>${r.priority}</priority>
-  </url>`,
-    )
+  </url>`;
+    })
     .join('\n')}
 </urlset>`;
 

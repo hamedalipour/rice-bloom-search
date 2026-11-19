@@ -26,12 +26,12 @@ const Cart = () => {
           <Card className="w-full max-w-md text-center">
             <CardContent className="p-8">
               <ShoppingCart className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-              <h2 className="text-xl font-bold mb-2">سبد خرید خالی است</h2>
+              <h1 className="text-xl font-bold mb-2">سبد خرید خالی است</h1>
               <p className="text-muted-foreground mb-6">
                 هنوز محصولی به سبد خرید اضافه نکرده‌اید
               </p>
               <Button asChild>
-                <Link to="/shop">
+                <Link to="/shop/">
                   بازگشت به فروشگاه
                   <ArrowRight className="mr-2 h-4 w-4" />
                 </Link>
@@ -49,6 +49,8 @@ const Cart = () => {
       <Navbar />
       <div className="min-h-[calc(100vh-3rem)] bg-gradient-to-br from-green-50 to-green-100 py-12 px-4" dir="rtl">
         <div className="container mx-auto max-w-7xl">
+          {/* عنوان اصلی صفحه برای ساختار درست heading و صفحه‌خوان‌ها */}
+          <h1 className="sr-only">سبد خرید</h1>
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
             {/* Cart Items */}
             <div className="lg:col-span-2">
@@ -63,7 +65,7 @@ const Cart = () => {
                       key={`${item.id}-${item.weight?.value || 'default'}`} 
                       className="flex items-center gap-8 p-1 border-2 border-border rounded-xl bg-background shadow-lg hover:shadow-xl transition-shadow"
                     >
-                      <Link to={`/product/${item.slug}`}>
+                      <Link to={`/product/${item.slug}/`}>
                         <img 
                           src={item.image_url} 
                           alt={item.name} 
@@ -72,7 +74,7 @@ const Cart = () => {
                       </Link>
                       
                       <div className="flex-1 min-w-0">
-                        <Link to={`/product/${item.slug}`}>
+                        <Link to={`/product/${item.slug}/`}>
                           <h3 className="font-semibold text-3x3 hover:text-primary transition-colors mb-3">
                             {item.name}
                           </h3>
@@ -138,7 +140,7 @@ const Cart = () => {
                       خالی کردن سبد
                     </Button>
                     <Button variant="outline" asChild className="text-lg px-6 py-3 h-12">
-                      <Link to="/shop">ادامه خرید</Link>
+                      <Link to="/shop/">ادامه خرید</Link>
                     </Button>
                   </div>
                 </CardContent>

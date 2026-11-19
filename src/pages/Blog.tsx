@@ -53,9 +53,9 @@ const Blog = () => {
               مقالات آموزشی خرید، پخت و نگهداری برنج ایرانی و راهنمای چای اصل لاهیجان
             </p>
             <div className="flex flex-wrap gap-4 text-sm font-medium">
-              <Link to="/category/berenj" className="text-primary hover:underline">خرید برنج ایرانی</Link>
-              <Link to="/category/chai" className="text-primary hover:underline">خرید چای ایرانی</Link>
-              <Link to="/shop" className="text-primary hover:underline">همه محصولات فروشگاه</Link>
+              <Link to="/category/berenj/" className="text-primary hover:underline">خرید برنج ایرانی</Link>
+              <Link to="/category/chai/" className="text-primary hover:underline">خرید چای ایرانی</Link>
+              <Link to="/shop/" className="text-primary hover:underline">همه محصولات فروشگاه</Link>
             </div>
           </div>
         </section>
@@ -81,7 +81,7 @@ const Blog = () => {
             {/* Blog Posts from Database */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {blogPosts.filter(post => post.published).map((post) => (
-                <Link key={post.id} to={`/blog/${post.slug}`}>
+                <Link key={post.id} to={`/blog/${post.slug}/`}>
                   <Card className="overflow-hidden hover:shadow-lg transition-all duration-300 h-full group border-border">
                     <div className="relative h-56 overflow-hidden">
                       <img

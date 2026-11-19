@@ -1,7 +1,8 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { useSEO, buildStoreJsonLd } from "@/lib/seo";
+import { useSEO, buildStoreJsonLd, buildBreadcrumbJsonLd } from "@/lib/seo";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,11 +13,17 @@ import { toast } from "sonner";
 
 const Contact = () => {
   useSEO({
-    title: "تماس با عطر شالیزار | شماره تماس و آدرس فروشگاه برنج در لاهیجان",
+    title: "تماس با عطر شالیزار | تلفن و آدرس فروشگاه در لاهیجان",
     description:
-      "برای سفارش برنج ایرانی یا پرسش‌های خود با فروشگاه عطر شالیزار در لاهیجان گیلان تماس بگیرید؛ تلفن ۰۹۳۷۷۸۹۳۳۰۷ – پاسخگویی روزها ۹ تا ۱۴ و ۱۷ تا ۲۲.",
+      "برای سفارش تلفنی برنج ایرانی و چای لاهیجان یا پرسش‌های خود با عطر شالیزار در لاهیجان گیلان تماس بگیرید؛ تلفن ۰۹۳۵۴۲۹۹۷۸۵ – پاسخگویی ۹ تا ۱۴ و ۱۷ تا ۲۲.",
     path: "/contact",
-    jsonLd: buildStoreJsonLd(),
+    jsonLd: [
+      buildStoreJsonLd(),
+      buildBreadcrumbJsonLd([
+        { name: "خانه", path: "/" },
+        { name: "تماس با ما", path: "/contact" },
+      ]),
+    ],
   });
 
   const [formData, setFormData] = useState({
@@ -57,9 +64,16 @@ const Contact = () => {
         {/* Page Header */}
         <section className="bg-muted/50 py-12 border-b border-border">
           <div className="container mx-auto px-4">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4 text-foreground">تماس با ما</h1>
+            <h1 className="text-4xl md:text-5xl font-bold mb-4 text-foreground">
+              تماس با عطر شالیزار
+            </h1>
             <p className="text-lg text-muted-foreground">
-              سوالی دارید؟ ما اینجا هستیم تا به شما کمک کنیم
+              برای سفارش تلفنی برنج و چای، پیگیری سفارش یا هر پرسشی با ما تماس
+              بگیرید. محصولات را هم می‌توانید در{" "}
+              <Link to="/shop/" className="text-primary hover:underline">
+                فروشگاه آنلاین
+              </Link>{" "}
+              ببینید.
             </p>
           </div>
         </section>

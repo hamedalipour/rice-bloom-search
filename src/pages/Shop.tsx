@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ProductCard from "@/components/ProductCard";
@@ -33,29 +33,22 @@ const Shop = () => {
       ? null
       : sampleCategories.find((c) => c.slug === selectedCategory)?.name;
 
-  // SEO: عنوان و توضیحات اختصاصی فروشگاه (و هر دسته‌بندی)
+  const isFiltered = selectedCategory !== "all" || Boolean(categoryFromUrl);
+
+  // SEO: فیلترهای ?category= صفحه مستقل نیستند؛ canonical به /shop/ اشاره می‌کند
+  // و noindex می‌شوند تا نسخه‌های تکراری در گوگل ایندکس نشوند.
   useSEO({
     title: categoryLabel
-      ? `خرید ${categoryLabel} با بهترین قیمت و کیفیت | عطر شالیزار`
-      : "فروشگاه برنج و چای ایرانی | خرید آنلاین انواع برنج و چای با قیمت روز – عطر شالیزار",
+      ? `خرید ${categoryLabel} با قیمت روز | عطر شالیزار`
+      : "خرید برنج ایرانی و چای لاهیجان | فروشگاه آنلاین – عطر شالیزار",
     description: categoryLabel
-      ? `قیمت روز و خرید اینترنتی ${categoryLabel} اصل از شالیزارهای شمال کشور با انتخاب وزن (۵، ۱۰ و ۲۵ کیلویی) و ارسال سریع به سراسر ایران از فروشگاه عطر شالیزار.`
-      : "خرید آنلاین برنج ایرانی اصل (هاشمی معطر)، چای اصل لاهیجان (چای سیاه، بهاره و چوب شمال) و بادام آستانه با مقایسه قیمت، انتخاب وزن دلخواه و ارسال سریع از فروشگاه اینترنتی عطر شالیزار.",
-    path:
-      selectedCategory === "all"
-        ? "/shop"
-        : `/shop?category=${selectedCategory}`,
+      ? `قیمت روز و خرید اینترنتی ${categoryLabel} اصل از شالیزارها و باغ‌های شمال کشور با انتخاب وزن و ارسال سریع به سراسر ایران از فروشگاه عطر شالیزار.`
+      : "خرید آنلاین برنج هاشمی معطر، چای سیاه لاهیجان، چای بهاره و چای چوب شمال با قیمت روز، انتخاب وزن دلخواه و ارسال سریع به سراسر ایران از عطر شالیزار.",
+    path: "/shop",
+    noindex: isFiltered,
     jsonLd: buildBreadcrumbJsonLd([
       { name: "خانه", path: "/" },
       { name: "فروشگاه", path: "/shop" },
-      ...(categoryLabel
-        ? [
-            {
-              name: categoryLabel,
-              path: `/shop?category=${selectedCategory}`,
-            },
-          ]
-        : []),
     ]),
   });
 
@@ -159,11 +152,23 @@ const Shop = () => {
         <section className="bg-muted/50 py-12 border-b border-border">
           <div className="container mx-auto px-4">
             <h1 className="text-4xl md:text-5xl font-bold mb-4 text-foreground">
-              فروشگاه
+              خرید برنج ایرانی و چای لاهیجان
             </h1>
-            <p className="text-lg text-muted-foreground">
-              انواع برنج ایرانی با بهترین کیفیت و قیمت
+            <p className="text-lg text-muted-foreground max-w-3xl">
+              برنج هاشمی معطر، چای سیاه لاهیجان، چای بهاره و چای چوب شمال را با
+              قیمت روز و انتخاب وزن دلخواه سفارش دهید؛ ارسال سریع به سراسر ایران.
             </p>
+            <div className="flex flex-wrap gap-4 text-sm font-medium mt-4">
+              <Link to="/category/berenj/" className="text-primary hover:underline">
+                خرید برنج ایرانی
+              </Link>
+              <Link to="/category/chai/" className="text-primary hover:underline">
+                خرید چای ایرانی
+              </Link>
+              <Link to="/blog/" className="text-primary hover:underline">
+                راهنمای خرید و مقالات
+              </Link>
+            </div>
           </div>
         </section>
 
@@ -177,6 +182,25 @@ const Shop = () => {
                     <h2 className="text-xl font-bold mb-6 text-foreground">
                       فیلترها
                     </h2>
+
+                    {/* لینک صفحات دسته‌بندی اختصاصی (کرال‌پذیر و ثابت) */}
+                    <div className="mb-6">
+                      <h3 className="font-semibold mb-3 text-foreground">
+                        صفحه‌های دسته‌بندی
+                      </h3>
+                      <ul className="space-y-2 text-sm">
+                        <li>
+                          <Link to="/category/berenj/" className="text-primary hover:underline">
+                            خرید برنج ایرانی
+                          </Link>
+                        </li>
+                        <li>
+                          <Link to="/category/chai/" className="text-primary hover:underline">
+                            خرید چای ایرانی
+                          </Link>
+                        </li>
+                      </ul>
+                    </div>
 
                     {/* Category Filter */}
                     <div className="mb-6">
@@ -248,7 +272,10 @@ const Shop = () => {
                       مرتب‌سازی:
                     </span>
                     <Select value={sortBy} onValueChange={setSortBy}>
-                      <SelectTrigger className="w-[200px]">
+                      <SelectTrigger
+                        className="w-[200px]"
+                        aria-label="مرتب‌سازی محصولات"
+                      >
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
