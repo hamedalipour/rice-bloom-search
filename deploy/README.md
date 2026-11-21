@@ -57,43 +57,12 @@ nslookup api.atre-shalizar.ir 8.8.8.8
 
 ## ۲) ساخت زیردامنه و اپ Node در cPanel
 
-1. در cPanel → **Domains / Subdomains** زیردامنهٔ `api.atre-shalizar.ir` را بسازید.
-   Document Root را خارج از `public_html` بگذارید، مثلاً:
-   `/home/USER/apps/atre-api/panel`
-2. cPanel → **Setup Node.js App** → Create Application:
-   - **Node.js version:** 22
-   - **Application mode:** Production
-   - **Application root:** `apps/atre-api/panel`
-   - **Application URL:** `api.atre-shalizar.ir`
-   - **Application startup file:** `server.cjs`
+### ۲.۱) گرفتن کد و نصب وابستگی‌های سرور
 
-> **چرا Application root همان `panel` است؟** چون cPanel وابستگی‌ها را از
-> `package.json` همان پوشه نصب می‌کند. اگر ریشهٔ اپ `apps/atre-api` باشد، cPanel
-> سعی می‌کند وابستگی‌های سنگین فرانت‌اند (Vite/React) را هم نصب کند؛ در حالی که
-> سرور فقط به `express`، `cors` و `multer` نیاز دارد. مخزن کامل در
-> `apps/atre-api` clone می‌شود تا `src/data` و `public/assets` در دسترس سرور باشند.
-
-3. در همان صفحه، **Environment Variables** را وارد کنید:
-
-```
-NODE_ENV=production
-ZARINPAL_MERCHANT_ID=<merchant-id>
-ZARINPAL_SANDBOX=true
-FRONTEND_BASE_URL=https://atre-shalizar.ir
-API_PUBLIC_URL=https://api.atre-shalizar.ir
-ADMIN_USER=<username>
-ADMIN_PASS=<strong-password>
-ADMIN_ALLOW_IPS=
-CORS_ORIGINS=https://atre-shalizar.ir,https://www.atre-shalizar.ir
-ALLOW_GIT_PUBLISH=true
-```
-
-> `NODE_ENV=production` باعث می‌شود اگر `ADMIN_PASS` خالی باشد، اپ عمداً بالا نیاید.
-> `ADMIN_ALLOW_IPS` را بعداً می‌توانید با IP خانه/اداره پر کنید.
-
-4. در cPanel → **Terminal**:
+در cPanel → **Terminal**:
 
 ```bash
+mkdir -p ~/apps
 cd ~/apps
 git clone https://github.com/hamedalipour/rice-bloom-search.git atre-api
 cd atre-api/panel
@@ -113,8 +82,58 @@ touch tmp/restart.txt
 >
 > توکن Fine-grained با دسترسی **Contents: Read and write** کافی است.
 
-5. در Setup Node.js App روی **Restart** بزنید.
-6. در cPanel → **SSL/TLS Status** برای `atre-shalizar.ir`، `www` و `api` گزینهٔ
+### ۲.۲) ساخت زیردامنه
+
+در cPanel → **Domains / Subdomains** زیردامنهٔ `api.atre-shalizar.ir` را بسازید و
+Document Root را خارج از `public_html` بگذارید:
+
+```
+/home/USER/apps/atre-api/panel
+```
+
+> این پوشه را در مرحلهٔ قبل ساخته‌اید؛ اگر cPanel هنگام ساخت زیردامنه هشدار داد،
+> مسیر را دقیقاً همین بگذارید.
+
+### ۲.۳) ساخت اپ Node
+
+cPanel → **Setup Node.js App** → Create Application:
+
+- **Node.js version:** 22
+- **Application mode:** Production
+- **Application root:** `apps/atre-api/panel`
+- **Application URL:** `api.atre-shalizar.ir`
+- **Application startup file:** `server.cjs`
+
+> **چرا Application root همان `panel` است؟** چون cPanel وابستگی‌ها را از
+> `package.json` همان پوشه نصب می‌کند. اگر ریشهٔ اپ `apps/atre-api` باشد، cPanel
+> سعی می‌کند وابستگی‌های سنگین فرانت‌اند (Vite/React) را هم نصب کند؛ در حالی که
+> سرور فقط به `express`، `cors` و `multer` نیاز دارد. مخزن کامل در
+> `apps/atre-api` clone می‌شود تا `src/data` و `public/assets` در دسترس سرور باشند.
+
+سپس در همان صفحه، **Environment Variables** را وارد کنید:
+
+```
+NODE_ENV=production
+ZARINPAL_MERCHANT_ID=<merchant-id>
+ZARINPAL_SANDBOX=true
+FRONTEND_BASE_URL=https://atre-shalizar.ir
+API_PUBLIC_URL=https://api.atre-shalizar.ir
+ADMIN_USER=<username>
+ADMIN_PASS=<strong-password>
+ADMIN_ALLOW_IPS=
+CORS_ORIGINS=https://atre-shalizar.ir,https://www.atre-shalizar.ir
+ALLOW_GIT_PUBLISH=true
+```
+
+> `NODE_ENV=production` باعث می‌شود اگر `ADMIN_PASS` خالی باشد، اپ عمداً بالا نیاید.
+> `ADMIN_ALLOW_IPS` را بعداً می‌توانید با IP خانه/اداره پر کنید.
+> اگر cPanel دکمهٔ **Run NPM Install** نشان داد، می‌توانید یک‌بار بزنید؛ چون
+> `package.json` همین پوشه فقط سه وابستگی سبک دارد.
+
+### ۲.۴) ری‌استارت و SSL
+
+1. در Setup Node.js App روی **Restart** بزنید.
+2. در cPanel → **SSL/TLS Status** برای `atre-shalizar.ir`، `www` و `api` گزینهٔ
    **Run AutoSSL** را بزنید (اگر خودکار فعال نشده بود).
 
 بررسی:
