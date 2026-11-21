@@ -31,7 +31,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "22"
           cache: npm
 
       - name: Install dependencies
@@ -39,6 +39,10 @@ jobs:
 
       - name: Build
         run: npm run build
+        env:
+          # همان API سرور ایران؛ اگر هنوز تنظیم نشده باشد، آدرس نسبی استفاده می‌شود
+          VITE_PANEL_API_BASE: ${{ vars.VITE_PANEL_API_BASE }}
+          VITE_ZARINPAL_SANDBOX: "false"
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
