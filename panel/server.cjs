@@ -229,9 +229,11 @@ app.use(basicAuth);
 // پیش‌نمایش تصاویر آپلودشده داخل پنل
 app.use('/assets', express.static(path.join(PUBLIC_DIR, 'assets')));
 
-// رابط کاربری پنل — فقط index.html؛ server.cjs و data/ نباید عمومی شوند.
-app.get(['/', '/index.html'], (req, res) =>
-  res.sendFile(path.join(__dirname, 'index.html')),
+// رابط کاربری پنل — فایل با نام ui.html نگه داشته می‌شود تا وب‌سرور آن را
+// به‌صورت static (بدون Basic Auth) سرو نکند؛ همیشه از این مسیر و بعد از
+// میدل‌ور احراز هویت ارسال می‌شود. server.cjs و data/ نباید عمومی شوند.
+app.get(['/', '/ui.html'], (req, res) =>
+  res.sendFile(path.join(__dirname, 'ui.html')),
 );
 
 // ---------- IndexNow: اعلام سریع تغییرات به Bing/Yandex/Seznam بعد از هر انتشار ----------
