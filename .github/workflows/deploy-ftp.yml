@@ -1,0 +1,87 @@
+name: Deploy to Iranian host (FTP)
+
+# این workflow فقط وقتی اجرا می‌شود که در Settings → Variables مقدار
+# DEPLOY_FTP برابر true باشد. تا قبل از انتقال DNS می‌توانید آن را false بگذارید
+# و همان GitHub Pages قبلی به کار خود ادامه دهد.
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-ftp
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    if: vars.DEPLOY_FTP == 'true'
+    runs-on: ubuntu-latest
+    env:
+      VITE_PANEL_API_BASE: ${{ vars.VITE_PANEL_API_BASE }}
+      VITE_ZARINPAL_SANDBOX: "false"
+      FTP_SERVER: ${{ secrets.FTP_SERVER }}
+      FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
+      FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+      FTP_SERVER_DIR: ${{ vars.FTP_SERVER_DIR || '/public_html/' }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate build config
+        run: |
+          if [ -z "$VITE_PANEL_API_BASE" ]; then
+            echo "::error::VITE_PANEL_API_BASE تنظیم نشده است."
+            echo "در Settings → Variables مقدار مثلاً https://api.atre-shalizar.ir را بگذارید."
+            exit 1
+          fi
+          if [ -z "$FTP_SERVER" ] || [ -z "$FTP_USERNAME" ] || [ -z "$FTP_PASSWORD" ]; then
+            echo "::error::FTP_SERVER / FTP_USERNAME / FTP_PASSWORD در Secrets تنظیم نشده‌اند."
+            exit 1
+          fi
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Verify build output
+        run: |
+          test -f dist/index.html
+          test -f dist/.htaccess
+          test -f dist/sitemap.xml
+          test -f dist/404.html
+          test -d dist/cart
+          test -d dist/checkout
+          echo "✅ build artifacts look good"
+
+      - name: Install lftp
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq lftp
+
+      - name: Upload dist to public_html
+        run: |
+          lftp -u "$FTP_USERNAME,$FTP_PASSWORD" "$FTP_SERVER" -e "
+            set ftp:ssl-allow yes;
+            set ssl:verify-certificate no;
+            set ftp:passive-mode on;
+            set net:timeout 30;
+            set net:max-retries 3;
+            mirror -R --delete --parallel=4 --verbose \
+              --exclude-glob .well-known/* \
+              --exclude-glob cgi-bin/* \
+              --exclude-glob .ftpquota \
+              --exclude-glob error_log \
+              ./dist/ '$FTP_SERVER_DIR';
+            bye;
+          "
