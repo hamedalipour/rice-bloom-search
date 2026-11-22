@@ -10,6 +10,9 @@ AddDefaultCharset UTF-8
 <IfModule mod_rewrite.c>
   RewriteEngine On
 
+  # ۰) مسیر تمدید گواهی Let's Encrypt هرگز ریدایرکت/بلاک نشود
+  RewriteRule ^\.well-known/acme-challenge/ - [L]
+
   # ۱) انتقال اجباری به HTTPS (با احترام به پروکسی)
   RewriteCond %{HTTPS} !=on
   RewriteCond %{HTTP:X-Forwarded-Proto} !https [NC]
@@ -28,8 +31,9 @@ ErrorDocument 404 /404.html
   Header always set X-Frame-Options "SAMEORIGIN"
   Header always set Referrer-Policy "strict-origin-when-cross-origin"
   Header always set Permissions-Policy "geolocation=(), microphone=(), camera=()"
-  # HSTS بعد از اطمینان از فعال بودن SSL روی دامنه و api فعال شود:
-  # Header always set Strict-Transport-Security "max-age=31536000"
+  # HSTS: گواهی Let's Encrypt روی atre-shalizar.ir / www / api نصب شده است.
+  # includeSubDomains عمداً فعال نیست تا webmail/mail با گواهی self-signed قفل نشوند.
+  Header always set Strict-Transport-Security "max-age=31536000" env=HTTPS
 
   # فایل‌های هش‌دار Vite: کش یک‌ساله و تغییرناپذیر
   <FilesMatch "\.(js|css|woff2?|ttf|eot|jpg|jpeg|png|webp|avif|gif|svg|ico)$">

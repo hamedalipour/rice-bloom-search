@@ -162,21 +162,67 @@ chmod 600 ~/apps/atre-api/.env
 ### ۲.۴) ری‌استارت و SSL
 
 1. در Setup Node.js App روی **Restart** بزنید (یا `touch ~/apps/atre-api/panel/tmp/restart.txt`).
-2. در cPanel → **SSL/TLS Status** برای `atre-shalizar.ir`، `www` و `api` گزینهٔ
-   **Run AutoSSL** را بزنید (اگر خودکار فعال نشده بود).
 
-> ⚠️ **AutoSSL قبل از تغییر DNS کار نمی‌کند.** اعتبارسنجی دامنه به‌صورت HTTP انجام
-> می‌شود و تا وقتی `A` رکورد دامنه به GitHub Pages اشاره می‌کند، درخواست به همین
-> سرور نمی‌رسد. ترتیب درست: **DNS → AutoSSL → تست HTTPS**.
-> تا قبل از آن، `https://` روی این سرور گواهی پیش‌فرض/خودامضا برمی‌گرداند.
+> ⚠️ **AutoSSL روی این پلن فعال نیست.** هم دکمهٔ «رایگان SSL» در پنل
+> («متاسفانه عملیات با خطا مواجه شد») و هم `uapi SSL start_autossl_check`
+> با خطای `You do not have the feature "autossl"` رد می‌شوند. گواهی را باید
+> دستی با Let's Encrypt گرفت.
+
+**گرفتن گواهی با acme.sh (تست‌شده و کار می‌کند):**
+
+```bash
+# ۱) پیش‌نیاز: DNS باید همین حالا به این سرور اشاره کند (چالش HTTP-01)
+cd ~ && curl -sSf https://get.acme.sh | sh -s email=admin@atre-shalizar.ir
+~/.acme.sh/acme.sh --set-default-ca --server letsencrypt
+
+# ۲) صدور برای هر سه نام؛ هر دامنه webroot خودش را دارد
+~/.acme.sh/acme.sh --issue \
+  -d atre-shalizar.ir     -w /home/USER/public_html \
+  -d www.atre-shalizar.ir -w /home/USER/public_html \
+  -d api.atre-shalizar.ir -w /home/USER/apps/atre-api/panel \
+  --keylength 2048
+```
+
+نکته‌ها:
+- کلید **RSA 2048** بزنید؛ نسخهٔ cPanel این هاست کلید EC را در `install_ssl` رد می‌کند
+  (`Invalid base64` + `need "key_algorithm"`).
+- `--keylength 2048` عمداً آمده است.
+- پوشهٔ `panel` به‌عنوان webroot کار می‌کند چون LiteSpeed فایل‌های
+  `/.well-known/acme-challenge/` را قبل از Passenger سرو می‌کند (تست شد: ۲۰۰).
+
+**نصب گواهی در cPanel (روش درست):**
+
+مقدار PEM چندخطی را با آرگومان خط فرمان به `uapi` ندهید؛ خراب می‌شود. با HTTP API
+و بدنهٔ form-encoded نصب کنید:
+
+```bash
+~/.acme.sh/acme.sh --install-cert -d atre-shalizar.ir \
+  --key-file /home/USER/apps/.le-key.pem \
+  --fullchain-file /home/USER/apps/.le-fullchain.pem \
+  --reloadcmd "bash /home/USER/apps/reinstall-cert.sh"
+```
+
+`reinstall-cert.sh` (توکن API را از cPanel → Manage API Tokens بسازید):
+
+```bash
+curl -k -s -H "Authorization: cpanel USER:TOKEN" \
+  --data-urlencode "domain=$dom" \
+  --data-urlencode "cert@$CERT" \
+  --data-urlencode "key@$KEY" \
+  --data-urlencode "cabundle@$CA" \
+  https://127.0.0.1:2083/execute/SSL/install_ssl
+```
+
+اجرای این اسکریپت برای سه دامنهٔ `atre-shalizar.ir`، `www` و `api` انجام می‌شود.
+کرون خودکار acme.sh (ساعت ۱، ۷، ۱۳، ۱۹) تمدید می‌کند و `reloadcmd` گواهی تازه را
+دوباره در cPanel نصب می‌کند؛ پس از تمدید کاری لازم نیست.
 
 بررسی:
 
 ```bash
-curl -i https://api.atre-shalizar.ir/api/health
-# باید 200 و JSON با sandbox:true برگرداند
-curl -i https://api.atre-shalizar.ir/api/data
-# باید 401 (نیاز به رمز) برگرداند
+curl -sI https://atre-shalizar.ir/ | head -3     # 200 و HSTS
+curl -i https://api.atre-shalizar.ir/api/health   # 200 و JSON با sandbox:true
+curl -i https://api.atre-shalizar.ir/api/data     # 401 (نیاز به رمز)
 ```
 
 ### ۲.۵) قواعد امنیتی `.htaccess` (اجباری)
@@ -325,11 +371,14 @@ cd /home/USER/apps/atre-api && \
 - [x] Secrets/Variables گیت‌هاب تنظیم و استاتیک با FTP روی `public_html` منتشر شد
       (`index.php`, `css/`, `images/`, `js/`, `php.ini` پاک شدند؛ `cgi-bin/` حفظ شد)
 - [x] سایت روی IP سرور با SNI دامنه تست شد: HTML درست، canonical و متا درست
+- [x] رکوردهای DNS در Cloudflare به `89.39.208.237` تغییر کرد (DNS only، بدون پروکسی)
+- [x] گواهی **Let's Encrypt** برای `atre-shalizar.ir`، `www` و `api` صادر و نصب شد
+      (اعتبار تا ۲۰ فوریه ۲۰۲۷) + تمدید خودکار با acme.sh و نصب دوباره در cPanel
+- [x] HSTS فعال شد؛ `http→https` و `www→بدون www` با گواهی معتبر تست شد
+- [x] IP خروجی سرور برای زرین‌پال تأیید شد: `89.39.208.237`
 
 **باقی‌مانده (نیازمند دسترسی یا تصمیم شما)**
 
-- [ ] تغییر رکوردهای DNS در Cloudflare برای `@`، `www`، `api` → `89.39.208.237` (DNS only)
-- [ ] اجرای AutoSSL برای سه دامنه (بعد از DNS) و فعال‌کردن HSTS
 - [ ] ثبت `ZARINPAL_MERCHANT_ID` در `.env` و `ZARINPAL_SANDBOX=false`
 - [ ] ثبت IP `89.39.208.237` در پنل زرین‌پال
 - [ ] تست پرداخت واقعی + ادغام PR معماری و Submit سایتمپ در Search Console
