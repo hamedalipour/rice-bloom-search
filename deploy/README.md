@@ -46,6 +46,12 @@ api.atre-shalizar.ir    →  اپ Node/Express (پنل + API پرداخت)  ← 
 
 رکوردهای `MX` و `TXT` (ایمیل/SPF/DKIM) را دست نزنید.
 
+> اگر DNS روی **Cloudflare** است (وضعیت فعلی این دامنه):
+> هر سه رکورد را با **Proxy status = DNS only** (ابر خاکستری) بسازید.
+> حالت Proxied برای `api` باعث می‌شود درگاه زرین‌پال IP اشتراکی سرور را نبیند و
+> تأیید پرداخت رد شود. رکوردهای `AAAA` قدیمی GitHub Pages را هم پاک کنید، وگرنه
+> مرورگرهای IPv6 همچنان نسخهٔ قدیمی را می‌بینند.
+
 بررسی:
 
 ```bash
@@ -130,11 +136,39 @@ ALLOW_GIT_PUBLISH=true
 > اگر cPanel دکمهٔ **Run NPM Install** نشان داد، می‌توانید یک‌بار بزنید؛ چون
 > `package.json` همین پوشه فقط سه وابستگی سبک دارد.
 
+**راه مطمئن‌تر (توصیه‌شده):** همین متغیرها را در فایل `~/apps/atre-api/.env`
+بگذارید. `server.cjs` این فایل را خودش می‌خواند و مقدارهای موجود در محیط cPanel را
+بازنویسی نمی‌کند:
+
+```bash
+cat > ~/apps/atre-api/.env <<'EOF'
+NODE_ENV=production
+ZARINPAL_MERCHANT_ID=
+ZARINPAL_SANDBOX=true
+FRONTEND_BASE_URL=https://atre-shalizar.ir
+API_PUBLIC_URL=https://api.atre-shalizar.ir
+ADMIN_USER=admin
+ADMIN_PASS=یک-رمز-قوی
+CORS_ORIGINS=https://atre-shalizar.ir,https://www.atre-shalizar.ir
+ALLOW_GIT_PUBLISH=false
+EOF
+chmod 600 ~/apps/atre-api/.env
+```
+
+> تجربه: ویرایش Environment Variables از UI در چند نوبت با بازسازی اپ از دست رفت و
+> باعث ری‌استارت ناخواسته شد؛ فایل `.env` پایدارتر است. این فایل هم با قواعد
+> امنیتی `.htaccess` (بخش ۲.۵) از دسترس عمومی خارج می‌شود.
+
 ### ۲.۴) ری‌استارت و SSL
 
-1. در Setup Node.js App روی **Restart** بزنید.
+1. در Setup Node.js App روی **Restart** بزنید (یا `touch ~/apps/atre-api/panel/tmp/restart.txt`).
 2. در cPanel → **SSL/TLS Status** برای `atre-shalizar.ir`، `www` و `api` گزینهٔ
    **Run AutoSSL** را بزنید (اگر خودکار فعال نشده بود).
+
+> ⚠️ **AutoSSL قبل از تغییر DNS کار نمی‌کند.** اعتبارسنجی دامنه به‌صورت HTTP انجام
+> می‌شود و تا وقتی `A` رکورد دامنه به GitHub Pages اشاره می‌کند، درخواست به همین
+> سرور نمی‌رسد. ترتیب درست: **DNS → AutoSSL → تست HTTPS**.
+> تا قبل از آن، `https://` روی این سرور گواهی پیش‌فرض/خودامضا برمی‌گرداند.
 
 بررسی:
 
@@ -144,6 +178,40 @@ curl -i https://api.atre-shalizar.ir/api/health
 curl -i https://api.atre-shalizar.ir/api/data
 # باید 401 (نیاز به رمز) برگرداند
 ```
+
+### ۲.۵) قواعد امنیتی `.htaccess` (اجباری)
+
+بدون این بلوک، فایل `server.cjs` و `data/orders.json` (شامل آدرس و تلفن مشتری‌ها)
+به‌صورت مستقیم قابل دانلود می‌شوند. cPanel هنگام ساخت اپ یک `.htaccess` می‌سازد؛
+این بخش را به انتهای آن اضافه کنید (نمونهٔ کامل: `panel/.htaccess.example`):
+
+```apache
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteRule (^|/)(server\.cjs|package\.json|package-lock\.json|stderr\.log)$ - [F,L]
+  RewriteRule (^|/)\.env - [F,L]
+  RewriteRule ^(data|node_modules|tmp|public)(/|$) - [F,L]
+</IfModule>
+```
+
+نکات مهم این استک (LiteSpeed + Passenger):
+
+- `<FilesMatch>…Require all denied</FilesMatch>` **نادیده گرفته می‌شود**؛ فقط
+  `mod_rewrite` با پرچم `[F,L]` واقعاً فایل را می‌بندد.
+- هرگز `[R=404,L]` ننویسید؛ Passenger را از کار می‌اندازد و همهٔ `/api/*` ها ۴۰۳ می‌شوند.
+- بررسی از بیرون: `/server.cjs` باید ۴۰۳ بدهد و `/api/health` باید ۲۰۰ بماند.
+- اگر اپ را Destroy/Create کردید، این بلوک را دوباره اضافه کنید.
+
+### ۲.۶) گیرهای شناخته‌شدهٔ این هاست
+
+| مشکل | علت | راه‌حل |
+|---|---|---|
+| `sshing` روی پورت ۲۲ قطع می‌شود (`kex_exchange_identification`) | فایروال هاست | کارها را با Cron + اسکریپت یا FTP انجام دهید |
+| بعد از چند درخواست پشت‌سرهم، صفحهٔ CAPTCHA یا قطع cPanel | BitNinja WAF، IP شما را گری‌لیست می‌کند | `ftp://` را باز کنید و `your_IP_is_greylisted_README.txt` را بخوانید؛ لینک `spam_delist` را در مرورگر باز و CAPTCHA را حل کنید (تعداد محدود) |
+| `curl http://127.0.0.1/api/...` روی خود سرور ۴۰۳ می‌دهد | درخواست محلی به vhost دیگری می‌رسد | فقط تست بیرونی معتبر است |
+| UI با `https://IP:2083` باز نمی‌شود | گواهی خودامضا | از `http://IP:2082` استفاده کنید |
+| اپ پس از ری‌استارت بالا نمی‌آید | ثبت قدیمی `PassengerApps` با `/usr/bin/node` | اپ را در Node.js Selector حذف و دوباره بسازید (Node 22، Production، root=`apps/atre-api/panel`) |
+
 
 ---
 
@@ -243,3 +311,26 @@ cd /home/USER/apps/atre-api && \
 3. نسخهٔ Pages هنوز در دسترس است (workflow قدیمی فعال می‌ماند).
 
 > بعد از اطمینان کامل می‌توانید workflow قدیمی Pages را حذف/غیرفعال کنید.
+
+---
+
+## ۸) وضعیت انتقال (آخرین به‌روزرسانی)
+
+**انجام‌شده**
+
+- [x] ساخت زیردامنهٔ `api.atre-shalizar.ir` با docroot در `apps/atre-api/panel`
+- [x] اپ Node 22 روی Passenger ساخته شد و `https://…/api/health` بیرونی ۲۰۰ می‌دهد
+- [x] `.env` روی سرور تنظیم شد (`ZARINPAL_SANDBOX=true`، بدون merchant ID)
+- [x] قواعد امنیتی `.htaccess` اعمال شد؛ `/server.cjs` و `/data/orders.json` → ۴۰۳
+- [x] Secrets/Variables گیت‌هاب تنظیم و استاتیک با FTP روی `public_html` منتشر شد
+      (`index.php`, `css/`, `images/`, `js/`, `php.ini` پاک شدند؛ `cgi-bin/` حفظ شد)
+- [x] سایت روی IP سرور با SNI دامنه تست شد: HTML درست، canonical و متا درست
+
+**باقی‌مانده (نیازمند دسترسی یا تصمیم شما)**
+
+- [ ] تغییر رکوردهای DNS در Cloudflare برای `@`، `www`، `api` → `89.39.208.237` (DNS only)
+- [ ] اجرای AutoSSL برای سه دامنه (بعد از DNS) و فعال‌کردن HSTS
+- [ ] ثبت `ZARINPAL_MERCHANT_ID` در `.env` و `ZARINPAL_SANDBOX=false`
+- [ ] ثبت IP `89.39.208.237` در پنل زرین‌پال
+- [ ] تست پرداخت واقعی + ادغام PR معماری و Submit سایتمپ در Search Console
+
