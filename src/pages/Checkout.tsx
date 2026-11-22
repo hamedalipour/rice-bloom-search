@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -29,6 +30,16 @@ const Checkout = () => {
   const authority = searchParams.get("authority");
   const payment = searchParams.get("payment");
   const returning = Boolean(authority);
+  const clearedRef = useRef(false);
+
+  // بعد از پرداخت موفق، سبد خرید و سفارش موقت پاک شود.
+  useEffect(() => {
+    if (payment === "success" && !clearedRef.current) {
+      clearedRef.current = true;
+      clearCart();
+      localStorage.removeItem("rice-bloom-pending-order");
+    }
+  }, [payment, clearCart]);
 
   useSEO({
     title: "ثبت سفارش | فروشگاه عطر شالیزار",
@@ -39,9 +50,9 @@ const Checkout = () => {
     noindex: true,
   });
 
-  // اگر سبد خالی است، به سبد خرید برگرد
-  if (items.length === 0) {
-    navigate("/cart");
+  // اگر سبد خالی است و در حال بازگشت از درگاه نیستیم، به سبد خرید برگرد
+  if (items.length === 0 && !returning) {
+    navigate("/cart/");
     return null;
   }
 
@@ -50,7 +61,8 @@ const Checkout = () => {
 
   // ---------- حالت بازگشت از درگاه (تایید پرداخت) ----------
   if (returning) {
-    const verifying = payment !== "success";
+    // فقط وقتی هنوز نتیجه‌ای از سرور نرسیده، حالت «در حال تایید» نشان بده.
+    const verifying = !payment;
 
     return (
       <>
@@ -62,7 +74,7 @@ const Checkout = () => {
                 {verifying ? (
                   <>
                     <Loader2 className="w-10 h-10 animate-spin mx-auto mb-4 text-primary" />
-                    <h2 className="text-2xl font-bold mb-3">در حال تایید پرداخت...</h2>
+                    <h1 className="text-2xl font-bold mb-3">در حال تایید پرداخت...</h1>
                     <p className="text-muted-foreground">
                       لطفاً منتظر بمانید، پرداخت شما بررسی می‌شود.
                     </p>
@@ -70,25 +82,25 @@ const Checkout = () => {
                 ) : payment === "success" ? (
                   <>
                     <CreditCard className="w-12 h-12 mx-auto mb-4 text-green-600" />
-                    <h2 className="text-2xl font-bold mb-3">پرداخت با موفقیت انجام شد ✅</h2>
+                    <h1 className="text-2xl font-bold mb-3">پرداخت با موفقیت انجام شد ✅</h1>
                     <p className="text-muted-foreground mb-6">
-                      سفارش شما ثبت و تایید شد.팀 به‌زودی با شما تماس می‌گیرد.
+                      سفارش شما ثبت و تایید شد. به‌زودی با شما تماس می‌گیریم.
                     </p>
                     <Button asChild className="w-full h-14 text-lg">
-                      <Link to="/shop">بازگشت به فروشگاه</Link>
+                      <Link to="/shop/">بازگشت به فروشگاه</Link>
                     </Button>
                   </>
                 ) : (
                   <>
                     <Phone className="w-10 h-10 mx-auto mb-4 text-red-600" />
-                    <h2 className="text-2xl font-bold mb-3">پرداخت انجام نشد ❌</h2>
+                    <h1 className="text-2xl font-bold mb-3">پرداخت انجام نشد ❌</h1>
                     <p className="text-muted-foreground mb-6">
                       پرداخت شما توسط درگاه تایید نشد یا لغو شد. می‌توانید دوباره تلاش کنید
                       یا با تماس تلفنی سفارش را ثبت کنید.
                     </p>
                     <div className="flex flex-col sm:flex-row gap-3">
                       <Button asChild className="flex-1">
-                        <Link to="/cart">دوباره تلاش کنید</Link>
+                        <Link to="/cart/">دوباره تلاش کنید</Link>
                       </Button>
                       <Button variant="outline" asChild className="flex-1">
                         <a href={`tel:${ORDER_PHONE}`} dir="ltr">
@@ -258,16 +270,23 @@ const Checkout = () => {
       return;
     }
 
-    const callbackUrl = `${import.meta.env.VITE_PANEL_API_BASE || 'http://127.0.0.1:3001'}/api/payment/verify`;
     const description = `سفارش برنج — ${items.length} محصول — مجموع ${priceFmt(totalPrice)} تومان`;
+    // قیمت نهایی در سرور از روی همین اقلام دوباره محاسبه می‌شود.
+    const paymentItems = items.map((i) => ({
+      id: i.id,
+      slug: i.slug,
+      weight: i.weight?.value ?? null,
+      quantity: i.quantity,
+    }));
 
     try {
       const result = await requestPayment({
         amount: totalPrice,
-        callback_url: callbackUrl,
+        items: paymentItems,
         description,
         customer_name: name,
         customer_mobile: phone,
+        customer_address: address,
       });
 
       if (!result.ok || !result.authority) {
@@ -275,9 +294,9 @@ const Checkout = () => {
         return;
       }
 
-      // ذخیره-light سفارش در localStorage برای verbunden کردن بعد از بازگشت
+      // سفارش موقت مرورگر برای پیگیری/پشتیبانی بعد از بازگشت
       const order = {
-        id: crypto.randomUUID(),
+        id: result.orderId || crypto.randomUUID(),
         created_at: new Date().toISOString(),
         amount: totalPrice,
         authority: result.authority,

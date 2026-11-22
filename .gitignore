@@ -121,6 +121,9 @@ temp/
 # Panel debug logs
 panel-*.log
 
+# Panel runtime data (orders include customer info — never commit)
+panel/data/
+
 # تصاویر آپلودی پنل باید کامیت شوند (بخشی از سایت استاتیک هستند) —
 # بنابراین public/assets/products و public/assets/blog در gitignore نیستند.
 

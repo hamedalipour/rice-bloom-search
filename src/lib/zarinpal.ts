@@ -1,23 +1,27 @@
 /**
  * کلاینت اتصال به درگاه پرداخت زرین‌پال (ZarinPal).
  *
- * قبل از اجرا باید در فایل .env (راه‌اندازی توسعه) یا متغیرهای محیطی میزبانی
- * فعلی مقدارهای زیر را تنظیم کنید:
- *   VITE_ZARINPAL_MERCHANT_ID  → کدmercial گirit شده از زرین‌پال
- *   VITE_ZARINPAL_CALLBACK_URL → آدرس مسیر verify در سرور backend
- *   VITE_ZARINPAL_SANDBOX      → "true" برای محیط آزمایشی (پیش‌فرض true)
+ * متغیرهای build (Vite):
+ *   VITE_PANEL_API_BASE     → آدرس سرور API، مثلاً https://api.atre-shalizar.ir
+ *   VITE_ZARINPAL_SANDBOX   → "false" برای درگاه واقعی
  *
- * درخواست‌ها از طریق سرور backend (panel/server.cjs) ارسال می‌شود تا
- * Merchant Key یا کلید پنهان در مرورگر فاش نشود.
+ * Merchant ID فقط روی سرور (panel/server.cjs) نگهداری می‌شود و هرگز
+ * داخل باندل مرورگر قرار نمی‌گیرد.
  */
 
 export interface ZarinpalRequestInput {
-  amount: number;                 //TOMAN (زرین‌پال در این سایت بر اساس تومان محاسبه می‌شود)
-  callback_url: string;
+  amount: number;                 // مبلغ به تومان (سرور با currency=IRT ارسال می‌کند)
+  items: Array<{
+    id: string;
+    slug?: string;
+    weight?: string | null;
+    quantity: number;
+  }>;
   description: string;
   customer_name?: string;
   customer_email?: string;
   customer_mobile?: string;
+  customer_address?: string;
 }
 
 export interface ZarinpalRequestResponse {
@@ -26,6 +30,7 @@ export interface ZarinpalRequestResponse {
   url?: string;                   // لینک ادامه پرداخت در درگاه
   code?: number;
   message?: string;
+  orderId?: string;
 }
 
 export interface ZarinpalVerifyInput {
@@ -45,23 +50,20 @@ export interface ZarinpalVerifyResponse {
 }
 
 /**
- * آدرس پایه زرین‌پال (سندباکس یا اصلی) بر اساس متغیر محیطی.
+ * آدرس پایه API. در توسعه خالی است و Vite آن را به localhost:3001 پروکسی می‌کند؛
+ * در production باید VITE_PANEL_API_BASE=https://api.atre-shalizar.ir ست شود.
+ * هرگز نباید مقدار پیش‌فرض 127.0.0.1 داخل باندل production برود.
  */
-function baseUrl() {
-  const sandbox = import.meta.env.VITE_ZARINPAL_SANDBOX !== 'false';
-  return sandbox
-    ? 'https://sandbox.zarinpal.com/pg/v4/payment'
-    : 'https://api.zarinpal.com/pg/v4/payment';
-}
+const API_BASE = (import.meta.env.VITE_PANEL_API_BASE || '').replace(/\/+$/, '');
 
 /**
- * آدرس شروع پرداخت (StartPay) در درگاه زرین‌پال.
+ * آدرس شروع پرداخت (StartPay) — فقط به‌عنوان fallback اگر سرور url برنگرداند.
  */
 export function zarinpalStartUrl(authority: string): string {
   const sandbox = import.meta.env.VITE_ZARINPAL_SANDBOX !== 'false';
   return sandbox
     ? `https://sandbox.zarinpal.com/pg/StartPay/${authority}`
-    : `https://www.zarinpal.com/pg/StartPay/${authority}`;
+    : `https://payment.zarinpal.com/pg/StartPay/${authority}`;
 }
 
 /**
@@ -69,22 +71,33 @@ export function zarinpalStartUrl(authority: string): string {
  * سرور از Merchant Key استفاده می‌کند و authority را برمی‌گرداند.
  */
 export async function requestPayment(input: ZarinpalRequestInput): Promise<ZarinpalRequestResponse> {
-  const apiBase = import.meta.env.VITE_PANEL_API_BASE || 'http://127.0.0.1:3001';
-  const res = await fetch(`${apiBase}/api/payment/request`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(input),
-  });
-  const json = await res.json();
-  if (!json.ok) {
-    return { ok: false, code: json.code, message: json.message || 'خطا در ایجاد پرداخت' };
+  try {
+    const res = await fetch(`${API_BASE}/api/payment/request`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(input),
+    });
+    const json = await res.json().catch(() => ({}));
+    if (!res.ok || !json.ok) {
+      return {
+        ok: false,
+        code: json.code,
+        message: json.error || json.message || 'خطا در ایجاد پرداخت',
+      };
+    }
+    return {
+      ok: true,
+      authority: json.authority,
+      url: json.url,
+      message: json.message,
+      orderId: json.orderId,
+    };
+  } catch {
+    return {
+      ok: false,
+      message: 'اتصال به سرور پرداخت برقرار نشد. لطفاً دوباره تلاش کنید.',
+    };
   }
-  return {
-    ok: true,
-    authority: json.authority,
-    url: json.url,
-    message: json.message,
-  };
 }
 
 /**
@@ -92,26 +105,33 @@ export async function requestPayment(input: ZarinpalRequestInput): Promise<Zarin
  * این تابع از طریق backend صدا زده می‌شود (کلید Merchant remains سرور-side).
  */
 export async function verifyPayment(input: ZarinpalVerifyInput): Promise<ZarinpalVerifyResponse> {
-  const apiBase = import.meta.env.VITE_PANEL_API_BASE || 'http://127.0.0.1:3001';
-  const res = await fetch(`${apiBase}/api/payment/verify`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(input),
-  });
-  const json = await res.json();
-  if (!json.ok) {
-    return { ok: false, code: json.code, message: json.message || 'تایید پرداخت ناموفق بود' };
+  try {
+    const res = await fetch(`${API_BASE}/api/payment/verify`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(input),
+    });
+    const json = await res.json().catch(() => ({}));
+    if (!res.ok || !json.ok) {
+      return {
+        ok: false,
+        code: json.code,
+        message: json.error || json.message || 'تایید پرداخت ناموفق بود',
+      };
+    }
+    return {
+      ok: true,
+      code: json.code,
+      message: json.message,
+      ref_id: json.ref_id,
+      card_pan: json.card_pan,
+      card_hash: json.card_hash,
+      fee_type: json.fee_type,
+      fee: json.fee,
+    };
+  } catch {
+    return { ok: false, message: 'اتصال به سرور پرداخت برقرار نشد.' };
   }
-  return {
-    ok: true,
-    code: json.code,
-    message: json.message,
-    ref_id: json.ref_id,
-    card_pan: json.card_pan,
-    card_hash: json.card_hash,
-    fee_type: json.fee_type,
-    fee: json.fee,
-  };
 }
 
 /**
